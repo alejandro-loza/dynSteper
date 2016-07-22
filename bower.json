@@ -15,6 +15,7 @@
 	"components"
   ],
   "dependencies": {
-	"angular": "~1.0.6"
+	  "jquery": "~3.1.0",
+    "bootstrap" : "^3.3.5"
   }
 }

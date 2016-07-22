@@ -1,11 +1,30 @@
 <!doctype html>
-<html lang="en">
-	<head>
-	  <meta charset="UTF-8">
-	    <title>Example - example-example41-production</title>
-        <script src="index.js"></script>
-	</head>
-	<body >
-		<button type="button" onclick="alert('Hello world!')">Click Me!</button>
-	</body>
+<html lang="es">
+<head>
+	<meta charset="utf-8">
+	<title>Atención Ciudadana | Participa | gob.mx</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width">
+	<!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+	<link rel="shortcut icon" href="https://framework-gb.cdn.gob.mx/favicon.ico">
+	<link href="https://framework-gb.cdn.gob.mx/assets/styles/main.css" rel="stylesheet" type="text/css">
+	<title>Form Web Component</title>
+	<script src="index.js"></script>
+</head>
+<body >
+	<div class="row tramite-content" style="min-height: 400px;"> 
+		<div class="form-group col-md-7"> 
+			<button type="button" onclick="webComponent.init(5,2)">Click Me!</button>
+			<div id="container"></div>
+		</div>
+	</div>
+				<button type="button" onclick="alert(JSON.stringify(webComponent.formValues))">model!</button>
+				<button type="button" onclick="alert(JSON.stringify(webComponent.responseFields))">responseFields!</button>
+				<button type="button" onclick="alert(JSON.stringify(webComponent.isValidForm()))">valid?</button>
+
+
+	<script src="bower_components/jQuery/dist/jquery.min.js"></script>
+	<script src="https://framework-gb.cdn.gob.mx/gobmx.js"></script>    
+
+</body>
 </html>
