@@ -1,13 +1,28 @@
 webComponent = {
 	formValues : [],	
 	responseFields: [],
-	isValidForm: function(){
-		var controller = this;
-		var filter ;
-		filter = $.grep(webComponent.formValues, function(e){ return e.required === true; }); 
-		return filter;
+	errorFields: [],
+
+	_isValidForm: function(){
+       isFullRequired();
+  
+
+		function isFullRequired(){
+			var requiredFields ;
+			requiredFields = $.grep(webComponent.formValues, function(e){ return e.required === true; }); 
+        	$.each( requiredFields , function( index, field ) {
+				var search = $.grep(webComponent.responseFields, function(e){ return e.name === field.name; });
+				if(search.length === 0){
+					webComponent.errorFields.push(field);
+				}
+				else{
+					return true;	
+				}
+			});
+		};		
 	},
-	init: function (entidad, tipoPago) {
+
+	main: function (entidad, tipoPago) {
 		var controller = this;
 		$.ajax({
 			//url: 'http://10.15.3.31:3000/vun/actas_nacimiento/findOne?filter={"where":{"id_estado":"'+entidad+'","id_tipo_pago":'+ tipoPago +'}}',
@@ -41,6 +56,7 @@ webComponent = {
 						var div = getOrCreateDiv(id, field.class);
 						getOrCreateLabel(div,id, field.label);
 						getOrCreateTextInput(div,id, field);
+						addHelperBlock(div);
 						break;
 					default: 
 						alert('Default case');
@@ -80,7 +96,8 @@ webComponent = {
 				input.focusout(
 					function(){
 						if(field.required && $(this).val().length === 0 ){
-							alert("no valido");
+							alert("requerido " + field.name);
+							addErrorClass(id);
 						}
 						else if (field.regex && webComponent.evaluateValueInRegex($(this).val(), field.regex) ){
 							alert("regex no valido");
@@ -95,6 +112,18 @@ webComponent = {
 			}
 			return input;
 		};
+
+		function addHelperBlock (div) {
+			var helper = $('<span class="help-block"></span>');
+			div.append(helper);
+		};
+
+		function addErrorClass(fieldId){
+			var htmlInputField = $( '#'+fieldId );
+			htmlInputField.parent().addClass( 'has-error' );
+            $( '.help-block', htmlInputField.parent() ).html( "Verifique este campo" ).slideDown();
+		};	
+
 
 		function validateFieldsClass(item){
 			var re = /form-control/gi;

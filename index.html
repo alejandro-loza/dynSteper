@@ -14,13 +14,15 @@
 <body >
 	<div class="row tramite-content" style="min-height: 400px;"> 
 		<div class="form-group col-md-7"> 
-			<button type="button" onclick="webComponent.init(5,2)">Click Me!</button>
+			<button type="button" onclick="webComponent.main(5,2)">Click Me!</button>
 			<div id="container"></div>
 		</div>
 	</div>
-				<button type="button" onclick="alert(JSON.stringify(webComponent.formValues))">model!</button>
-				<button type="button" onclick="alert(JSON.stringify(webComponent.responseFields))">responseFields!</button>
-				<button type="button" onclick="alert(JSON.stringify(webComponent.isValidForm()))">valid?</button>
+	<button type="button" onclick="alert(JSON.stringify(webComponent.formValues))">model!</button>
+	<button type="button" onclick="alert(JSON.stringify(webComponent.responseFields))">responseFields!</button>
+	<button type="button" onclick="webComponent._isValidForm() ">valid?</button>
+	<button type="button" onclick="alert(JSON.stringify(webComponent.errorFields))">errorFeilds?</button>
+
 
 
 	<script src="bower_components/jQuery/dist/jquery.min.js"></script>
