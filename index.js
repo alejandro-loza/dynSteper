@@ -2,10 +2,11 @@ webComponent = {
 	_formValues : [],	
 	errorFields: [],
 	invalidFields : [],
+    canvas:'',
 
     _getAllValues:function() {
 		var inputValues = [];
-		$('#container input').each(function() {
+		$('#' + webComponent.canvas +' input').each(function() {
 			inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  , response: $(this).val() });
 		})
 		return inputValues;
@@ -20,7 +21,6 @@ webComponent = {
 			var requiredFields  = $.grep(webComponent._formValues, function(e){ return e.required === true; }); 
 			$.each( requiredFields , function( index, field ) {
 				var search = $.grep(webComponent._getAllValues(), function(e){ return e.name === field.name; });
-				alert("search:" + JSON.stringify(search));				
 				if(search.length === 0){
 					webComponent.errorFields.push(field);
 				}				
@@ -82,7 +82,8 @@ webComponent = {
 		});
 	},
 
-	_render: function (){
+	_render: function (container){
+        webComponent.canvas = container;
 		$.each( webComponent._formValues, function( index, field ) {
 			validateFieldsClass(field);
 			switch(field.type) {					
@@ -106,7 +107,7 @@ webComponent = {
 				div = $('<div/>')
 				div.attr("id", id + "div")
 				div.addClass(clazz);
-				$("#container").append(div);
+				$("#" + webComponent.canvas).append(div);
 			}
 			return div;
 		};
