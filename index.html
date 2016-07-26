@@ -14,16 +14,17 @@
 <body >
 	<div class="row tramite-content" style="min-height: 400px;"> 
 		<div class="form-group col-md-7"> 
-			<button type="button" onclick="webComponent.main(5,2)">Click Me!</button>
+			<button type="button" onclick="webComponent.main(5,2)">Busca Campos</button>
+		    <button type="button" onclick="webComponent._render()">Imprime campos</button>
+
 			<div id="container"></div>
 		</div>
 	</div>
-	<button type="button" onclick="alert(JSON.stringify(webComponent.formValues))">model!</button>
-	<button type="button" onclick="alert(JSON.stringify(webComponent.responseFields))">responseFields!</button>
-	<button type="button" onclick="webComponent._isValidForm() ">valid?</button>
-	<button type="button" onclick="alert(JSON.stringify(webComponent.errorFields))">errorFeilds?</button>
-
-
+	<button type="button" onclick="alert(JSON.stringify(webComponent._formValues))">model to render</button>
+	<button type="button" onclick="alert(JSON.stringify(webComponent._getAllValues() ))">responseFields!</button>
+	<button type="button" onclick="alert(JSON.stringify(webComponent._isValidForm() ))">valid?</button>
+	<button type="button" onclick="alert(JSON.stringify(webComponent.errorFields))">errorFilds?</button>
+	<button type="button" onclick="alert(JSON.stringify(webComponent.invalidFields))">InvalidFields?</button>
 
 	<script src="bower_components/jQuery/dist/jquery.min.js"></script>
 	<script src="https://framework-gb.cdn.gob.mx/gobmx.js"></script>    
