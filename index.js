@@ -1,5 +1,5 @@
 webComponent = {
-	_formValues : [],	
+	_formValues : [],
 	errorFields: [],
 	invalidFields : [],
     canvas:'',
@@ -23,11 +23,11 @@ webComponent = {
 				var search = $.grep(webComponent._getAllValues(), function(e){ return e.name === field.name; });
 				if(search.length === 0){
 					webComponent.errorFields.push(field);
-				}				
+				}
 			});
 			if(webComponent.errorFields.length !== 0){
 				$.each(webComponent.errorFields, function(index,field){
-					webComponent._addErrorClass(field.id);	
+					webComponent._addErrorClass(field.id);
 				})
 				return false;
 			}
@@ -43,11 +43,11 @@ webComponent = {
 				var findField  = $.grep(webComponent._getAllValues(), function(el){ return el.name = field.name });
 				if(findField[0].response.length > 0 && !webComponent._evaluateValueInRegex(findField[0].response, field.regex)){
 					webComponent.invalidFields.push(findField);
-				} 				             
+				}
 			});
 			if(webComponent.invalidFields.length !== 0){
 				$.each(webComponent.errorFields, function(index,field){
-					webComponent._addErrorClass(field.id);	
+					webComponent._addErrorClass(field.id);
 				})
 				return false;
 			}
@@ -57,17 +57,17 @@ webComponent = {
 		};
 	},
 
-	main: function (entidad, tipoPago) {	
+	main: function (entidad, tipoPago) {
 		var controller = this;
 		$.ajax({
-			//url: 'http://10.15.3.31:3000/vun/actas_nacimiento/findOne?filter={"where":{"id_estado":"'+entidad+'","id_tipo_pago":'+ tipoPago +'}}',
-			url:'http://localhost:1337/options/1',
+			url: 'http://10.15.3.31:3000/vun/actas_nacimiento/findOne?filter={"where":{"id_estado":"'+entidad+'","id_tipo_pago":'+ tipoPago +'}}',
+			//url:'http://localhost:1337/options/1',
 			type: 'GET',
 			dataType: 'json',
 			contentType: 'application/json; charset=UTF-8;',
 		}).done(function(entityFields) {
 			if(entityFields.PagoEnLinea){
-				controller._formValues = entityFields.PagoEnLinea; 
+				controller._formValues = entityFields.PagoEnLinea;
 			}
 			else if (entityFields.PagoReferenciado){
 				controller._formValues = entityFields.PagoReferenciado ;
@@ -86,7 +86,7 @@ webComponent = {
         webComponent.canvas = container;
 		$.each( webComponent._formValues, function( index, field ) {
 			validateFieldsClass(field);
-			switch(field.type) {					
+			switch(field.type) {
 				case "text":
 				var id = field.name + index;
 				field["id"] = id;
