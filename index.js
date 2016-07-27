@@ -61,7 +61,7 @@ webComponent = {
 		var controller = this;
 		$.ajax({
 			async: false,
-			url: 'http://10.15.3.31:3000/vun/actas_nacimiento/findOne?filter={"where":{"id_estado":"'+entidad+'","id_tipo_pago":'+ tipoPago +'}}',
+			url: 'http://10.20.58.9/vun/actas_nacimiento/findOne?filter={"where":{"id_estado":"'+entidad+'","id_tipo_pago":'+ tipoPago +'}}',
 					//url:'http://localhost:1337/options/1',
 					'async': false,
 					type: 'GET',
@@ -82,7 +82,7 @@ webComponent = {
 					},
 					complete: function(){
 					}
-					
+
 				});
 		return controller._formValues;
 	},
