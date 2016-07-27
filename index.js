@@ -2,9 +2,9 @@ webComponent = {
 	_formValues : [],
 	errorFields: [],
 	invalidFields : [],
-    canvas:'',
+	canvas:'',
 
-    _getAllValues:function() {
+	_getAllValues:function() {
 		var inputValues = [];
 		$('#' + webComponent.canvas +' input').each(function() {
 			inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  , response: $(this).val() });
@@ -60,30 +60,35 @@ webComponent = {
 	main: function (entidad, tipoPago) {
 		var controller = this;
 		$.ajax({
+			async: false,
 			url: 'http://10.15.3.31:3000/vun/actas_nacimiento/findOne?filter={"where":{"id_estado":"'+entidad+'","id_tipo_pago":'+ tipoPago +'}}',
-			//url:'http://localhost:1337/options/1',
-			type: 'GET',
-			dataType: 'json',
-			contentType: 'application/json; charset=UTF-8;',
-		}).done(function(entityFields) {
-			if(entityFields.PagoEnLinea){
-				controller._formValues = entityFields.PagoEnLinea;
-			}
-			else if (entityFields.PagoReferenciado){
-				controller._formValues = entityFields.PagoReferenciado ;
-			}
-			else{
-				alert("No existen campos")
-			}
-			//render( controller._formValues );
-		})
-		.fail(function(e) {
-			alert(JSON.stringify(e));
-		});
+					//url:'http://localhost:1337/options/1',
+					'async': false,
+					type: 'GET',
+					dataType: 'json',
+					contentType: 'application/json; charset=UTF-8;',
+					success: function(entityFields){
+						if(entityFields.PagoEnLinea){
+							controller._formValues = entityFields.PagoEnLinea;
+						}
+						else if (entityFields.PagoReferenciado){
+							controller._formValues = entityFields.PagoReferenciado ;
+						}
+						else{
+							alert("No existen campos")
+						}
+					},
+					error: function(){
+					},
+					complete: function(){
+					}
+					
+				});
+		return controller._formValues;
 	},
 
 	_render: function (container){
-        webComponent.canvas = container;
+		webComponent.canvas = container;
 		$.each( webComponent._formValues, function( index, field ) {
 			validateFieldsClass(field);
 			switch(field.type) {
