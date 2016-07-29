@@ -3,10 +3,14 @@ webComponent = {
 	errorFields: [],
 	invalidFields : [],
 	canvas:'',
+	error:'',
 
 	_getAllValues:function() {
 		var inputValues = [];
-		$('#' + webComponent.canvas +' input').each(function() {
+		$('#' + webComponent.canvas +' input[type="text"]').each(function() {
+			inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  , response: $(this).val() });
+		})
+		$('#' + webComponent.canvas +' input:checked').each(function() {
 			inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  , response: $(this).val() });
 		})
 		return inputValues;
@@ -60,30 +64,32 @@ webComponent = {
 	main: function (entidad, tipoPago) {
 		var controller = this;
 		$.ajax({
-			async: false,
-			url: 'http://10.20.58.9/vun/actas_nacimiento/findOne?filter={"where":{"id_estado":"'+entidad+'","id_tipo_pago":'+ tipoPago +'}}',
-					//url:'http://localhost:1337/options/1',
-					'async': false,
-					type: 'GET',
-					dataType: 'json',
-					contentType: 'application/json; charset=UTF-8;',
-					success: function(entityFields){
-						if(entityFields.PagoEnLinea){
-							controller._formValues = entityFields.PagoEnLinea;
-						}
-						else if (entityFields.PagoReferenciado){
-							controller._formValues = entityFields.PagoReferenciado ;
-						}
-						else{
-							alert("No existen campos")
-						}
-					},
-					error: function(){
-					},
-					complete: function(){
-					}
+			//url: 'http://10.15.3.31:3000/vun/actas_nacimiento/findOne?filter={"where":{"id_estado":"'+entidad+'","id_tipo_pago":'+ tipoPago +'}}',
+			url:'http://localhost:1337/options/1',
+			'async': false,
+			type: 'GET',
+			dataType: 'json',
+			contentType: 'application/json; charset=UTF-8;',
+			success: function(entityFields){
+				if(entityFields.PagoEnLinea){
+					controller._formValues = entityFields.PagoEnLinea;
+				}
+				else if (entityFields.PagoReferenciado){
+					controller._formValues = entityFields.PagoReferenciado ;
+				}
+				else{
 
-				});
+				}
+			},
+			error: function(e){
+				if(e.status === 404){
+					webComponent.error = e.status;
+				}
+			},
+			complete: function(){
+			}
+
+		});
 		return controller._formValues;
 	},
 
@@ -93,18 +99,35 @@ webComponent = {
 			validateFieldsClass(field);
 			switch(field.type) {
 				case "text":
+				createTextInput(field, index);
+				break;
+				case "radio-group":
 				var id = field.name + index;
 				field["id"] = id;
 				var div = getOrCreateDiv(id, field.class);
-				getOrCreateLabel(div,id, field.label);
-				getOrCreateTextInput(div,id, field);
-				addHelperBlock(div);
+				var label = getOrCreateLabel(div,id, field.label);
+				getOrCreateRadioGroupInput(div, id,  field);
+				break;
+				case "checkbox-group":
+				var id = field.name + index;
+				field["id"] = id;
+				var div = getOrCreateDiv(id, field.class);
+				var label = getOrCreateLabel(div,id, field.label);
+				getOrCreateCheckBoxGroupInput(div, id,  field);
 				break;
 				default: 
 				alert('Default case');
 			}
 		});
 
+		function createTextInput(field, index){
+			var id = field.name + index;
+			field["id"] = id;
+			var div = getOrCreateDiv(id, field.class);
+			getOrCreateLabel(div,id, field.label);
+			getOrCreateTextInput(div,id, field);
+			addHelperBlock(div);
+		};
 
 		function getOrCreateDiv(id, clazz){
 			var div = $("#" + id + "div");
@@ -153,6 +176,30 @@ webComponent = {
 			return input;
 		};
 
+		function getOrCreateRadioGroupInput(div, id, field){
+
+			$.each( field.option , function( index, opt ) {
+				var divRadio = $("#" + id + index);
+				if(divRadio.length === 0){
+					divRadio = $('<div/>')
+					divRadio.attr("id", id + index)
+					divRadio.addClass("radio row clearfix");
+					var lab = $("<label/>").html("<input  type='radio' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
+					lab.appendTo($(divRadio))
+					divRadio.appendTo(div);
+				}
+			});			
+		};
+
+		function getOrCreateCheckBoxGroupInput(div, id, field){
+			$.each( field.option , function( index, opt ) {
+				var divCheck = $("<div/>").addClass("checkbox row");
+				var lab = $("<label/>").html("<input  type='checkbox' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
+				lab.appendTo($(divCheck))
+				divCheck.appendTo(div);
+			});			
+		};
+
 		function addHelperBlock (div) {
 			var helper = $('<span class="help-block"></span>');
 			div.append(helper);
@@ -195,6 +242,7 @@ webComponent = {
 			htmlInputField.parent().addClass( 'has-error' );
 			$( '.help-block', htmlInputField.parent() ).html( failMessage).slideDown();
 		},
+
 		_removeErrorClass : function (fieldId){	
 			var htmlInputField = $( '#'+fieldId );	
 			htmlInputField.parent().removeClass( 'has-error' );
