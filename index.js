@@ -4,6 +4,7 @@ webComponent = {
 	invalidFields : [],
 	canvas:'',
 	error:'',
+	selected: [],
 
 	_getAllValues:function() {
 		var inputValues = [];
@@ -61,25 +62,16 @@ webComponent = {
 		};
 	},
 
-	main: function (entidad, tipoPago) {
+	main: function (url) {
 		var controller = this;
 		$.ajax({
-			//url: 'http://10.15.3.31:3000/vun/actas_nacimiento/findOne?filter={"where":{"id_estado":"'+entidad+'","id_tipo_pago":'+ tipoPago +'}}',
-			url:'http://localhost:1337/options/1',
+			url:url,
 			'async': false,
 			type: 'GET',
 			dataType: 'json',
 			contentType: 'application/json; charset=UTF-8;',
-			success: function(entityFields){
-				if(entityFields.PagoEnLinea){
-					controller._formValues = entityFields.PagoEnLinea;
-				}
-				else if (entityFields.PagoReferenciado){
-					controller._formValues = entityFields.PagoReferenciado ;
-				}
-				else{
-
-				}
+			success: function(fields){
+				controller._formValues = fields.fields ;				
 			},
 			error: function(e){
 				if(e.status === 404){
@@ -95,6 +87,7 @@ webComponent = {
 
 	_render: function (container){
 		webComponent.canvas = container;
+		var controller = this;
 		$.each( webComponent._formValues, function( index, field ) {
 			validateFieldsClass(field);
 			switch(field.type) {
@@ -102,18 +95,13 @@ webComponent = {
 				createTextInput(field, index);
 				break;
 				case "radio-group":
-				var id = field.name + index;
-				field["id"] = id;
-				var div = getOrCreateDiv(id, field.class);
-				var label = getOrCreateLabel(div,id, field.label);
-				getOrCreateRadioGroupInput(div, id,  field);
+				createRadioGroup(field,index);
 				break;
 				case "checkbox-group":
-				var id = field.name + index;
-				field["id"] = id;
-				var div = getOrCreateDiv(id, field.class);
-				var label = getOrCreateLabel(div,id, field.label);
-				getOrCreateCheckBoxGroupInput(div, id,  field);
+				createCheckBoxGroup(field,index);		
+				break;
+				case "select":
+				createSelect(field,index);		
 				break;
 				default: 
 				alert('Default case');
@@ -127,6 +115,36 @@ webComponent = {
 			getOrCreateLabel(div,id, field.label);
 			getOrCreateTextInput(div,id, field);
 			addHelperBlock(div);
+		};
+		function createRadioGroup(field, index){
+			var id = field.name + index;
+			field["id"] = id;
+			var div = getOrCreateDiv(id, field.class);
+			getOrCreateLabel(div,id, field.label);
+			getOrCreateRadioGroupInput(div, id,  field);
+			addHelperBlock(div);
+		};
+		function createCheckBoxGroup(field,index){
+			var id = field.name + index;
+			field["id"] = id;
+			var div = getOrCreateDiv(id, field.class);
+			getOrCreateLabel(div,id, field.label);
+			getOrCreateCheckBoxGroupInput(div, id,  field);
+			addHelperBlock(div);
+		};
+		function createSelect(field, index){
+			var length = webComponent.selected.length;
+			if(length === 0){
+				webComponent.selected.push({"options": field.options, "selected":''});
+			}
+			for(var f = 1; f <= webComponent.selected.length; f++){
+				var id = field.name + index;
+				field["id"] = id;
+				var div = getOrCreateDiv(id, field.class);
+				getOrCreateLabel(div,id, field.label);
+		        var select =getOrCreateSelect(div, id, field, f);
+		        populateSelect(select,f, field);
+            }
 		};
 
 		function getOrCreateDiv(id, clazz){
@@ -149,67 +167,126 @@ webComponent = {
 			return label;
 		};
 
-		function getOrCreateTextInput(div, id, field){
-			var input = $("#" + id );
-			if(input.length === 0){
-				input = $("<input/>");
-				input.attr("id", id )
-				input.addClass('form-control')
-				input.attr("type", field.subtype)
-				input.attr("name", field.name)
-				input.attr("placeholder", unescapeHtml(field.placeholder))
-				input.attr("maxlength", field.maxlength) 
-				input.focusout(	function(){
-					if(field.required && $(this).val().length === 0 ){
-						webComponent._addErrorClass(id,"required");
-					}
-					else if (field.regex && $(this).val().length > 0 && !webComponent._evaluateValueInRegex($(this).val(), field.regex) ){
-						webComponent._addErrorClass(id,"invalid");
-					}
-					else{
-						webComponent._removeErrorClass(id);						
-						//webComponent.responseFields.push({ idField: id, name: field.name, response: $(this).val() })
-					}				        
-				});
-				div.append(input);
-			}
-			return input;
-		};
+		function getOrCreateSelect(div, id, field, index){
+	        // Try get the select box if it exists
+	        var select = $("#" + id ); 
+	        if(select.length === 0){
+	          // Create select box
+	        	select = $("<select class='form-control' id='" + id + "' ></select>");
 
-		function getOrCreateRadioGroupInput(div, id, field){
+	          // Action to take if select is changed. State is made available through evt.data
+	        	select.on("change", { controller: controller, index: index }, function(evt){
+	            // Restore the state
+		            var controller = evt.data.controller;
+		            var index = evt.data.index;
+		            var selected = webComponent.selected;
+		            // The selected field
+		            var selectedFieldName = $(this).val();
+		            // Update the selected
+		            selected = selected.slice(0, index );
+		            var selectedOptionModel = setModelNameFromFieldName(selectedFieldName, index -1);
+		            alert("selectedOptionModel" + JSON.stringify(selectedOptionModel));
+		            if(selectedOptionModel){
+		            	if (selectedOptionModel.options){
+		            		controller.lastCount = controller.lastCount + 1;
+		            		selected.push({"options":selectedOptionModel.options,"selected":''} );
+		            	}
+		            }
+	                //controller.set("selected", selected);
+	                webComponent.selected = selected;
+	        	});
+	          div.append(select);
+	        }
+	        return select;
+	    };
+	    // Add the options to the select box
+        function populateSelect(select, index, field){
+	        select.html("");
+	        select.append($("<option value='' >------</option>"));
+	        var options =  webComponent.selected[index-1]["options"] 
+		 	 // Current selected
+            var currentSelectedIndex = webComponent.selected[index-1]["selected"];
+	        // Add the options to the select box
+	        $.each( options , function( index, opt ) {
+	        	if(index === currentSelectedIndex){
+                    select.append($("<option  selected >" + opt.text + "</option>"));
+	        	}
+	        	else{
+	        	    select.append($("<option >" + opt.text + "</option>"));
+	        	}
+	        });
+        };
 
-			$.each( field.option , function( index, opt ) {
-				var divRadio = $("#" + id + index);
-				if(divRadio.length === 0){
-					divRadio = $('<div/>')
-					divRadio.attr("id", id + index)
-					divRadio.addClass("radio row clearfix");
-					var lab = $("<label/>").html("<input  type='radio' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
-					lab.appendTo($(divRadio))
-					divRadio.appendTo(div);
-				}
-			});			
-		};
+        function setModelNameFromFieldName(fieldName,selectedIndex){
+          var selectOptions = webComponent.selected[selectedIndex]["options"];
+          if(fieldName){
+            var optionModel =  $.grep(selectOptions, function(e){ return e.text === fieldName; });          
+            webComponent.selected[selectedIndex]["selected"] = selectOptions.indexOf(optionModel[0]);
+            return optionModel[0];
+          }else{
+          	 webComponent.selected[selectedIndex]["selected"] = -1;
+          }
+	  };
 
-		function getOrCreateCheckBoxGroupInput(div, id, field){
-			$.each( field.option , function( index, opt ) {
-				var divCheck = $("<div/>").addClass("checkbox row");
-				var lab = $("<label/>").html("<input  type='checkbox' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
-				lab.appendTo($(divCheck))
-				divCheck.appendTo(div);
-			});			
-		};
+	  function getOrCreateTextInput(div, id, field){
+	  	var input = $("#" + id );
+	  	if(input.length === 0){
+	  		input = $("<input/>");
+	  		input.attr("id", id )
+	  		input.addClass('form-control')
+	  		input.attr("type", field.subtype)
+	  		input.attr("name", field.name)
+	  		input.attr("placeholder", unescapeHtml(field.placeholder))
+	  		input.attr("maxlength", field.maxlength) 
+	  		input.focusout(	function(){
+	  			if(field.required && $(this).val().length === 0 ){
+	  				webComponent._addErrorClass(id,"required");
+	  			}
+	  			else if (field.regex && $(this).val().length > 0 && !webComponent._evaluateValueInRegex($(this).val(), field.regex) ){
+	  				webComponent._addErrorClass(id,"invalid");
+	  			}
+	  			else{
+	  				webComponent._removeErrorClass(id);						
+				}				        
+			});
+	  		div.append(input);
+	  	}
+	  	return input;
+	  };
 
-		function addHelperBlock (div) {
-			var helper = $('<span class="help-block"></span>');
-			div.append(helper);
-		};
+	  function getOrCreateRadioGroupInput(div, id, field){
+	  	$.each( field.option , function( index, opt ) {
+	  		var divRadio = $("#" + id + index);
+	  		if(divRadio.length === 0){
+	  			divRadio = $('<div/>')
+	  			divRadio.attr("id", id + index)
+	  			divRadio.addClass("radio row clearfix");
+	  			var lab = $("<label/>").html("<input  type='radio' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
+	  			lab.appendTo($(divRadio))
+	  			divRadio.appendTo(div);
+	  		}
+	  	});			
+	  };
 
-		function validateFieldsClass(item){
+	  function getOrCreateCheckBoxGroupInput(div, id, field){
+	  	$.each( field.option , function( index, opt ) {
+	  		var divCheck = $("<div/>").addClass("checkbox row");
+	  		var lab = $("<label/>").html("<input  type='checkbox' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
+	  		lab.appendTo($(divCheck))
+	  		divCheck.appendTo(div);
+	  	});			
+	  };
 
-			var re = /form-control/gi;
-			item.class = item.class.replace(re, "").split(" ").join(' ');
-			item.placeholder = item.placeholder || "";
+	  function addHelperBlock (div) {
+	  	var helper = $('<span class="help-block"></span>');
+	  	div.append(helper);
+	  };
+
+	  function validateFieldsClass(item){
+
+	  	var re = /form-control/gi;
+	  	item.class = item.class.replace(re, "").split(" ").join(' ');
+	  	item.placeholder = item.placeholder || "";
 			//item.placeholder = unescapeHtml(item.placeholder);
 			if(item.required){
 				item.class = item.class.concat(" required");
@@ -243,11 +320,10 @@ webComponent = {
 			$( '.help-block', htmlInputField.parent() ).html( failMessage).slideDown();
 		},
 
-		_removeErrorClass : function (fieldId){	
-			var htmlInputField = $( '#'+fieldId );	
-			htmlInputField.parent().removeClass( 'has-error' );
-			$( '.help-block', htmlInputField.parent()  ).slideUp().html( '' );
-		}
-
-
+	_removeErrorClass : function (fieldId){	
+		var htmlInputField = $( '#'+fieldId );	
+		htmlInputField.parent().removeClass( 'has-error' );
+		$( '.help-block', htmlInputField.parent()  ).slideUp().html( '' );
 	}
+
+}
