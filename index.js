@@ -70,16 +70,8 @@ webComponent = {
 			type: 'GET',
 			dataType: 'json',
 			contentType: 'application/json; charset=UTF-8;',
-			success: function(entityFields){
-				if(entityFields.PagoEnLinea){
-					controller._formValues = entityFields.PagoEnLinea;
-				}
-				else if (entityFields.PagoReferenciado){
-					controller._formValues = entityFields.PagoReferenciado ;
-				}
-				else{
-
-				}
+			success: function(entityFields){				
+				controller._formValues = entityFields.fields;				
 			},
 			error: function(e){
 				if(e.status === 404){
