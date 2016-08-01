@@ -108,7 +108,7 @@ webComponent = {
 				getOrCreateCheckBoxGroupInput(div, id,  field);
 				break;
 				default: 
-				alert('Default case');
+				//alert('Default case');
 			}
 		});
 
