@@ -64,8 +64,6 @@ webComponent = {
 	main: function (url) {
 		var controller = this;
 		$.ajax({
-			//url: 'http://10.15.3.31:3000/vun/actas_nacimiento/findOne?filter={"where":{"id_estado":"'+entidad+'","id_tipo_pago":'+ tipoPago +'}}',
-			//url:'http://localhost:1337/options/1',
 			url: url,
 			'async': false,
 			type: 'GET',
@@ -95,6 +93,7 @@ webComponent = {
 	},
 
 	_render: function (container){
+		$("#" + container).html("");
 		webComponent.canvas = container;
 		$.each( webComponent._formValues, function( index, field ) {
 			validateFieldsClass(field);
