@@ -206,13 +206,15 @@ webComponent = {
 		};
 
 		function validateFieldsClass(item){
-
 			var re = /form-control/gi;
 			item.class = item.class.replace(re, "").split(" ").join(' ');
 			item.placeholder = item.placeholder || "";
 			//item.placeholder = unescapeHtml(item.placeholder);
 			if(item.required){
 				item.class = item.class.concat(" required");
+			}
+			if(item.option){
+				item.option = $.parseJSON(item.option);
 			}
 			return item;
 		};
