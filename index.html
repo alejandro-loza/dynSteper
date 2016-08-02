@@ -79,7 +79,9 @@
 			search: function(){
 				var estado = $("#estados");
 				var pago = $("#payment");
-				var form = webComponent.main('http://10.15.3.31:3000/vun/actas_nacimiento/findOne?filter={"where":{"id_estado":"'+ estado +'","id_tipo_pago":'+ pago +'}}');
+				alert(estado);
+				alert(pago);
+				var form = webComponent.main('http://10.15.3.31:3000/vun/actas_nacimiento/findOne?filter={"where":{"id_estado":"'+ estado.val() +'","id_tipo_pago":'+ pago.val() +'}}');
 				if(form){
                   webComponent._render('container');
 				}else{

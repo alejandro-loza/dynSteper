@@ -61,17 +61,26 @@ webComponent = {
 		};
 	},
 
-	main: function (entidad, tipoPago) {
+	main: function (url) {
 		var controller = this;
 		$.ajax({
 			//url: 'http://10.15.3.31:3000/vun/actas_nacimiento/findOne?filter={"where":{"id_estado":"'+entidad+'","id_tipo_pago":'+ tipoPago +'}}',
-			url:'http://localhost:1337/options/1',
+			//url:'http://localhost:1337/options/1',
+			url: url,
 			'async': false,
 			type: 'GET',
 			dataType: 'json',
 			contentType: 'application/json; charset=UTF-8;',
-			success: function(entityFields){				
-				controller._formValues = entityFields.fields;				
+			success: function(entityFields){
+				if(entityFields.PagoEnLinea){
+					controller._formValues = entityFields.PagoEnLinea;
+				}
+				else if (entityFields.PagoReferenciado){
+					controller._formValues = entityFields.PagoReferenciado ;
+				}
+				else{
+                   controller._formValues = entityFields.fields ;
+				}
 			},
 			error: function(e){
 				if(e.status === 404){
