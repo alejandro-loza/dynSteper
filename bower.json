@@ -3,7 +3,7 @@
   "authors": [
     "pinky <orochi_alex@hotmail.com>"
   ],
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "dynamic form",
   "main": "index.js",
   "license": "MIT",
