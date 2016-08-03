@@ -3,6 +3,7 @@ webComponent = {
 	errorFields: [],
 	invalidFields : [],
 	canvas:'',
+	lastCount: 1,
 	error:'',
 	selected: [],
 
@@ -133,25 +134,33 @@ webComponent = {
 			addHelperBlock(div);
 		};
 		function createSelect(field, index){
-			var length = webComponent.selected.length;
-			if(length === 0){
-				webComponent.selected.push({"options": field.options, "selected":''});
+			if(webComponent.selected.length === 0){
+				webComponent.selected.push({"options": field.values, "selected":''});
 			}
-			for(var f = 1; f <= webComponent.selected.length; f++){
-				var id = field.name + index;
+			var length = webComponent.selected.length;			
+			//for(var f = 0; f < webComponent.selected.length; f++){
+			//$.each(webComponent.selected, function(f,selection){
+		  	if(webComponent.lastCount > length ){	
+		    	for(var i=length -1; i <= webComponent.lastCount; i++){
+		     		$("#div-" + field.name + "-"+i).remove();
+		    	}
+		    	webComponent.lastCount = length;
+			}
+		 	$.each(webComponent.selected, function(f,selection){
+				var id = field.name + "-" + f;
 				field["id"] = id;
 				var div = getOrCreateDiv(id, field.class);
-				getOrCreateLabel(div,id, field.label);
+				getOrCreateLabel(div,id, selection.options[0].label);
 		        var select =getOrCreateSelect(div, id, field, f);
-		        populateSelect(select,f, field);
-            }
+		        populateSelect(select,f, selection);
+            });
 		};
 
 		function getOrCreateDiv(id, clazz){
-			var div = $("#" + id + "div");
+			var div = $("#div-" + id );
 			if(div.length === 0){
 				div = $('<div/>')
-				div.attr("id", id + "div")
+				div.attr("id", "div-" + id)
 				div.addClass(clazz);
 				$("#" + webComponent.canvas).append(div);
 			}
@@ -159,68 +168,73 @@ webComponent = {
 		};
 
 		function getOrCreateLabel(div, id, label){
-			var labelObject = $("#" + id + "_label");
+			var labelObject = $("#label-" + id );
 			if(labelObject.length === 0){
-				labelObject = $("<label class='control-label' id='" + id + "_label' for = "+ id + '_input' +" >"+ label + "</label>");
+				labelObject = $("<label class='control-label' id='label-"+ id +"' for = "+ id + '_input' +" >"+ label + "</label>");
 				div.append(labelObject);
 			}
 			return label;
 		};
 
-		function getOrCreateSelect(div, id, field, index){
+		function getOrCreateSelect (div , id, field, idx){
+	        // Determine the id of the select box
+	        id = id + "_" + idx;
 	        // Try get the select box if it exists
-	        var select = $("#" + id ); 
+	        var select = $("#select-" + id ); 
 	        if(select.length === 0){
 	          // Create select box
-	        	select = $("<select class='form-control' id='" + id + "' ></select>");
+	          select = $("<select class='form-control' id='select-" + id + "'></select>");
 
 	          // Action to take if select is changed. State is made available through evt.data
-	        	select.on("change", { controller: controller, index: index }, function(evt){
+	          select.on("change", { controller: controller, index: idx }, function(evt){
 	            // Restore the state
-		            var controller = evt.data.controller;
-		            var index = evt.data.index;
-		            var selected = webComponent.selected;
-		            // The selected field
-		            var selectedFieldName = $(this).val();
-		            // Update the selected
-		            selected = selected.slice(0, index );
-		            var selectedOptionModel = setModelNameFromFieldName(selectedFieldName, index -1);
-		            alert("selectedOptionModel" + JSON.stringify(selectedOptionModel));
-		            if(selectedOptionModel){
-		            	if (selectedOptionModel.options){
-		            		controller.lastCount = controller.lastCount + 1;
-		            		selected.push({"options":selectedOptionModel.options,"selected":''} );
-		            	}
-		            }
-	                //controller.set("selected", selected);
-	                webComponent.selected = selected;
-	        	});
+	            var controller = evt.data.controller;
+	            var index = evt.data.index;
+	            var selected = webComponent.selected;
+
+	            // The selected field
+	            var selectedFieldName = $(this).val();
+	            // Update the selected
+                selected = selected.slice(0, index + 1);
+                var selectedOptionModel = setModelNameFromFieldName(selectedFieldName, idx);
+	            if(selectedOptionModel){		           
+		            if (selectedOptionModel.values){
+				        controller.lastCount = controller.lastCount + 1;
+						selected.push({"options":selectedOptionModel.values,"selected":''} );
+					}
+	            }
+	            webComponent.selected = selected;
+	            createSelect(field);
+	          });
+
+	          // Add it to the component container
 	          div.append(select);
 	        }
 	        return select;
-	    };
+      };
 	    // Add the options to the select box
-        function populateSelect(select, index, field){
+        function populateSelect(select, index, selection){
 	        select.html("");
 	        select.append($("<option value='' >------</option>"));
-	        var options =  webComponent.selected[index-1]["options"] 
+	        var options =  selection["options"] 
 		 	 // Current selected
-            var currentSelectedIndex = webComponent.selected[index-1]["selected"];
+            var currentSelectedIndex = selection["selected"];
 	        // Add the options to the select box
 	        $.each( options , function( index, opt ) {
 	        	if(index === currentSelectedIndex){
-                    select.append($("<option  selected >" + opt.text + "</option>"));
+                    select.append($("<option  selected >" + opt.optionLabel + "</option>"));
 	        	}
 	        	else{
-	        	    select.append($("<option >" + opt.text + "</option>"));
+	        	    select.append($("<option >" + opt.optionLabel + "</option>"));
 	        	}
 	        });
         };
 
         function setModelNameFromFieldName(fieldName,selectedIndex){
+
           var selectOptions = webComponent.selected[selectedIndex]["options"];
           if(fieldName){
-            var optionModel =  $.grep(selectOptions, function(e){ return e.text === fieldName; });          
+            var optionModel =  $.grep(selectOptions, function(e){ return e.optionLabel === fieldName; });          
             webComponent.selected[selectedIndex]["selected"] = selectOptions.indexOf(optionModel[0]);
             return optionModel[0];
           }else{
