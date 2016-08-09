@@ -374,17 +374,6 @@ webComponent = {
 		    	div.append(helper);
 		    };
 
-		    function validateFieldsClass(item){
-
-		    	var re = /form-control/gi;
-		    	item.class = item.class.replace(re, "").split(" ").join(' ');
-		    	item.placeholder = item.placeholder || "";
-				//item.placeholder = unescapeHtml(item.placeholder);
-				if(item.required){
-					item.class = item.class.concat(" required");
-				}
-				return item;
-			};
 
 			function unescapeHtml(escapedStr) {
 				var div = document.createElement('div');
