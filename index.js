@@ -76,13 +76,22 @@ webComponent = {
 	main: function (url) {
 		var controller = this;
 		$.ajax({
-			url:url,
+			url: url,
 			'async': false,
 			type: 'GET',
 			dataType: 'json',
 			contentType: 'application/json; charset=UTF-8;',
-			success: function(fields){
-				controller._formValues = fields.fields ;				
+
+			success: function(entityFields){
+				if(entityFields.PagoEnLinea){
+					controller._formValues = entityFields.PagoEnLinea;
+				}
+				else if (entityFields.PagoReferenciado){
+					controller._formValues = entityFields.PagoReferenciado ;
+				}
+				else{
+                   controller._formValues = entityFields.fields ;
+				}
 			},
 			error: function(e){
 				if(e.status === 404){
@@ -97,6 +106,7 @@ webComponent = {
 	},
 
 	_render: function (container){
+		$("#" + container).html("");
 		webComponent.canvas = container;
 		var controller = this;
 		$.each( webComponent._formValues, function( index, field ) {
@@ -118,7 +128,7 @@ webComponent = {
 				createSelect(field,index);		
 				break;
 				default: 
-				alert('Default case');
+				//alert('Default case');
 			}
 		});
 
@@ -269,6 +279,20 @@ webComponent = {
 		    		webComponent.selected[selectedIndex]["selected"] = -1;
 		    	}
 		    };
+
+		function validateFieldsClass(item){
+			var re = /form-control/gi;
+			item.class = item.class.replace(re, "").split(" ").join(' ');
+			item.placeholder = item.placeholder || "";
+			//item.placeholder = unescapeHtml(item.placeholder);
+			if(item.required){
+				item.class = item.class.concat(" required");
+			}
+			if(item.option){
+				item.option = $.parseJSON(item.option);
+			}
+			return item;
+		};
 
 		    function getOrCreateTextInput(div, id, field){
 		    	var input = $("#" + id );
