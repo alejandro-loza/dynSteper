@@ -288,9 +288,9 @@ webComponent = {
 			if(item.required){
 				item.class = item.class.concat(" required");
 			}
-			if(item.option){
-				item.option = $.parseJSON(item.option);
-			}
+/*			if(item.options){
+				item.options = $.parseJSON(item.options);
+			}*/
 			return item;
 		};
 
@@ -347,7 +347,7 @@ webComponent = {
 		    };
 
 		    function getOrCreateRadioGroupInput(div, id, field){
-		    	$.each( field.option , function( index, opt ) {
+		    	$.each( field.options , function( index, opt ) {
 		    		var divRadio = $("#" + id + index);
 		    		if(divRadio.length === 0){
 		    			divRadio = $('<div/>')
@@ -361,7 +361,7 @@ webComponent = {
 		    };
 
 		    function getOrCreateCheckBoxGroupInput(div, id, field){
-		    	$.each( field.option , function( index, opt ) {
+		    	$.each( field.options , function( index, opt ) {
 		    		var divCheck = $("<div/>").addClass("checkbox row");
 		    		var lab = $("<label/>").html("<input  type='checkbox' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
 		    		lab.appendTo($(divCheck))

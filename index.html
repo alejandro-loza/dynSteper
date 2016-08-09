@@ -78,7 +78,7 @@
 			search: function(){
 				var estado = $("#estados");
 				var pago = $("#payment");
-				var form = webComponent.main('http://10.15.9.2:3000/gobmx/actas_nacimiento/findOne?filter={"where":{"id_estado":"'+ estado.val() +'","id_tipo_pago":"'+ pago.val() +'"}}');
+				var form = webComponent.main('http://10.15.9.2:3000/gobmx/actas_nacimiento/findOne?filter={"where":{"id_estado":'+ estado.val() +',"id_tipo_pago":'+ pago.val() +'}}');
 				//var form = webComponent.main('http://localhost:1337/options/1');
 				if(form){
 					webComponent._render('container');
