@@ -12,7 +12,19 @@
 	<script src="index.js"></script>
 </head>
 <body >
-	<div class="row tramite-content" style="min-height: 400px;"> 
+	<div class="row tramite-content"  >
+		<div class="form-group col-md-7"> 
+			<div class="col-sm-6 form-group">
+				<label for="searchType">Tipo Busqueda</label>
+				<select  class="form-control" id="searchType" name="searchType" onchange="forma.setSearch()">
+					<option value="" selected></option>
+					<option value="1">Formulario</option>
+					<option value="2">Encuesta</option>
+				</select>	
+			</div>
+		</div>	
+	</div>
+	<div id="acta" class="row tramite-content" style=" display: none;"> 
 		<div class="form-group col-md-7"> 
 			<div class="col-sm-6 form-group">
 				<label for="estados">Estado</label>
@@ -52,20 +64,63 @@
 					<option value="32">Zacatecas</option>
 				</select>
 			</div>
-			<div class="form-group col-md-4">
-				<label for="day">Tipo Pago</label>
-				<select class="form-control" id="payment" name="payment">
+
+			<div class="form-group col-md-2">
+				<button type="button" onclick="forma.search()">Busca Campos</button>
+			</div>
+
+
+		</div>
+	</div>
+
+	<div id="encuesta" class="row tramite-content" style=" display: none;">
+		<div class="form-group col-md-7"> 
+			<div class="col-sm-4 form-group">
+				<label for="tramite">Seleccionar Tramite</label>
+				<select  class="form-control" id="tramite" name="tramite">
 					<option value=""> </option>
-					<option value="1">Pago Online</option>
-					<option value="2">Pago Referenciado</option>
+					<option value="1">Acta Nacimiento</option>
+					<option value="2">Campaña</option>
+				</select>	
+			</div>
+			<div class="col-sm-6 form-group">
+				<label for="dependecia">Dependencia</label>
+				<select class="form-control" id="dependencia" name="dependencia">
+					<option value=""> </option>
+
+					<option value=" 1">Secretaría de la Defensa Nacional</option>
+					<option value=" 2">Secretaría de Relaciones Exteriores</option>
+					<option value=" 3">Secretaría de Medio Ambiente y Recursos Naturales</option>
+					<option value=" 4">Secretaría de Gobernación</option>
+					<option value=" 5">Secretaría de Educación Pública</option>
+					<option value=" 6">Secretaría de la Función Pública</option>
+					<option value=" 7">Comisión Nacional de Seguridad</option>
+					<option value=" 8">Secretaría de Agricultura </option>
+					<option value=" 9">Secretaría de Desarrollo Agrario, Territorial y Urbano </option>
+					<option value=" 10">Secretaría de Energía</option>
+					<option value=" 11">Secretaría de Turismo</option>
+					<option value=" 12">Secretaría del Trabajo y Previsión Social</option>
+					<option value=" 13">Secretaría de Marina</option>
+					<option value=" 14">Comisión Nacional para el Desarrollo de los Pueblos Indígenas</option>
+					<option value=" 15">Secretaría de Economía</option>
+					<option value=" 16">Secretaría de Hacienda y Crédito Público</option>
+					<option value=" 17">Secretaría de Comunicaciones y Transportes</option>
+					<option value=" 18">Secretaría de Salud</option>
+					<option value=" 19">Secretaría de Desarrollo Social</option>
+					<option value=" 20">Procuraduría General de la República</option>
+					<option value=" 21">Instituto Nacional de las Mujeres</option>
+					<option value=" 22">Instituto de Seguridad y Servicios Sociales de los Trabajadores del Estado</option>
 				</select>    
 			</div>
 			<div class="form-group col-md-2">
 				<button type="button" onclick="forma.search()">Busca Campos</button>
 			</div>
-			<div id="container"></div>
 		</div>
+					<div id="container"></div>
 	</div>
+
+
+
 	<button type="button" onclick="alert(JSON.stringify(webComponent._formValues))">model to render</button>
 	<button type="button" onclick="alert(JSON.stringify(webComponent._getAllValues() ))">responseFields!</button>
 	<button type="button" onclick="alert(JSON.stringify(webComponent._isValidForm() ))">valid?</button>
@@ -75,16 +130,38 @@
 	<script src="https://framework-gb.cdn.gob.mx/gobmx.js"></script>
 	<script >
 		var forma = {
+			searchType: '',
 			search: function(){
-				var estado = $("#estados");
-				var pago = $("#payment");
-				var form = webComponent.main('http://10.15.9.2:3000/gobmx/actas_nacimiento/findOne?filter={"where":{"id_estado":'+ estado.val() +',"id_tipo_pago":'+ pago.val() +'}}');
+				var form = [];
+				if(forma.searchType === "acta"){
+					var estado = $("#estados");
+					var pago = $("#payment");
+					form = webComponent.main('http://10.15.9.2:3000/gobmx/actas_nacimiento/findOne?filter={"where":{"id_estado":'+ estado.val() +',"id_tipo_pago":'+ pago.val() +'}}');	
+				}else{
+					var tramite = $("#tramite");
+					var dependencia = $("#dependencia");
+					form = webComponent.main('http://10.15.9.2:3000/gobmx/encuestas/findOne?filter={"where":{"id_dependencia":' + dependencia.val() + ',"id_tramite":'+ tramite.val()+'}}');	
+				}
+				
 				//var form = webComponent.main('http://localhost:1337/options/1');
 				if(form){
 					webComponent._render('container');
 				}else{
 					alert("error");
 				}				
+			},
+			setSearch: function(){
+				var searchType = $("#searchType");
+				if (searchType.val() == 1){
+					$("#acta").show();
+					$("#encuesta").hide();
+					forma.searchType = "acta";
+				}
+				else if(searchType.val() == 2){
+					$("#encuesta").show();
+					$("#acta").hide();
+					forma.searchType = "encuesta";
+				}
 			}
 		}
 	</script>
