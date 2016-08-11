@@ -179,7 +179,7 @@ webComponent = {
 				var id = field.name + "-" + f;
 				field["id"] = id;
 				var div = getOrCreateDiv(id, field.class);
-				getOrCreateLabel(div,id, selection.options[0].label);
+				getOrCreateLabel(div,id, field.label);
 				var select =getOrCreateSelect(div, id, field, f);
 				populateSelect(select,f, selection);
 				addHelperBlock(div);
