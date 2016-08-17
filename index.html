@@ -129,8 +129,8 @@
 	<div class = "col-md-2"></div>
 
 	<div class="row tramite-content col-md-10"  >
-    	<div id="container"></div>
-    </div>
+		<div id="container"></div>
+	</div>
 
 
 	<button type="button" onclick="alert(JSON.stringify(webComponent._formValues))">model to render</button>
@@ -168,11 +168,13 @@
 					$("#acta").show();
 					$("#encuesta").hide();
 					forma.searchType = "acta";
+					webComponent.setSearchType("acta");
 				}
 				else if(searchType.val() == 2){
 					$("#encuesta").show();
 					$("#acta").hide();
 					forma.searchType = "encuesta";
+					webComponent.setSearchType("encuesta");
 				}
 			}
 		}

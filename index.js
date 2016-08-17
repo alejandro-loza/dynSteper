@@ -1,5 +1,8 @@
 webComponent = {
 	_formValues : [],
+	_modelValues: [],
+	searchType: '' ,
+    setSearchType: function( value ){ this.searchType = value; },
 	errorFields: [],
 	invalidFields : [],
 	canvas:'',
@@ -9,9 +12,10 @@ webComponent = {
 
 	_getAllValues:function() {
 		var inputValues = [];
-		$('#' + webComponent.canvas +' input[type="text"]').each(function() {
+		$('#' + webComponent.canvas +' input[type="text" ] , textarea ').each(function() {
 			inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  , response: $(this).val() });
 		});
+
 		$('#' + webComponent.canvas +' input:checked').each(function() {			
 			inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  , response: $(this).val() });			
 		});
@@ -20,7 +24,7 @@ webComponent = {
 			if ($(this).val() != ''){
 				inputValues.push({ idField: $(this).parent().attr("id"), name: $(this).attr("data-name")  , response: $(this).val() });
 			}
-		})
+		});
 		return inputValues;
 	},
 
@@ -31,13 +35,13 @@ webComponent = {
 		function isFullRequired(){
 			webComponent.errorFields = [];
 			$('.required select').attr('required',true).filter(':visible:first').each(function(i, requiredField){
-				if($(requiredField).val()==''){
- 					webComponent.errorFields.push(requiredField);
+				if($(requiredField).val() == ''){
+					webComponent.errorFields.push(requiredField);
 				}
 			});
 			$('.required input').attr('required',true).filter(':visible:first').each(function(i, requiredField){
-				if($(requiredField).val()==''){
- 					webComponent.errorFields.push(requiredField);
+				if($(requiredField).val() == ''){
+					webComponent.errorFields.push(requiredField);
 				}
 			});
 
@@ -83,6 +87,7 @@ webComponent = {
 			contentType: 'application/json; charset=UTF-8;',
 
 			success: function(entityFields){
+				webComponent._modelValues = entityFields; 
 				if(entityFields.PagoEnLinea){
 					controller._formValues = entityFields.PagoEnLinea;
 				}
@@ -90,7 +95,7 @@ webComponent = {
 					controller._formValues = entityFields.PagoReferenciado ;
 				}
 				else{
-                   controller._formValues = entityFields.fields ;
+					controller._formValues = entityFields.fields ;
 				}
 			},
 			error: function(e){
@@ -131,6 +136,11 @@ webComponent = {
 				//alert('Default case');
 			}
 		});
+
+		if(webComponent.searchType === "encuesta"){
+			createNavBar($("#" + container));
+		}
+
 
 		function createTextInput(field, index){
 			var id = field.name + index;
@@ -181,7 +191,7 @@ webComponent = {
 				var div = getOrCreateDiv(id, field.class);
 				getOrCreateLabel(div,id, field.label);
 				var select =getOrCreateSelect(div, id, field, f);
-				populateSelect(select,f, selection);
+				populateSelect(select,f, selection, field);
 				addHelperBlock(div);
 			});
 		};
@@ -213,18 +223,18 @@ webComponent = {
 		        var select = $("#" + id ); 
 		        if(select.length === 0){
 		          // Create select box
-		            select = $("<select class='form-control' id='" + id + "'></select>");
-		            select.focusout(	function(){
-		    			if(field.required && $(this).val() === '' ){
-		    				webComponent._addErrorClass(id,"required");
-		    			}
-		    			else{
-		    				webComponent._removeErrorClass(id);						
-		    			}
-		    		});			
+		          select = $("<select class='form-control' id='" + id + "'></select>");
+		          select.focusout(	function(){
+		          	if(field.required && $(this).val() === '' ){
+		          		webComponent._addErrorClass(id,"required");
+		          	}
+		          	else{
+		          		webComponent._removeErrorClass(id);						
+		          	}
+		          });			
 
 		          // Action to take if select is changed. State is made available through evt.data
-			        select.on("change", { controller: controller, index: idx }, function(evt){
+		          select.on("change", { controller: controller, index: idx }, function(evt){
 			            // Restore the state
 			            var controller = evt.data.controller;
 			            var index = evt.data.index;
@@ -243,7 +253,7 @@ webComponent = {
 			            }
 			            webComponent.selected = selected;
 			            createSelect(field);
-		            });
+			        });
 
 		            // Add it to the component container
 		            div.append(select);
@@ -251,7 +261,7 @@ webComponent = {
 		        return select;
 		    };
 		    // Add the options to the select box
-		    function populateSelect(select, index, selection){
+		    function populateSelect(select, index, selection, field){
 		    	select.html("");
 		    	select.append($("<option value='' >------</option>"));
 		    	var options =  selection["options"] 
@@ -260,10 +270,10 @@ webComponent = {
 		        // Add the options to the select box
 		        $.each( options , function( index, opt ) {	        	
 		        	if(index === currentSelectedIndex){	        		
-		        		select.append($("<option />").val(opt.value).attr("data-name", opt.name).text(opt.text).prop('selected', true));
+		        		select.append($("<option />").val(opt.value).attr("data-name", field.name).text(opt.text).prop('selected', true));
 		        	}
 		        	else{
-		        		select.append($("<option />").val(opt.value).attr("data-name", opt.name).text(opt.text));
+		        		select.append($("<option />").val(opt.value).attr("data-name", field.name).text(opt.text));
 		        	}
 		        });
 		    };
@@ -280,10 +290,10 @@ webComponent = {
 		    	}
 		    };
 
-		function validateFieldsClass(item){
-			var re = /form-control/gi;
-			item.class = item.class.replace(re, "").split(" ").join(' ');
-			item.placeholder = item.placeholder || "";
+		    function validateFieldsClass(item){
+		    	var re = /form-control/gi;
+		    	item.class = item.class.replace(re, "").split(" ").join(' ');
+		    	item.placeholder = item.placeholder || "";
 			//item.placeholder = unescapeHtml(item.placeholder);
 			if(item.required){
 				item.class = item.class.concat(" required");
@@ -294,117 +304,193 @@ webComponent = {
 			return item;
 		};
 
-		    function getOrCreateTextInput(div, id, field){
-		    	var input = $("#" + id );
-		    	if(input.length === 0){
-		    		input = $("<input/>");
-		    		input.attr("id", id )
-		    		input.addClass('form-control')
-		    		input.attr("type", field.subtype)
-		    		input.attr("name", field.name)
-		    		input.attr("placeholder", unescapeHtml(field.placeholder))
-		    		input.attr("maxlength", field.maxlength) 
-		    		input.focusout(	function(){
-		    			if(field.required && $(this).val().length === 0 ){
-		    				webComponent._addErrorClass(id,"required");
-		    			}
-		    			else if (field.regex && $(this).val().length > 0 && !webComponent._evaluateValueInRegex($(this).val(), field.regex) ){
-		    				webComponent._addErrorClass(id,"invalid");
-		    			}
-		    			else{
-		    				webComponent._removeErrorClass(id);						
-		    			}				        
-		    		});
-		    		div.append(input);
-		    	}
-		    	return input;
-		    };
+		function getOrCreateTextInput(div, id, field){
+			var input = $("#" + id );
+			if(input.length === 0){
+				input = $("<input/>");
+				input.attr("id", id )
+				input.addClass('form-control')
+				input.attr("type", field.subtype)
+				input.attr("name", field.name)
+				input.attr("placeholder", unescapeHtml(field.placeholder))
+				input.attr("maxlength", field.maxlength) 
+				input.focusout(	function(){
+					if(field.required && $(this).val().length === 0 ){
+						webComponent._addErrorClass(id,"required");
+					}
+					else if (field.regex && $(this).val().length > 0 && !webComponent._evaluateValueInRegex($(this).val(), field.regex) ){
+						webComponent._addErrorClass(id,"invalid");
+					}
+					else{
+						webComponent._removeErrorClass(id);						
+					}				        
+				});
+				div.append(input);
+			}
+			return input;
+		};
 
-		    function getOrCreateTextAreaInput(div, id, field){
-		    	var input = $("#" + id );
-		    	if(input.length === 0){
-		    		input = $("<textarea/>");
-		    		input.attr("id", id )
-		    		input.addClass('form-control')
-		    		input.attr("type", field.type)
-		    		input.attr("name", field.name)
-		    		input.attr("placeholder", unescapeHtml(field.placeholder))
-		    		input.attr("maxlength", field.maxlength) 
-		    		input.focusout(	function(){
-		    			if(field.required && $(this).val().length === 0 ){
-		    				webComponent._addErrorClass(id,"required");
-		    			}
-		    			else if (field.regex && $(this).val().length > 0 && !webComponent._evaluateValueInRegex($(this).val(), field.regex) ){
-		    				webComponent._addErrorClass(id,"invalid");
-		    			}
-		    			else{
-		    				webComponent._removeErrorClass(id);						
-		    			}				        
-		    		});
-		    		div.append(input);
-		    	}
-		    	return input;
-		    };
+		function getOrCreateTextAreaInput(div, id, field){
+			var input = $("#" + id );
+			if(input.length === 0){
+				input = $("<textarea/>");
+				input.attr("id", id )
+				input.addClass('form-control')
+				input.attr("type", field.type)
+				input.attr("name", field.name)
+				input.attr("placeholder", unescapeHtml(field.placeholder))
+				input.attr("maxlength", field.maxlength) 
+				input.focusout(	function(){
+					if(field.required && $(this).val().length === 0 ){
+						webComponent._addErrorClass(id,"required");
+					}
+					else if (field.regex && $(this).val().length > 0 && !webComponent._evaluateValueInRegex($(this).val(), field.regex) ){
+						webComponent._addErrorClass(id,"invalid");
+					}
+					else{
+						webComponent._removeErrorClass(id);						
+					}				        
+				});
+				div.append(input);
+			}
+			return input;
+		};
 
-		    function getOrCreateRadioGroupInput(div, id, field){
-		    	$.each( field.options , function( index, opt ) {
-		    		var divRadio = $("#" + id + index);
-		    		if(divRadio.length === 0){
-		    			divRadio = $('<div/>')
-		    			divRadio.attr("id", id + index)
-		    			divRadio.addClass("radio row clearfix");
-		    			var lab = $("<label/>").html("<input  type='radio' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
-		    			lab.appendTo($(divRadio))
-		    			divRadio.appendTo(div);
-		    		}
-		    	});			
-		    };
+		function getOrCreateRadioGroupInput(div, id, field){
+			$.each( field.options , function( index, opt ) {
+				var divRadio = $("#" + id + index);
+				if(divRadio.length === 0){
+					divRadio = $('<div/>')
+					divRadio.attr("id", id + index)
+					divRadio.addClass("radio row clearfix");
+					var lab = $("<label/>").html("<input  type='radio' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
+					lab.appendTo($(divRadio))
+					divRadio.appendTo(div);
+				}
+			});			
+		};
 
-		    function getOrCreateCheckBoxGroupInput(div, id, field){
-		    	$.each( field.options , function( index, opt ) {
-		    		var divCheck = $("<div/>").addClass("checkbox row");
-		    		var lab = $("<label/>").html("<input  type='checkbox' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
-		    		lab.appendTo($(divCheck))
-		    		divCheck.appendTo(div);
-		    	});			
-		    };
+		function getOrCreateCheckBoxGroupInput(div, id, field){
+			$.each( field.options , function( index, opt ) {
+				var divCheck = $("<div/>").addClass("checkbox row");
+				var lab = $("<label/>").html("<input  type='checkbox' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
+				lab.appendTo($(divCheck))
+				divCheck.appendTo(div);
+			});			
+		};
 
-		    function addHelperBlock (div) {
-		    	var helper = $('<span class="help-block"></span>');
-		    	div.append(helper);
-		    };
+		function addHelperBlock (div) {
+			var helper = $('<span class="help-block"></span>');
+			div.append(helper);
+		};
 
 
-			function unescapeHtml(escapedStr) {
-				var div = document.createElement('div');
-				div.innerHTML = escapedStr;
-				var child = div.childNodes[0];
-				return child ? child.nodeValue : '';
-			};
+		function unescapeHtml(escapedStr) {
+			var div = document.createElement('div');
+			div.innerHTML = escapedStr;
+			var child = div.childNodes[0];
+			return child ? child.nodeValue : '';
+		};
+
+		function createNavBar(holder){
+			var navbar = getOrCreateDiv("id", 'form-group col-md-12')
+			.addClass('form-group col-md-12')
+			.css({'margin-right':'12px'})
+			.appendTo(holder);
+			// var back = $('<button/>')
+			// .addClass('btn btn-default btn-lg')
+			// .text('Regresar')
+			// .css({'margin-right':'12px'})
+			// .appendTo(navbar)
+			// .click(function(e) {
+			// 	e.preventDefault();
+			// 	hotResponse.response = [];
+			// 	generalNav();
+			// 	$('html,body').animate({
+			// 		scrollTop: $('#generalText').offset().top - 100
+			// 	}, 500);          
+			// });
+			var next = $('<button/>')
+			.addClass('btn btn-primary btn-lg')
+			.text('Enviar')
+			      //.attr('disabled', true)
+			      .css({'margin-right':'12px'})
+			      .appendTo(navbar)
+			      .click(function(e) {
+                    if(webComponent._isValidForm() ){
+                    	var responses = $.map(webComponent._getAllValues(), function(n,i){
+							return JSON.parse('{"' + n.name + '" : "' + n.response + '"}');
+						});
+						var payload = {};
+						payload.id_tramite  = webComponent._modelValues['id_tramite'];
+                        payload.id_dependencia = webComponent._modelValues['id_dependencia'];
+                        payload.nombre  = webComponent._modelValues['nombre'];
+                        payload.dependencia = webComponent._modelValues['dependencia'];
+                        payload.respuestas = responses;
+
+                		$.ajax({
+							url: 'http://localhost:1337/themes',
+							type: 'POST',
+							dataType: 'json',
+							contentType: 'application/json; charset=UTF-8;',
+                            data:JSON.stringify(payload),
+							success: function(response){
+							
+							},
+							error: function(e){
+								
+							},
+							complete: function(){
+							}
+						});
+
+                    }
+			      	e.preventDefault();
+
+
+			 /*     	$('html,body').animate({
+			      		scrollTop: $('#generalText').offset().top - 100
+			      	}, 500);*/
+			      });
+			// var stop = $('<button/>')
+		 //      .addClass('btn btn-primary btn-lg')        
+		 //      .text('Finalizar')
+		 //      .appendTo(navbar);
+		 //      $(next).click(function() {
+		 //      	if (!notOk()) {
+		 //      		alert("Debe llenar todos los campos")
+		 //      		return false;
+		 //      	}
+		 //      	/*idGeneral++;
+		 //      	saveData();
+		 //      	if ( idGeneral == 2 || idGeneral == 6 || idGeneral == 10) { generalNav(); }
+		 //      	else { begin(); }*/
+		 //      });
+		};
 
 	},
 
-	_evaluateValueInRegex: function(value,regex) {
-		var exp = new RegExp(b64_to_utf8( regex ));
-		return  exp.test(value);
-		function b64_to_utf8( str ) {
-			return decodeURIComponent(escape(window.atob( str )));
-		}
-	},
+			_evaluateValueInRegex: function(value,regex) {
+				var exp = new RegExp(b64_to_utf8( regex ));
+				return  exp.test(value);
+				function b64_to_utf8( str ) {
+					return decodeURIComponent(escape(window.atob( str )));
+				}
+			},
 
-	_addErrorClass : function (fieldId, failType){
-		var failMessage;
-		if(failType === "required") {failMessage = "Campo Requerido"}
-		else {failMessage = "Campo invalido"}
-		var htmlInputField = $( '#'+fieldId );	
-		htmlInputField.parent().addClass( 'has-error' );
-		$( '.help-block', htmlInputField.parent() ).html( failMessage).slideDown();
-	},
+			_addErrorClass : function (fieldId, failType){
+				var failMessage;
+				if(failType === "required") {failMessage = "Campo Requerido"}
+					else {failMessage = "Campo invalido"}
+						var htmlInputField = $( '#'+fieldId );	
+					htmlInputField.parent().addClass( 'has-error' );
+					$( '.help-block', htmlInputField.parent() ).html( failMessage).slideDown();
+				},
 
-	_removeErrorClass : function (fieldId){	
-		var htmlInputField = $( '#'+fieldId );	
-		htmlInputField.parent().removeClass( 'has-error' );
-		$( '.help-block', htmlInputField.parent()  ).slideUp().html( '' );
-	}
+				_removeErrorClass : function (fieldId){	
+					var htmlInputField = $( '#'+fieldId );	
+					htmlInputField.parent().removeClass( 'has-error' );
+					$( '.help-block', htmlInputField.parent()  ).slideUp().html( '' );
+				}
 
-}
+			}
