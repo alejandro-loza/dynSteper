@@ -144,37 +144,6 @@ var webComponent = {
 		}
         addDatePickerStylus();
 
-        function addDatePickerStylus(){
-        	alert("entra");
-            $.datepicker.regional.es = {
-				closeText: 'Cerrar',
-				prevText: 'Ant',
-				nextText: 'Sig',
-				currentText: 'Hoy',
-				monthNames: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
-				monthNamesShort: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
-				dayNames: ['Domingo','Lunes','Martes','Mi&eacute;rcoles','Jueves','Viernes','S&aacute;bado'],
-				dayNamesShort: ['Dom','Lun','Mar','Mi&eacute;','Juv','Vie','S&aacute;b'],
-				dayNamesMin: ['Dom','Lun','Mar','Mie','Jue','Vie','S&aacute;b'],
-				weekHeader: 'Sm',
-				dateFormat: 'dd/mm/yy',
-				firstDay: 1,
-				isRTL: false,
-				showMonthAfterYear: false,
-				yearSuffix: ''
-			};
-			$.datepicker.setDefaults($.datepicker.regional.es);
-			$(".hasDatepicker").datepicker({changeYear: true, yearRange: '1987:2004'});
-/*		$( "#calendar" ).datepicker();
-		$( "#calendarToX").datepicker({changeYear: true, yearRange: '1987:2004'});
-		$( "#calendarYear" ).datepicker( { changeYear: true } );
-		$( ".datepicker-example" ).datepicker();*/
-		$('[data-toggle="tooltip"]').tooltip();
-
-
-		
-	};
-
 		function createTextInput(field, index){
 			var id = field.name + index;
 			field["id"] = id;
@@ -373,15 +342,15 @@ var webComponent = {
 		};
 
 		function getOrCreateDatePickerInput(div, id, field){
-			var $input = $("#" + id );
-			if($input.length === 0){
-				$input = $("<input/>");
-				$input.attr("id", id )
-				$input.addClass('form-control hasDatepicker')
-				$input.attr("type", "date")
-				$input.attr("name", field.name)
-				$input.attr("placeholder", unescapeHtml(field.placeholder))
-				$input.focusout(	function(){
+			var input = $("#" + id );
+			if(input.length === 0){
+				input = $("<input/>");
+				input.attr("id", id )
+				input.addClass('form-control ')
+				input.attr("type", "text")
+				input.attr("name", field.name)
+				input.attr("placeholder", unescapeHtml(field.placeholder))
+				input.focusout(	function(){
 					if(field.required && $(this).val().length === 0 ){
 						webComponent._addErrorClass(id,"required");
 					}
@@ -392,10 +361,10 @@ var webComponent = {
 						webComponent._removeErrorClass(id);						
 					}				        
 				});
-				$input.datepicker({changeYear: true, yearRange: '1987:2004'});
-				div.append($input);
+				input.datepicker({changeYear: true, yearRange: '1987:2004'});
+				div.append(input);
 			}
-			return $input;
+			return input;
 		};
 
 		function getOrCreateTextAreaInput(div, id, field){
@@ -587,22 +556,8 @@ $gmx(document).ready(function(){
 		yearSuffix: ''
 	};
 		$.datepicker.setDefaults($.datepicker.regional.es);
-		$( "#calendar" ).datepicker();
-		$( "#calendarToX").datepicker({changeYear: true, yearRange: '1987:2004'});
-		$( "#calendarYear" ).datepicker( { changeYear: true } );
-		$( ".datepicker-example" ).datepicker();
+		
 		$('[data-toggle="tooltip"]').tooltip();
 
 });
 
-$('body').on('focus',".hasDatepicker", function(){
-    $(this).datepicker();
-    $("#fechainicio0").datepicker();
-});
-
-$(function () {
-    $('#container').on('click', '.hasDatepicker', function () {
-        var $this = $(this);
-        $this.datepicker(); // You should probably check whether datapicker is already attached before binding it. 
-    });
-});
