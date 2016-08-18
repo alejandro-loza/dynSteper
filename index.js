@@ -1,8 +1,8 @@
-webComponent = {
+var webComponent = {
 	_formValues : [],
 	_modelValues: [],
 	searchType: '' ,
-    setSearchType: function( value ){ this.searchType = value; },
+	setSearchType: function( value ){ this.searchType = value; },
 	errorFields: [],
 	invalidFields : [],
 	canvas:'',
@@ -132,6 +132,8 @@ webComponent = {
 				case "select":
 				createSelect(field,index);		
 				break;
+				case "date":
+				createDatePicker(field,index);
 				default: 
 				//alert('Default case');
 			}
@@ -140,7 +142,38 @@ webComponent = {
 		if(webComponent.searchType === "encuesta"){
 			createNavBar($("#" + container));
 		}
+        addDatePickerStylus();
 
+        function addDatePickerStylus(){
+        	alert("entra");
+            $.datepicker.regional.es = {
+				closeText: 'Cerrar',
+				prevText: 'Ant',
+				nextText: 'Sig',
+				currentText: 'Hoy',
+				monthNames: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+				monthNamesShort: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
+				dayNames: ['Domingo','Lunes','Martes','Mi&eacute;rcoles','Jueves','Viernes','S&aacute;bado'],
+				dayNamesShort: ['Dom','Lun','Mar','Mi&eacute;','Juv','Vie','S&aacute;b'],
+				dayNamesMin: ['Dom','Lun','Mar','Mie','Jue','Vie','S&aacute;b'],
+				weekHeader: 'Sm',
+				dateFormat: 'dd/mm/yy',
+				firstDay: 1,
+				isRTL: false,
+				showMonthAfterYear: false,
+				yearSuffix: ''
+			};
+			$.datepicker.setDefaults($.datepicker.regional.es);
+			$(".hasDatepicker").datepicker({changeYear: true, yearRange: '1987:2004'});
+/*		$( "#calendar" ).datepicker();
+		$( "#calendarToX").datepicker({changeYear: true, yearRange: '1987:2004'});
+		$( "#calendarYear" ).datepicker( { changeYear: true } );
+		$( ".datepicker-example" ).datepicker();*/
+		$('[data-toggle="tooltip"]').tooltip();
+
+
+		
+	};
 
 		function createTextInput(field, index){
 			var id = field.name + index;
@@ -158,6 +191,15 @@ webComponent = {
 			getOrCreateTextAreaInput(div,id, field);
 			addHelperBlock(div);
 		};
+		function createDatePicker (field, index) {
+            var id = field.name + index;
+			field["id"] = id;
+			var div = getOrCreateDiv(id, field.class + ' datepicker-group');
+			getOrCreateLabel(div,id, field.label);
+			getOrCreateDatePickerInput(div,id, field);
+			addGlyphicon(div);
+			addHelperBlock(div);		
+		}
 		function createRadioGroup(field, index){
 			var id = field.name + index;
 			field["id"] = id;
@@ -330,6 +372,32 @@ webComponent = {
 			return input;
 		};
 
+		function getOrCreateDatePickerInput(div, id, field){
+			var $input = $("#" + id );
+			if($input.length === 0){
+				$input = $("<input/>");
+				$input.attr("id", id )
+				$input.addClass('form-control hasDatepicker')
+				$input.attr("type", "date")
+				$input.attr("name", field.name)
+				$input.attr("placeholder", unescapeHtml(field.placeholder))
+				$input.focusout(	function(){
+					if(field.required && $(this).val().length === 0 ){
+						webComponent._addErrorClass(id,"required");
+					}
+/*					else if (field.regex && $(this).val().length > 0 && !webComponent._evaluateValueInRegex($(this).val(), field.regex) ){
+						webComponent._addErrorClass(id,"invalid");
+					}*/
+					else{
+						webComponent._removeErrorClass(id);						
+					}				        
+				});
+				$input.datepicker({changeYear: true, yearRange: '1987:2004'});
+				div.append($input);
+			}
+			return $input;
+		};
+
 		function getOrCreateTextAreaInput(div, id, field){
 			var input = $("#" + id );
 			if(input.length === 0){
@@ -384,6 +452,10 @@ webComponent = {
 			div.append(helper);
 		};
 
+		function addGlyphicon (input) {
+			var helper = $('<span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>');
+			input.append(helper);
+		};
 
 		function unescapeHtml(escapedStr) {
 			var div = document.createElement('div');
@@ -417,41 +489,41 @@ webComponent = {
 			      .css({'margin-right':'12px'})
 			      .appendTo(navbar)
 			      .click(function(e) {
-                    if(webComponent._isValidForm() ){
-                    	var responses = $.map(webComponent._getAllValues(), function(n,i){
-							return JSON.parse('{"' + n.name + '" : "' + n.response + '"}');
-						});
-						var payload = {};
-						payload.id_tramite  = webComponent._modelValues['id_tramite'];
-                        payload.id_dependencia = webComponent._modelValues['id_dependencia'];
-                        payload.nombre  = webComponent._modelValues['nombre'];
-                        payload.dependencia = webComponent._modelValues['dependencia'];
-                        payload.respuestas = responses;
+			      	if(webComponent._isValidForm() ){
+			      		var responses = $.map(webComponent._getAllValues(), function(n,i){
+			      			return JSON.parse('{"' + n.name + '" : "' + n.response + '"}');
+			      		});
+			      		var payload = {};
+			      		payload.id_tramite  = webComponent._modelValues['id_tramite'];
+			      		payload.id_dependencia = webComponent._modelValues['id_dependencia'];
+			      		payload.nombre  = webComponent._modelValues['nombre'];
+			      		payload.dependencia = webComponent._modelValues['dependencia'];
+			      		payload.respuestas = responses;
 
-                		$.ajax({
-							url: 'http://localhost:1337/themes',
-							type: 'POST',
-							dataType: 'json',
-							contentType: 'application/json; charset=UTF-8;',
-                            data:JSON.stringify(payload),
-							success: function(response){
-							
-							},
-							error: function(e){
-								
-							},
-							complete: function(){
-							}
-						});
+			      		$.ajax({
+			      			url: 'http://10.15.9.2:3000/gobmx/resultados',
+			      			type: 'POST',
+			      			dataType: 'json',
+			      			contentType: 'application/json',
+			      			data: JSON.stringify(payload),
+			      			success: function(response){
 
-                    }
+			      			},
+			      			error: function(e){
+
+			      			},
+			      			complete: function(){
+			      			}
+			      		});
+
+			      	}
 			      	e.preventDefault();
 
 
 			 /*     	$('html,body').animate({
 			      		scrollTop: $('#generalText').offset().top - 100
 			      	}, 500);*/
-			      });
+});
 			// var stop = $('<button/>')
 		 //      .addClass('btn btn-primary btn-lg')        
 		 //      .text('Finalizar')
@@ -466,31 +538,71 @@ webComponent = {
 		 //      	if ( idGeneral == 2 || idGeneral == 6 || idGeneral == 10) { generalNav(); }
 		 //      	else { begin(); }*/
 		 //      });
-		};
+};
 
+},
+
+_evaluateValueInRegex: function(value,regex) {
+	var exp = new RegExp(b64_to_utf8( regex ));
+	return  exp.test(value);
+	function b64_to_utf8( str ) {
+		return decodeURIComponent(escape(window.atob( str )));
+	}
+},
+
+_addErrorClass : function (fieldId, failType){
+	var failMessage;
+	if(failType === "required") {failMessage = "Campo Requerido"}
+		else {failMessage = "Campo invalido"}
+			var htmlInputField = $( '#'+fieldId );	
+		htmlInputField.parent().addClass( 'has-error' );
+		$( '.help-block', htmlInputField.parent() ).html( failMessage).slideDown();
 	},
 
-			_evaluateValueInRegex: function(value,regex) {
-				var exp = new RegExp(b64_to_utf8( regex ));
-				return  exp.test(value);
-				function b64_to_utf8( str ) {
-					return decodeURIComponent(escape(window.atob( str )));
-				}
-			},
+	_removeErrorClass : function (fieldId){	
+		var htmlInputField = $( '#'+fieldId );	
+		htmlInputField.parent().removeClass( 'has-error' );
+		$( '.help-block', htmlInputField.parent()  ).slideUp().html( '' );
+	}
 
-			_addErrorClass : function (fieldId, failType){
-				var failMessage;
-				if(failType === "required") {failMessage = "Campo Requerido"}
-					else {failMessage = "Campo invalido"}
-						var htmlInputField = $( '#'+fieldId );	
-					htmlInputField.parent().addClass( 'has-error' );
-					$( '.help-block', htmlInputField.parent() ).html( failMessage).slideDown();
-				},
+}
 
-				_removeErrorClass : function (fieldId){	
-					var htmlInputField = $( '#'+fieldId );	
-					htmlInputField.parent().removeClass( 'has-error' );
-					$( '.help-block', htmlInputField.parent()  ).slideUp().html( '' );
-				}
 
-			}
+$gmx(document).ready(function(){
+	$.datepicker.regional.es = {
+		closeText: 'Cerrar',
+		prevText: 'Ant',
+		nextText: 'Sig',
+		currentText: 'Hoy',
+		monthNames: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+		monthNamesShort: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
+		dayNames: ['Domingo','Lunes','Martes','Mi&eacute;rcoles','Jueves','Viernes','S&aacute;bado'],
+		dayNamesShort: ['Dom','Lun','Mar','Mi&eacute;','Juv','Vie','S&aacute;b'],
+		dayNamesMin: ['Dom','Lun','Mar','Mie','Jue','Vie','S&aacute;b'],
+		weekHeader: 'Sm',
+		dateFormat: 'dd/mm/yy',
+		firstDay: 1,
+		isRTL: false,
+		showMonthAfterYear: false,
+		yearSuffix: ''
+	};
+		$.datepicker.setDefaults($.datepicker.regional.es);
+		$( "#calendar" ).datepicker();
+		$( "#calendarToX").datepicker({changeYear: true, yearRange: '1987:2004'});
+		$( "#calendarYear" ).datepicker( { changeYear: true } );
+		$( ".datepicker-example" ).datepicker();
+		$('[data-toggle="tooltip"]').tooltip();
+
+});
+
+$('body').on('focus',".hasDatepicker", function(){
+    $(this).datepicker();
+    $("#fechainicio0").datepicker();
+});
+
+$(function () {
+    $('#container').on('click', '.hasDatepicker', function () {
+        var $this = $(this);
+        $this.datepicker(); // You should probably check whether datapicker is already attached before binding it. 
+    });
+});

@@ -2,14 +2,19 @@
 <html lang="es">
 <head>
 	<meta charset="utf-8">
-	<title>Atención Ciudadana | Participa | gob.mx</title>
-	<meta name="description" content="">
+
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>gob.mx - Trazabilidad</title>
+	<meta name="description" content>
 	<meta name="viewport" content="width=device-width">
-	<!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-	<link rel="shortcut icon" href="https://framework-gb.cdn.gob.mx/favicon.ico">
-	<link href="https://framework-gb.cdn.gob.mx/assets/styles/main.css" rel="stylesheet" type="text/css">
-	<title>Form Web Component</title>
-	<script src="index.js"></script>
+	<link href="http://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400italic,400,600,700" rel="stylesheet" type="text/css" >
+	<link href="http://framework-gb.cdn.gob.mx/assets/styles/main.css" rel="stylesheet" type="text/css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js"></script>
+	<script src="http://framework-gb.cdn.gob.mx/gobmx.js"></script>
+	<script type="text/javascript" src="https://framework-gb-ssl.cdn.gob.mx/assets/scripts/jquery-ui-datepicker.js"></script>
+
+
 </head>
 <body >
 	<div class="row tramite-content"  >
@@ -129,6 +134,13 @@
 	<div class = "col-md-2"></div>
 
 	<div class="row tramite-content col-md-10"  >
+		
+<!-- 		<div class="col-md-3 form-group datepicker-group">
+			<label class="control-label" for="calendarToX">X:</label>
+			<input class="form-control" id="calendarToX" type="text">
+			<span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
+		</div> -->
+
 		<div id="container"></div>
 	</div>
 
@@ -139,7 +151,6 @@
 	<button type="button" onclick="alert(JSON.stringify(webComponent.errorFields))">errorFilds?</button>
 	<button type="button" onclick="alert(JSON.stringify(webComponent.invalidFields))">InvalidFields?</button>
 
-	<script src="https://framework-gb.cdn.gob.mx/gobmx.js"></script>
 	<script >
 		var forma = {
 			searchType: '',
@@ -179,6 +190,13 @@
 			}
 		}
 	</script>
+	<script src="bower_components/jquery/dist/jquery.js"></script>
 
+
+	<script src="index.js"></script>
+	<script src="https://framework-gb.cdn.gob.mx/gobmx.js"></script>
+	<script type="text/javascript" src="https://framework-gb.cdn.gob.mx/assets/scripts/jquery-ui-datepicker.js"></script>
+	<script src="https://framework-gb.cdn.gob.mx/assets/scripts/jquery-ui-datepicker.js"></script>
+	
 </body>
 </html>
