@@ -85,22 +85,13 @@ var webComponent = {
 			type: 'GET',
 			dataType: 'json',
 			contentType: 'application/json; charset=UTF-8;',
-
 			success: function(entityFields){
-				webComponent._modelValues = entityFields; 
-				if(entityFields.PagoEnLinea){
-					controller._formValues = entityFields.PagoEnLinea;
-				}
-				else if (entityFields.PagoReferenciado){
-					controller._formValues = entityFields.PagoReferenciado ;
-				}
-				else{
-					controller._formValues = entityFields.fields ;
-				}
+				controller._modelValues = entityFields; 
+				controller._formValues = entityFields.fields ;
 			},
 			error: function(e){
 				if(e.status === 404){
-					webComponent.error = e.status;
+					controller.error = e.status;
 				}
 			},
 			complete: function(){
@@ -432,7 +423,9 @@ var webComponent = {
 		function addToolTip(input, title, side){
             input.attr("data-toggle", "tooltip" );
             input.attr("data-placement", side );
-            input.attr("title", title);
+            input.attr("title", unescapeHtml(title));
+            var helper = $('<span class="tooltip-element" tooltip="' + title + '" style="display: inline-block;">?</span>');
+            input.append(helper);
             return input;
 		};
 

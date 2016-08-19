@@ -148,6 +148,8 @@
 		var forma = {
 			searchType: '',
 			search: function(){
+				var date = new Date().toISOString().slice(0, 10);
+
 				var form = [];
 				if(forma.searchType === "acta"){
 					var estado = $("#estados");
@@ -156,7 +158,8 @@
 				}else{
 					var tramite = $("#tramite");
 					var dependencia = $("#dependencia");
-					form = webComponent.main('http://10.15.9.2:3000/gobmx/encuestas/findOne?filter={"where":{"id_dependencia":' + dependencia.val() + ',"id_tramite":'+ tramite.val()+'}}');	
+					/*					form = webComponent.main('http://10.15.9.2:3000/gobmx/encuestas/findOne?filter={"where":{"id_dependencia":' + dependencia.val() + ',"id_tramite":'+ tramite.val() +  ' ",fecha_inicio":{"gte":"' + date + '"}  }}');	*/
+					form = webComponent.main('http://10.15.9.2:3000/gobmx/encuestas/findOne?filter={"where":{"id_tramite":'+ tramite.val()+',"id_dependencia":'+ dependencia.val() +',"fecha_inicio":{"lte":"'+ date +'"}}}');
 				}
 				
 				//var form = webComponent.main('http://localhost:1337/options/1');
