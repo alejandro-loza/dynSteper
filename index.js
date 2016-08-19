@@ -142,13 +142,12 @@ var webComponent = {
 		if(webComponent.searchType === "encuesta"){
 			createNavBar($("#" + container));
 		}
-		// addDatePickerStylus();
 
 		function createTextInput(field, index){
 			var id = field.name + index;
 			field["id"] = id;
 			var div = getOrCreateDiv(id, field.class);
-			getOrCreateLabel(div,id, field.label);
+			getOrCreateLabel(div,id, field);
 			getOrCreateTextInput(div,id, field);
 			addHelperBlock(div);
 		};
@@ -156,7 +155,7 @@ var webComponent = {
 			var id = field.name + index;
 			field["id"] = id;
 			var div = getOrCreateDiv(id, field.class);
-			getOrCreateLabel(div,id, field.label);
+			getOrCreateLabel(div,id, field);
 			getOrCreateTextAreaInput(div,id, field);
 			addHelperBlock(div);
 		};
@@ -164,16 +163,16 @@ var webComponent = {
 			var id = field.name + index;
 			field["id"] = id;
 			var div = getOrCreateDiv(id, field.class + ' datepicker-group');
-			getOrCreateLabel(div,id, field.label);
+			getOrCreateLabel(div,id, field);
 			getOrCreateDatePickerInput(div,id, field);
 			addGlyphicon(div);
 			addHelperBlock(div);		
-		}
+		};
 		function createRadioGroup(field, index){
 			var id = field.name + index;
 			field["id"] = id;
 			var div = getOrCreateDiv(id, field.class);
-			getOrCreateLabel(div,id, field.label);
+			getOrCreateLabel(div,id, field);
 			getOrCreateRadioGroupInput(div, id,  field);
 			addHelperBlock(div);
 		};
@@ -181,7 +180,7 @@ var webComponent = {
 			var id = field.name + index;
 			field["id"] = id;
 			var div = getOrCreateDiv(id, field.class);
-			getOrCreateLabel(div,id, field.label);
+			getOrCreateLabel(div,id, field);
 			getOrCreateCheckBoxGroupInput(div, id,  field);
 			addHelperBlock(div);
 		};
@@ -200,7 +199,7 @@ var webComponent = {
 				var id = field.name + "-" + f;
 				field["id"] = id;
 				var div = getOrCreateDiv(id, field.class);
-				getOrCreateLabel(div,id, field.label);
+				getOrCreateLabel(div,id, field);
 				var select =getOrCreateSelect(div, id, field, f);
 				populateSelect(select,f, selection, field);
 				addHelperBlock(div);
@@ -218,13 +217,16 @@ var webComponent = {
 			return div;
 		};
 
-		function getOrCreateLabel(div, id, label){
+		function getOrCreateLabel(div, id, field){
 			var labelObject = $("#label-" + id );
 			if(labelObject.length === 0){
-				labelObject = $("<label class='control-label' id='label-"+ id +"' for = "+ id + " >"+ label + "</label>");
+				labelObject = $("<label class='control-label' id='label-"+ id +"' for = "+ id + " >"+ field.label + "</label>");
 				div.append(labelObject);
 			}
-			return label;
+			if(field.description){
+                addToolTip(labelObject, field.description, "top");
+			}
+			return labelObject;
 		};
 
 		function getOrCreateSelect (div , id, field, idx){
@@ -427,6 +429,13 @@ var webComponent = {
 			input.append(helper);
 		};
 
+		function addToolTip(input, title, side){
+            input.attr("data-toggle", "tooltip" );
+            input.attr("data-placement", side );
+            input.attr("title", title);
+            return input;
+		};
+
 		function unescapeHtml(escapedStr) {
 			var div = document.createElement('div');
 			div.innerHTML = escapedStr;
@@ -452,9 +461,9 @@ var webComponent = {
 			// 		scrollTop: $('#generalText').offset().top - 100
 			// 	}, 500);          
 			// });
-var next = $('<button/>')
-.addClass('btn btn-primary btn-lg')
-.text('Enviar')
+			var next = $('<button/>')
+			.addClass('btn btn-primary btn-lg')
+			.text('Enviar')
 			      //.attr('disabled', true)
 			      .css({'margin-right':'12px'})
 			      .appendTo(navbar)
