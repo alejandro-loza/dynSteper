@@ -142,7 +142,7 @@ var webComponent = {
 		if(webComponent.searchType === "encuesta"){
 			createNavBar($("#" + container));
 		}
-        addDatePickerStylus();
+		// addDatePickerStylus();
 
 		function createTextInput(field, index){
 			var id = field.name + index;
@@ -161,7 +161,7 @@ var webComponent = {
 			addHelperBlock(div);
 		};
 		function createDatePicker (field, index) {
-            var id = field.name + index;
+			var id = field.name + index;
 			field["id"] = id;
 			var div = getOrCreateDiv(id, field.class + ' datepicker-group');
 			getOrCreateLabel(div,id, field.label);
@@ -354,14 +354,15 @@ var webComponent = {
 					if(field.required && $(this).val().length === 0 ){
 						webComponent._addErrorClass(id,"required");
 					}
-/*					else if (field.regex && $(this).val().length > 0 && !webComponent._evaluateValueInRegex($(this).val(), field.regex) ){
-						webComponent._addErrorClass(id,"invalid");
-					}*/
 					else{
 						webComponent._removeErrorClass(id);						
 					}				        
 				});
-				input.datepicker({changeYear: true, yearRange: '1987:2004'});
+				if(field.startdate){
+					input.datepicker({changeYear: true,  yearRange: field.startdate.slice(0,4) + ':' + field.finaldate.slice(0,4)});
+				}else{
+					input.datepicker();
+				}
 				div.append(input);
 			}
 			return input;
@@ -451,9 +452,9 @@ var webComponent = {
 			// 		scrollTop: $('#generalText').offset().top - 100
 			// 	}, 500);          
 			// });
-			var next = $('<button/>')
-			.addClass('btn btn-primary btn-lg')
-			.text('Enviar')
+var next = $('<button/>')
+.addClass('btn btn-primary btn-lg')
+.text('Enviar')
 			      //.attr('disabled', true)
 			      .css({'margin-right':'12px'})
 			      .appendTo(navbar)
@@ -555,9 +556,9 @@ $gmx(document).ready(function(){
 		showMonthAfterYear: false,
 		yearSuffix: ''
 	};
-		$.datepicker.setDefaults($.datepicker.regional.es);
-		
-		$('[data-toggle="tooltip"]').tooltip();
+	$.datepicker.setDefaults($.datepicker.regional.es);
+
+	$('[data-toggle="tooltip"]').tooltip();
 
 });
 

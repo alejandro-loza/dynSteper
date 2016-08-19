@@ -148,7 +148,7 @@
 		var forma = {
 			searchType: '',
 			search: function(){
-				var form = [];
+/*				var form = [];
 				if(forma.searchType === "acta"){
 					var estado = $("#estados");
 					var pago = $("#payment");
@@ -157,9 +157,9 @@
 					var tramite = $("#tramite");
 					var dependencia = $("#dependencia");
 					form = webComponent.main('http://10.15.9.2:3000/gobmx/encuestas/findOne?filter={"where":{"id_dependencia":' + dependencia.val() + ',"id_tramite":'+ tramite.val()+'}}');	
-				}
+				}*/
 				
-				//var form = webComponent.main('http://localhost:1337/options/1');
+				var form = webComponent.main('http://localhost:1337/options/1');
 				if(form){
 					webComponent._render('container');
 				}else{
