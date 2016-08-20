@@ -13,16 +13,16 @@ var webComponent = {
 	_getAllValues:function() {
 		var inputValues = [];
 		$('#' + webComponent.canvas +' input[type="text" ] , textarea ').each(function() {
-			inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  , response: $(this).val() });
+			inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val() });
 		});
 
 		$('#' + webComponent.canvas +' input:checked').each(function() {			
-			inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  , response: $(this).val() });			
+			inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  , label: $(this).attr("label"), response: $(this).val() });			
 		});
 
 		$('#' + webComponent.canvas +'  option:selected').each(function() {
 			if ($(this).val() != ''){
-				inputValues.push({ idField: $(this).parent().attr("id"), name: $(this).attr("data-name")  , response: $(this).val() });
+				inputValues.push({ idField: $(this).parent().attr("id"), name: $(this).attr("data-name") ,  label: $(this).attr("data-label"), response: $(this).val() });
 			}
 		});
 		return inputValues;
@@ -228,6 +228,7 @@ var webComponent = {
 		        if(select.length === 0){
 		          // Create select box
 		          select = $("<select class='form-control' id='" + id + "'></select>");
+
 		          select.focusout(	function(){
 		          	if(field.required && $(this).val() === '' ){
 		          		webComponent._addErrorClass(id,"required");
@@ -274,10 +275,10 @@ var webComponent = {
 		        // Add the options to the select box
 		        $.each( options , function( index, opt ) {	        	
 		        	if(index === currentSelectedIndex){	        		
-		        		select.append($("<option />").val(opt.value).attr("data-name", field.name).text(opt.text).prop('selected', true));
+		        		select.append($("<option />").val(opt.value).attr("data-name", field.name).attr("data-label", field.label).text(opt.text).prop('selected', true));
 		        	}
 		        	else{
-		        		select.append($("<option />").val(opt.value).attr("data-name", field.name).text(opt.text));
+		        		select.append($("<option />").val(opt.value).attr("data-name", field.name).attr("data-label", field.label).text(opt.text));
 		        	}
 		        });
 		    };
@@ -316,6 +317,7 @@ var webComponent = {
 				input.addClass('form-control')
 				input.attr("type", field.subtype)
 				input.attr("name", field.name)
+				input.attr("label", unescapeHtml(field.label))
 				input.attr("placeholder", unescapeHtml(field.placeholder))
 				input.attr("maxlength", field.maxlength) 
 				input.focusout(	function(){
@@ -342,6 +344,7 @@ var webComponent = {
 				input.addClass('form-control ')
 				input.attr("type", "text")
 				input.attr("name", field.name)
+				input.attr("label", field.label)
 				input.attr("placeholder", unescapeHtml(field.placeholder))
 				input.focusout(	function(){
 					if(field.required && $(this).val().length === 0 ){
@@ -369,6 +372,7 @@ var webComponent = {
 				input.addClass('form-control')
 				input.attr("type", field.type)
 				input.attr("name", field.name)
+				input.attr("label", unescapeHtml(field.label))
 				input.attr("placeholder", unescapeHtml(field.placeholder))
 				input.attr("maxlength", field.maxlength) 
 				input.focusout(	function(){
@@ -394,7 +398,7 @@ var webComponent = {
 					divRadio = $('<div/>')
 					divRadio.attr("id", id + index)
 					divRadio.addClass("radio row clearfix");
-					var lab = $("<label/>").html("<input  type='radio' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
+					var lab = $("<label/>").html("<input  type='radio' label = '"+ unescapeHtml(field.label) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
 					lab.appendTo($(divRadio))
 					divRadio.appendTo(div);
 				}
@@ -404,7 +408,7 @@ var webComponent = {
 		function getOrCreateCheckBoxGroupInput(div, id, field){
 			$.each( field.options , function( index, opt ) {
 				var divCheck = $("<div/>").addClass("checkbox row");
-				var lab = $("<label/>").html("<input  type='checkbox' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
+				var lab = $("<label/>").html("<input  type='checkbox' label = '"+ unescapeHtml(field.label) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
 				lab.appendTo($(divCheck))
 				divCheck.appendTo(div);
 			});			
@@ -463,7 +467,7 @@ var webComponent = {
 			      .click(function(e) {
 			      	if(webComponent._isValidForm() ){
 			      		var responses = $.map(webComponent._getAllValues(), function(n,i){
-			      			return JSON.parse('{"' + n.name + '" : "' + n.response + '"}');
+			      			return JSON.parse('{"' + n.label + '" : "' + n.response + '"}');
 			      		});
 			      		var payload = {};
 			      		payload.id_tramite  = webComponent._modelValues['id_tramite'];
