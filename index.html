@@ -13,132 +13,153 @@
 	<script src="http://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js"></script>
 	<script src="http://framework-gb.cdn.gob.mx/gobmx.js"></script>
 	<script type="text/javascript" src="https://framework-gb-ssl.cdn.gob.mx/assets/scripts/jquery-ui-datepicker.js"></script>
-
-
 </head>
 <body >
-    <div style="height: 1000px;" >
-    	
-    
-	<div class="row tramite-content"  >
-		<div class="form-group col-md-7"> 
-			<div class="col-sm-6 form-group">
-				<label for="searchType">Tipo Busqueda</label>
-				<select  class="form-control" id="searchType" name="searchType" onchange="forma.setSearch()">
-					<option value="" selected></option>
-					<option value="1">Formulario</option>
-					<option value="2">Encuesta</option>
-				</select>	
-			</div>
-		</div>	
-	</div>
-	<div id="acta" class="row tramite-content" style=" display: none;"> 
-		<div class="form-group col-md-7"> 
-			<div class="col-sm-6 form-group">
-				<label for="estados">Estado</label>
-				<select  class="form-control" id="estados" name="estados">
-					<option value="0">Todo México</option>
-					<option value="1">Aguascalientes</option>
-					<option value="2">Baja California</option>
-					<option value="3">Baja California Sur</option>
-					<option value="4">Campeche</option>
-					<option value="5">Coahuila de Zaragoza</option>
-					<option value="6">Colima</option>
-					<option value="7">Chiapas</option>
-					<option value="8">Chihuahua</option>
-					<option value="9">Distrito Federal</option>
-					<option value="10">Durango</option>
-					<option value="11">Guanajuato</option>
-					<option value="12">Guerrero</option>
-					<option value="13">Hidalgo</option>
-					<option value="14">Jalisco</option>
-					<option value="15">México</option>
-					<option value="16">Michoacán de Ocampo</option>
-					<option value="17">Morelos</option>
-					<option value="18">Nayarit</option>
-					<option value="19">Nuevo León</option>
-					<option value="20">Oaxaca</option>
-					<option value="21">Puebla</option>
-					<option value="22">Querétaro</option>
-					<option value="23">Quintana Roo</option>
-					<option value="24">San Luis Potosí</option>
-					<option value="25">Sinaloa</option>
-					<option value="26">Sonora</option>
-					<option value="27">Tabasco</option>
-					<option value="28">Tamaulipas</option>
-					<option value="29">Tlaxcala</option>
-					<option value="30">Veracruz de Ignacio de la Llave</option>
-					<option value="31">Yucatán</option>
-					<option value="32">Zacatecas</option>
-				</select>
-			</div>
-			<div class="form-group col-md-4">
-				<label for="day">Tipo Pago</label>
-				<select class="form-control" id="payment" name="payment">
-					<option value=""> </option>
-					<option value="1">Pago Online</option>
-					<option value="2">Pago Referenciado</option>
-				</select>    
-			</div>
-
-			<div class="form-group col-md-2">
-				<button class="btn btn-primary btn-lg" style="margin-right: 12px;" type="button" onclick="forma.search()">Busca Campos</button>
-			</div>
+	<div style="height: 1000px;" >
 
 
+		<div class="row tramite-content"  >
+			<div class="form-group col-md-7"> 
+				<div class="col-sm-6 form-group">
+					<label for="searchType">Tipo Busqueda</label>
+					<select  class="form-control" id="searchType" name="searchType" onchange="forma.setSearch()">
+						<option value="" selected></option>
+						<option value="1">Formulario</option>
+						<option value="2">Encuesta</option>
+					</select>	
+				</div>
+			</div>	
 		</div>
-	</div>
+		<div id="acta" class="row tramite-content" style=" display: none;"> 
+			<div class="form-group col-md-12"> 
+				<div class="col-sm-3 form-group">
+					<label for="estados">Estado</label>
+					<select  class="form-control" id="estados" name="estados">
+						<option value="0">Todo México</option>
+						<option value="1">Aguascalientes</option>
+						<option value="2">Baja California</option>
+						<option value="3">Baja California Sur</option>
+						<option value="4">Campeche</option>
+						<option value="5">Coahuila de Zaragoza</option>
+						<option value="6">Colima</option>
+						<option value="7">Chiapas</option>
+						<option value="8">Chihuahua</option>
+						<option value="9">Distrito Federal</option>
+						<option value="10">Durango</option>
+						<option value="11">Guanajuato</option>
+						<option value="12">Guerrero</option>
+						<option value="13">Hidalgo</option>
+						<option value="14">Jalisco</option>
+						<option value="15">México</option>
+						<option value="16">Michoacán de Ocampo</option>
+						<option value="17">Morelos</option>
+						<option value="18">Nayarit</option>
+						<option value="19">Nuevo León</option>
+						<option value="20">Oaxaca</option>
+						<option value="21">Puebla</option>
+						<option value="22">Querétaro</option>
+						<option value="23">Quintana Roo</option>
+						<option value="24">San Luis Potosí</option>
+						<option value="25">Sinaloa</option>
+						<option value="26">Sonora</option>
+						<option value="27">Tabasco</option>
+						<option value="28">Tamaulipas</option>
+						<option value="29">Tlaxcala</option>
+						<option value="30">Veracruz de Ignacio de la Llave</option>
+						<option value="31">Yucatán</option>
+						<option value="32">Zacatecas</option>
+					</select>
+				</div>
+				<div class="form-group col-md-2">
+					<label for="day">Tipo Pago</label>
+					<select class="form-control" id="payment" name="payment">
+						<option value=""> </option>
+						<option value="1">Pago Online</option>
+						<option value="2">Pago Referenciado</option>
+					</select>    
+				</div>
+				<div class="form-group col-md-3"> 
+					<div class="form-group">
+						<label for="nameSearch">Busqueda Por Nombre</label>
+						<input id="nameSearch" class="form-control" type="text" name="nameSearch"  placeholder="busqueda">	
+					</div>			
+				</div>
+				<div class="form-group col-md-3">
+					<button class="btn btn-primary btn-lg" style="margin-right: 12px;" type="button" onclick="forma.search()">Busca Campos</button>
+				</div>
 
-	<div id="encuesta" class="row tramite-content" style=" display: none;">
-		<div class="form-group col-md-7"> 
-			<div class="col-sm-4 form-group">
-				<label for="tramite">Seleccionar Tramite</label>
-				<select  class="form-control" id="tramite" name="tramite">
-					<option value=""> </option>
-					<option value="1">Acta Nacimiento</option>
-					<option value="2">Campaña</option>
-				</select>	
-			</div>
-			<div class="col-sm-6 form-group">
-				<label for="dependecia">Dependencia</label>
-				<select class="form-control" id="dependencia" name="dependencia">
-					<option value=""> </option>
 
-					<option value=" 1">Secretaría de la Defensa Nacional</option>
-					<option value=" 2">Secretaría de Relaciones Exteriores</option>
-					<option value=" 3">Secretaría de Medio Ambiente y Recursos Naturales</option>
-					<option value=" 4">Secretaría de Gobernación</option>
-					<option value=" 5">Secretaría de Educación Pública</option>
-					<option value=" 6">Secretaría de la Función Pública</option>
-					<option value=" 7">Comisión Nacional de Seguridad</option>
-					<option value=" 8">Secretaría de Agricultura </option>
-					<option value=" 9">Secretaría de Desarrollo Agrario, Territorial y Urbano </option>
-					<option value=" 10">Secretaría de Energía</option>
-					<option value=" 11">Secretaría de Turismo</option>
-					<option value=" 12">Secretaría del Trabajo y Previsión Social</option>
-					<option value=" 13">Secretaría de Marina</option>
-					<option value=" 14">Comisión Nacional para el Desarrollo de los Pueblos Indígenas</option>
-					<option value=" 15">Secretaría de Economía</option>
-					<option value=" 16">Secretaría de Hacienda y Crédito Público</option>
-					<option value=" 17">Secretaría de Comunicaciones y Transportes</option>
-					<option value=" 18">Secretaría de Salud</option>
-					<option value=" 19">Secretaría de Desarrollo Social</option>
-					<option value=" 20">Procuraduría General de la República</option>
-					<option value=" 21">Instituto Nacional de las Mujeres</option>
-					<option value=" 22">Instituto de Seguridad y Servicios Sociales de los Trabajadores del Estado</option>
-				</select>    
-			</div>
-			<div class="form-group col-md-2">
-				<button  class="btn btn-primary btn-lg" style="margin-right: 12px;"  type="button" onclick="forma.search()">Busca Campos</button>
 			</div>
 		</div>
 
-	</div>
-	<div class = "col-md-2"></div>
+		<div id="encuesta" class="row tramite-content" style=" display: none;">
+			<div class="form-group col-md-12"> 
+				<div class="col-md-3 form-group">
+					<label for="tramite">Seleccionar Tramite</label>
+					<select  class="form-control" id="tramite" name="tramite">
+						<option value=""> </option>
+						<option value="1">Acta Nacimiento</option>
+						<option value="2">Campaña</option>
+					</select>	
+				</div>
+				<div class="col-md-3 form-group">
+					<label for="dependecia">Dependencia</label>
+					<select class="form-control" id="dependencia" name="dependencia">
+						<option value=""> </option>
+						<option value=" 1">Secretaría de la Defensa Nacional</option>
+						<option value=" 2">Secretaría de Relaciones Exteriores</option>
+						<option value=" 3">Secretaría de Medio Ambiente y Recursos Naturales</option>
+						<option value=" 4">Secretaría de Gobernación</option>
+						<option value=" 5">Secretaría de Educación Pública</option>
+						<option value=" 6">Secretaría de la Función Pública</option>
+						<option value=" 7">Comisión Nacional de Seguridad</option>
+						<option value=" 8">Secretaría de Agricultura </option>
+						<option value=" 9">Secretaría de Desarrollo Agrario, Territorial y Urbano </option>
+						<option value=" 10">Secretaría de Energía</option>
+						<option value=" 11">Secretaría de Turismo</option>
+						<option value=" 12">Secretaría del Trabajo y Previsión Social</option>
+						<option value=" 13">Secretaría de Marina</option>
+						<option value=" 14">Comisión Nacional para el Desarrollo de los Pueblos Indígenas</option>
+						<option value=" 15">Secretaría de Economía</option>
+						<option value=" 16">Secretaría de Hacienda y Crédito Público</option>
+						<option value=" 17">Secretaría de Comunicaciones y Transportes</option>
+						<option value=" 18">Secretaría de Salud</option>
+						<option value=" 19">Secretaría de Desarrollo Social</option>
+						<option value=" 20">Procuraduría General de la República</option>
+						<option value=" 21">Instituto Nacional de las Mujeres</option>
+						<option value=" 22">Instituto de Seguridad y Servicios Sociales de los Trabajadores del Estado</option>
+					</select>    
+				</div>
+				<div class="form-group col-md-3"> 
+					<div class="form-group">
+						<label for="nameSearch">Busqueda Por Nombre</label>
+						<input id="nameSearch" class="form-control" type="text" name="nameSearch"  placeholder="busqueda">	
+					</div>			
+				</div>
 
-	<div class="row tramite-content col-md-10" style="margin-right: 400px;"  >
-		<div id="container"></div>
-	</div>
+				<div class="form-group col-md-3">
+					<button  class="btn btn-primary btn-lg" style="margin-right: 12px;"  type="button" onclick="forma.search()">Busca Campos</button>
+				</div>
+			</div>
+		</div>
+
+		<div id="nombre" class="row tramite-content" style=" display: none;">
+			<div class="form-group col-md-7"> 
+				<div class="col-sm-4 form-group">
+					<label for="nameSearch">Busqueda Por Nombre</label>
+					<input id="nameSearch" class="form-control" type="text" name="nameSearch"  placeholder="busqueda">	
+				</div>			
+				<div class="form-group col-md-2">
+					<button  class="btn btn-primary btn-lg" style="margin-right: 12px;"  type="button" onclick="forma.search()">Busca Campos</button>
+				</div>
+			</div>
+		</div>
+
+		<div class = "col-md-2"></div>
+
+		<div class="row tramite-content col-md-10" style="margin-right: 400px;"  >
+			<div id="container"></div>
+		</div>
 	</div>
 <!-- 
 
@@ -147,32 +168,49 @@
 	<button type="button" onclick="alert(JSON.stringify(webComponent._isValidForm() ))">valid?</button>
 	<button type="button" onclick="alert(JSON.stringify(webComponent.errorFields))">errorFilds?</button>
 	<button type="button" onclick="alert(JSON.stringify(webComponent.invalidFields))">InvalidFields?</button>
-	 -->
+-->
 
-	<script >
-		var forma = {
-			searchType: '',
-			search: function(){
-				var date = new Date().toISOString().slice(0, 10);
+<script >
+	var forma = {
+		searchType: '',
+		search: function(){
+			var date = new Date().toISOString().slice(0, 10);
 
-				var form = [];
-				if(forma.searchType === "acta"){
-					var estado = $("#estados");
-					var pago = $("#payment");
-					form = webComponent.main('http://10.15.9.2:3000/gobmx/actas_nacimiento/findOne?filter={"where":{"id_estado":'+ estado.val() +',"id_tipo_pago":'+ pago.val() +'}}');	
-				}else{
-					var tramite = $("#tramite");
-					var dependencia = $("#dependencia");
-					/*					form = webComponent.main('http://10.15.9.2:3000/gobmx/encuestas/findOne?filter={"where":{"id_dependencia":' + dependencia.val() + ',"id_tramite":'+ tramite.val() +  ' ",fecha_inicio":{"gte":"' + date + '"}  }}');	*/
-					form = webComponent.main('http://10.15.9.2:3000/gobmx/encuestas/findOne?filter={"where":{"id_tramite":'+ tramite.val()+',"id_dependencia":'+ dependencia.val() +',"fecha_inicio":{"lte":"'+ date +'"}}}');
-				}
-				
-				//var form = webComponent.main('http://localhost:1337/options/1');
-				if(form){
-					webComponent._render('container');
-				}else{
-					alert("error");
-				}				
+			var form = [];
+			if(forma.searchType === "acta"){
+				var estado = $("#estados");
+				var pago = $("#payment");
+				var formName = $("#nameSearch");
+                if(formName.val().length > 0){
+                   form = webComponent.main('http://10.15.9.2:3000/gobmx/actas_nacimiento/findOne?filter={"where":{"nombre":"'+ formName.val() + '"}}');
+                }else {
+                   form = webComponent.main('http://10.15.9.2:3000/gobmx/actas_nacimiento/findOne?filter={"where":{"id_estado":'+ estado.val() +',"id_tipo_pago":'+ pago.val() +'}}');		
+                }				
+			}
+			else if(forma.searchType === "encuesta"){
+				var tramite = $("#tramite");
+				var dependencia = $("#dependencia");
+				var formName = $("#nameSearch");
+				var formName = $("#nameSearch");
+                if(formName.val().length > 0){
+                    form = webComponent.main('http://10.15.9.2:3000/gobmx/encuestas/findOne?filter={"where":{"nombre":"'+ formName.val() + '"}}');   
+
+                }else{
+                	form = webComponent.main('http://10.15.9.2:3000/gobmx/encuestas/findOne?filter={"where":{"id_tramite":'+ tramite.val()+',"id_dependencia":'+ dependencia.val() +',"fecha_inicio":{"lte":"'+ date +'"}}}');
+                }				
+			}
+			/*else{
+				var formName = $("#nameSearch");
+                form = webComponent.main('http://10.15.9.2:3000/gobmx/encuestas/findOne?filter={"where":{"nombre":"'+ formName.val() + '"}}');   
+			}*/
+
+
+			//var form = webComponent.main('http://localhost:1337/options/1');
+			if(form){
+				webComponent._render('container');
+			}else{
+				alert("error");
+			}				
 			},
 			setSearch: function(){
 				var searchType = $("#searchType");
@@ -187,7 +225,7 @@
 					$("#acta").hide();
 					forma.searchType = "encuesta";
 					webComponent.setSearchType("encuesta");
-				}
+				}				
 			}
 		}
 	</script>

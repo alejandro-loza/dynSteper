@@ -130,7 +130,7 @@ var webComponent = {
 			}
 		});
 
-		if(webComponent.searchType === "encuesta"){
+		if(webComponent.searchType !== "acta"){
 			createNavBar($("#" + container));
 		}
 
