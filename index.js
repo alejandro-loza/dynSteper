@@ -483,7 +483,7 @@ var webComponent = {
 			      			contentType: 'application/json',
 			      			data: JSON.stringify(payload),
 			      			success: function(response){
-
+                              alert("Encuesta Guardada.");
 			      			},
 			      			error: function(e){
 
