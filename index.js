@@ -486,7 +486,7 @@ var webComponent = {
                               alert("Encuesta Guardada.");
 			      			},
 			      			error: function(e){
-
+                              alert("Error: " + JSON.stringify(e));
 			      			},
 			      			complete: function(){
 			      			}
