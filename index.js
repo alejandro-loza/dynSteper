@@ -90,6 +90,7 @@ var webComponent = {
 				controller._formValues = entityFields.fields ;
 			},
 			error: function(e){
+				alert("Error: Encuesta no encontrada");
 				if(e.status === 404){
 					controller.error = e.status;
 				}
@@ -124,7 +125,10 @@ var webComponent = {
 				createSelect(field,index);		
 				break;
 				case "date":
-				createDatePicker(field,index);
+				createDatePicker(field,index);				
+				case "header":
+				createHeader(field,index);
+				break;
 				default: 
 				//alert('Default case');
 			}
@@ -133,6 +137,10 @@ var webComponent = {
 		if(webComponent.searchType !== "acta"){
 			createNavBar($("#" + container));
 		}
+		function createHeader(field, index){
+		    var div = getOrCreateDiv("id" + index, field.class);
+            getOrCreateHeader(div,field);
+		};
 
 		function createTextInput(field, index){
 			var id = field.name + index;
@@ -212,6 +220,18 @@ var webComponent = {
 			var labelObject = $("#label-" + id );
 			if(labelObject.length === 0){
 				labelObject = $("<label class='control-label' id='label-"+ id +"' for = "+ id + " >"+ field.label + "</label>");
+				div.append(labelObject);
+			}
+			if(field.description){
+                addToolTip(labelObject, field.description, "top");
+			}
+			return labelObject;
+		};
+
+		function getOrCreateHeader(div, field){
+			var labelObject = $("#header");
+			if(labelObject.length === 0){
+			    labelObject = $("<"+field.subtype+" class='"+ field.class +"' >"+ field.label + "</"+field.subtype+">");
 				div.append(labelObject);
 			}
 			if(field.description){
