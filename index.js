@@ -29,7 +29,6 @@ var webComponent = {
 				inputValues.push({ idField: $(this).parent().attr("id"), name: $(this).attr("data-name") ,  label: $(this).attr("data-label"), response: $(this).val() });
 			}
 		});
-		alert(JSON.stringify(inputValues));
 		return inputValues;
 	},
 
@@ -336,11 +335,12 @@ var webComponent = {
 
 		function getOrCreateTextInput(div, id, field){
 			var input = $("#" + id );
+
 			if(input.length === 0){
 				input = $("<input/>");
 				input.attr("id", id )
 				input.addClass('form-control')
-				input.attr("type", "text")
+				input.attr("type", field.subtype || field.type)
 				input.attr("name", field.name)
 				input.attr("label", unescapeHtml(field.label))
 				input.attr("placeholder", unescapeHtml(field.placeholder))
