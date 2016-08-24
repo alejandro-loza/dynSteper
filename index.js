@@ -12,7 +12,11 @@ var webComponent = {
 
 	_getAllValues:function() {
 		var inputValues = [];
-		$('#' + webComponent.canvas +' input[type="text" ] , textarea ').each(function() {
+		$('#' + webComponent.canvas +' input[type="text"]').each(function() {
+			inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val() });
+		});
+
+		$('#' + webComponent.canvas +'  textarea ').each(function() {
 			inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val() });
 		});
 
@@ -25,6 +29,7 @@ var webComponent = {
 				inputValues.push({ idField: $(this).parent().attr("id"), name: $(this).attr("data-name") ,  label: $(this).attr("data-label"), response: $(this).val() });
 			}
 		});
+		alert(JSON.stringify(inputValues));
 		return inputValues;
 	},
 
@@ -335,7 +340,7 @@ var webComponent = {
 				input = $("<input/>");
 				input.attr("id", id )
 				input.addClass('form-control')
-				input.attr("type", field.subtype)
+				input.attr("type", "text")
 				input.attr("name", field.name)
 				input.attr("label", unescapeHtml(field.label))
 				input.attr("placeholder", unescapeHtml(field.placeholder))
