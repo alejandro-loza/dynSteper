@@ -12,16 +12,8 @@ var webComponent = {
 
 	_getAllValues:function() {
 		var inputValues = [];
-		$('#' + webComponent.canvas +' input[type="text"]').each(function() {
+		$('#' + webComponent.canvas +' input[type="text"], textarea, input:checked').each(function() {
 			inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val() });
-		});
-
-		$('#' + webComponent.canvas +'  textarea ').each(function() {
-			inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val() });
-		});
-
-		$('#' + webComponent.canvas +' input:checked').each(function() {			
-			inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  , label: $(this).attr("label"), response: $(this).val() });			
 		});
 
 		$('#' + webComponent.canvas +'  option:selected').each(function() {
@@ -29,6 +21,7 @@ var webComponent = {
 				inputValues.push({ idField: $(this).parent().attr("id"), name: $(this).attr("data-name") ,  label: $(this).attr("data-label"), response: $(this).val() });
 			}
 		});
+        
 		return inputValues;
 	},
 
@@ -453,7 +446,7 @@ var webComponent = {
             input.attr("data-toggle", "tooltip" );
             input.attr("data-placement", side );
             input.attr("title", unescapeHtml(title));
-            var helper = $('<span class="tooltip-element" tooltip="' + title + '" style="display: inline-block;">?</span>');
+            var helper = $('<span class="tooltip-element" tooltip="' +  unescapeHtml(title) + '" style="display: inline-block;">?</span>');
             input.append(helper);
             return input;
 		};
