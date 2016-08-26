@@ -4,15 +4,16 @@
 	<meta charset="utf-8">
 
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>gob.mx - Trazabilidad</title>
+	<title>gob.mx - DynTest</title>
 	<meta name="description" content>
 	<meta name="viewport" content="width=device-width">
 	<link href="http://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400italic,400,600,700" rel="stylesheet" type="text/css" >
 	<link href="http://framework-gb.cdn.gob.mx/assets/styles/main.css" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" type="text/css" href="https://www.gob.mx/cms/assets/application.css">
+	<link rel="stylesheet" type="text/css" href="https://www.gob.mx/cms/assets/templates/codex.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 	<script src="http://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js"></script>
 	<script src="http://framework-gb.cdn.gob.mx/gobmx.js"></script>
-	<script type="text/javascript" src="https://framework-gb-ssl.cdn.gob.mx/assets/scripts/jquery-ui-datepicker.js"></script>
 </head>
 <body >
 <main class="ficha">
@@ -156,9 +157,8 @@
 			</div>
 		</div>
 
-		<div class = "col-md-2"></div>
 
-		<div class="row tramite-content col-md-10" style="margin-right: 400px;"  >
+		<div class="row tramite-content "  >
 			<div id="container"></div>
 		</div>
 	</div>
@@ -201,13 +201,7 @@
                 	form = webComponent.main('http://10.15.9.2:3000/gobmx/encuestas/findOne?filter[where][and][0][fecha_inicio][lte]='+date+'&filter[where][and][1][fecha_fin][gte]='+date+'&filter[where][and][2][id_dependencia]='+dependencia.val()+'&filter[where][and][2][id_tramite]='+tramite.val());
                 }				
 			}
-			/*else{
-				var formName = $("#nameSearch");
-                form = webComponent.main('http://10.15.9.2:3000/gobmx/encuestas/findOne?filter={"where":{"nombre":"'+ formName.val() + '"}}');   
-			}*/
-
-            
-			//var form = webComponent.main('http://localhost:1337/options/1');
+			
 			if(form){
 				webComponent._render('container');
 			}else{
@@ -235,8 +229,6 @@
 
 
 	<script src="index.js"></script>
-	<script src="https://framework-gb.cdn.gob.mx/gobmx.js"></script>
-	<script type="text/javascript" src="https://framework-gb.cdn.gob.mx/assets/scripts/jquery-ui-datepicker.js"></script>
 	<script src="https://framework-gb.cdn.gob.mx/assets/scripts/jquery-ui-datepicker.js"></script>
 
 </body>
