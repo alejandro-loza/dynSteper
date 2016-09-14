@@ -9,11 +9,14 @@ var webComponent = {
 	lastCount: 1,
 	error:'',
 	selected: [],
+	checked:[],
 
 	_getAllValues:function() {
 		var inputValues = [];
-		$('#' + webComponent.canvas +' input[type="text"], textarea, input:checked').each(function() {
-			inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val() });
+		$('#' + webComponent.canvas +' input[type="text"], textarea').each(function() {
+			if($(this).val().length > 0){
+				inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val() });
+			}
 		});
 
 		$('#' + webComponent.canvas +'  option:selected').each(function() {
@@ -21,8 +24,8 @@ var webComponent = {
 				inputValues.push({ idField: $(this).parent().attr("id"), name: $(this).attr("data-name") ,  label: $(this).attr("data-label"), response: $(this).val() });
 			}
 		});
-        
-		return inputValues;
+
+		return inputValues.concat(webComponent.checked);
 	},
 
 	_isValidForm: function(){
@@ -37,14 +40,26 @@ var webComponent = {
 				}
 			});
 			$('.required input').attr('required',true).filter(':visible:first').each(function(i, requiredField){
-				if($(requiredField).val() == ''){
-					webComponent.errorFields.push(requiredField);
+				if($(requiredField).attr("parentId")){
+					var div = $(requiredField).attr("parentId");
+					var seleccionados =  $("#"+div).find("input:checked");
+					if(seleccionados.length === 0){
+					   webComponent.errorFields.push($(requiredField));	
+					}
+				}
+				else if($(requiredField).val() == ''){
+					webComponent.errorFields.push($(requiredField));
 				}
 			});
 
 			if(webComponent.errorFields.length !== 0){
 				$.each(webComponent.errorFields, function(index,field){
-					webComponent._addErrorClass(field.id);
+					if($(field).attr("parentId")){
+						var divId = $(field).attr("parentId");
+                        webComponent._addErrorClassSimple($("#"+divId), "Campo Requerido");
+					}else{
+						webComponent._addErrorClass(field.id);
+					}
 				})
 				return false;
 			}
@@ -135,8 +150,8 @@ var webComponent = {
 			createNavBar($("#" + container));
 		}
 		function createHeader(field, index){
-		    var div = getOrCreateDiv("id" + index, field.class);
-            getOrCreateHeader(div,field);
+			var div = getOrCreateDiv("id" + index, field.class);
+			getOrCreateHeader(div,field);
 		};
 
 		function createTextInput(field, index){
@@ -220,7 +235,12 @@ var webComponent = {
 				div.append(labelObject);
 			}
 			if(field.description){
-                addToolTip(labelObject, field.description, "top");
+				addToolTip(labelObject, field.description, "top");
+			}
+			if( field.textoApoyo != undefined ) {
+				var p = $('<p/>')
+				.text(field.textoApoyo)
+				.appendTo(div);
 			}
 			return labelObject;
 		};
@@ -228,11 +248,11 @@ var webComponent = {
 		function getOrCreateHeader(div, field){
 			var labelObject = $("#header");
 			if(labelObject.length === 0){
-			    labelObject = $("<"+field.subtype+" class='"+ field.class +"' >"+ field.label + "</"+field.subtype+">");
+				labelObject = $("<"+field.subtype+" class='"+ field.class +"' >"+ field.label + "</"+field.subtype+">");
 				div.append(labelObject);
 			}
 			if(field.description){
-                addToolTip(labelObject, field.description, "top");
+				addToolTip(labelObject, field.description, "top");
 			}
 			return labelObject;
 		};
@@ -316,10 +336,9 @@ var webComponent = {
 		    	var re = /form-control/gi;
 		    	item.class = item.class.replace(re, "").split(" ").join(' ');
 		    	item.placeholder = item.placeholder || "";
-			//item.placeholder = unescapeHtml(item.placeholder);
-			if(item.required){
-				item.class = item.class.concat(" required");
-			}
+		    	if(item.required){
+		    		item.class = item.class.concat(" required");
+		    	}
 /*			if(item.options){
 				item.options = $.parseJSON(item.options);
 			}*/
@@ -424,12 +443,22 @@ var webComponent = {
 		};
 
 		function getOrCreateCheckBoxGroupInput(div, id, field){
+			var divCheck = $("<div/>").addClass("checkbox row");
 			$.each( field.options , function( index, opt ) {
-				var divCheck = $("<div/>").addClass("checkbox row");
-				var lab = $("<label/>").html("<input  type='checkbox' label = '"+ unescapeHtml(field.label) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
-				lab.appendTo($(divCheck))
-				divCheck.appendTo(div);
-			});			
+				var contain = $('<div/>').addClass('col-md-12 clearfix');
+				var lab = $("<label/>").html("<input id='"+id + "-" + index +"' parentId='"+div.attr("id")+"' type='checkbox' label = '"+ unescapeHtml(field.label) + "' onclick=\'webComponent.saveChecks(this, "+ index +", "+ field.maxToCheck +" )' resp = '"+ unescapeHtml(opt.text) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text +
+					((opt.text=='Otro')? "<input type='text' maxlength='100' class='form-control' id='camOtro"+index+"'>": ""));
+				lab.on("change", function(evt){
+                   var seleccionados = lab.parent().parent().parent().find("input:checked");  
+                   if(seleccionados.length > 0){
+                   	    lab.parent().parent().parent().removeClass( 'has-error' );
+						$( '.help-block', lab.parent().parent().parent()  ).slideUp().html( '' );
+                   }
+				});
+				lab.appendTo(contain)
+				contain.appendTo(divCheck)
+				divCheck.appendTo(div)
+			});
 		};
 
 		function addHelperBlock (div) {
@@ -443,12 +472,12 @@ var webComponent = {
 		};
 
 		function addToolTip(input, title, side){
-            input.attr("data-toggle", "tooltip" );
-            input.attr("data-placement", side );
-            input.attr("title", unescapeHtml(title));
-            var helper = $('<span class="tooltip-element" tooltip="' +  unescapeHtml(title) + '" style="display: inline-block;">?</span>');
-            input.append(helper);
-            return input;
+			input.attr("data-toggle", "tooltip" );
+			input.attr("data-placement", side );
+			input.attr("title", unescapeHtml(title));
+			var helper = $('<span class="tooltip-element" tooltip="' +  unescapeHtml(title) + '" style="display: inline-block;">?</span>');
+			input.append(helper);
+			return input;
 		};
 
 		function unescapeHtml(escapedStr) {
@@ -463,95 +492,98 @@ var webComponent = {
 			.addClass('form-group col-md-12')
 			.css({'margin-right':'12px'})
 			.appendTo(holder);
-			// var back = $('<button/>')
-			// .addClass('btn btn-default btn-lg')
-			// .text('Regresar')
-			// .css({'margin-right':'12px'})
-			// .appendTo(navbar)
-			// .click(function(e) {
-			// 	e.preventDefault();
-			// 	hotResponse.response = [];
-			// 	generalNav();
-			// 	$('html,body').animate({
-			// 		scrollTop: $('#generalText').offset().top - 100
-			// 	}, 500);          
-			// });
 			var next = $('<button/>')
 			.addClass('btn btn-primary btn-lg')
 			.text('Enviar')
-			      //.attr('disabled', true)
-			      .css({'margin-right':'12px'})
-			      .appendTo(navbar)
-			      .click(function(e) {
-			      	if(webComponent._isValidForm() ){
-			      		var responses = $.map(webComponent._getAllValues(), function(n,i){
-			      			return JSON.parse('{"' + n.label + '" : "' + n.response + '"}');
-			      		});
-			      		var payload = {};
-			      		payload.id_tramite  = webComponent._modelValues['id_tramite'];
-			      		payload.id_dependencia = webComponent._modelValues['id_dependencia'];
-			      		payload.nombre  = webComponent._modelValues['nombre'];
-			      		payload.dependencia = webComponent._modelValues['dependencia'];
-			      		payload.respuestas = responses;
+			.css({'margin-right':'12px'})
+			.appendTo(navbar)
+			.click(function(e) {
+				if(webComponent._isValidForm() ){
+					var responses = $.map(webComponent._getAllValues(), function(n,i){
+						return JSON.parse('{"' + n.label + '" : "' + n.response + '"}');
+					});
+					var payload = {};
+					payload.id_tramite  = webComponent._modelValues['id_tramite'];
+					payload.id_dependencia = webComponent._modelValues['id_dependencia'];
+					payload.nombre  = webComponent._modelValues['nombre'];
+					payload.dependencia = webComponent._modelValues['dependencia'];
+					payload.respuestas = responses;
 
-			      		$.ajax({
-			      			url: 'http://10.15.9.2:3000/gobmx/resultados',
-			      			type: 'POST',
-			      			dataType: 'json',
-			      			contentType: 'application/json',
-			      			data: JSON.stringify(payload),
-			      			success: function(response){
-                              alert("Encuesta Guardada.");
-			      			},
-			      			error: function(e){
-                              alert("Error: " + JSON.stringify(e));
-			      			},
-			      			complete: function(){
-			      			}
-			      		});
+					$.ajax({
+						url: 'http://10.15.9.2:3000/gobmx/resultados',
+						type: 'POST',
+						dataType: 'json',
+						contentType: 'application/json',
+						data: JSON.stringify(payload),
+						success: function(response){
+							alert("Encuesta Guardada.");
+						},
+						error: function(e){
+							alert("Error: " + JSON.stringify(e));
+						},
+						complete: function(){
+						}
+					});
 
-			      	}
-			      	e.preventDefault();
+				}
+				e.preventDefault();
 
+			});
 
-			 /*     	$('html,body').animate({
-			      		scrollTop: $('#generalText').offset().top - 100
-			      	}, 500);*/
-});
-			// var stop = $('<button/>')
-		 //      .addClass('btn btn-primary btn-lg')        
-		 //      .text('Finalizar')
-		 //      .appendTo(navbar);
-		 //      $(next).click(function() {
-		 //      	if (!notOk()) {
-		 //      		alert("Debe llenar todos los campos")
-		 //      		return false;
-		 //      	}
-		 //      	/*idGeneral++;
-		 //      	saveData();
-		 //      	if ( idGeneral == 2 || idGeneral == 6 || idGeneral == 10) { generalNav(); }
-		 //      	else { begin(); }*/
-		 //      });
-};
+		};
 
-},
-
-_evaluateValueInRegex: function(value,regex) {
-	var exp = new RegExp(b64_to_utf8( regex ));
-	return  exp.test(value);
-	function b64_to_utf8( str ) {
-		return decodeURIComponent(escape(window.atob( str )));
-	}
-},
-
-_addErrorClass : function (fieldId, failType){
-	var failMessage;
-	if(failType === "required") {failMessage = "Campo Requerido"}
-		else {failMessage = "Campo invalido"}
-			var htmlInputField = $( '#'+fieldId );	
-		htmlInputField.parent().addClass( 'has-error' );
-		$( '.help-block', htmlInputField.parent() ).html( failMessage).slideDown();
 	},
+
+	saveChecks: function(element, indexValidation, max){
+		var seleccionados = $(element).parent().parent().parent().parent().find("input:checked");
+		if ($(element).is(":checked")) {
+			var respuesta = $(element).attr("resp")
+			if (max != -1) {
+				if (seleccionados.length > max) {
+					alert("no puedes seleccionar más de " + max + " opciones");
+					$(element).prop('checked', false);
+					return false;
+				}
+			}
+			if (respuesta.trim() == "Otro") {
+				if ($("#camOtro" + indexValidation).val().trim() == "") {
+					alert("Debe describir la opción, antes de seleccionar")
+					$(element).prop('checked', false);
+					return false;
+				}
+				respuesta = $("#camOtro" + indexValidation).val().trim()
+			}
+			webComponent.checked.push({ idField: $(element).attr("id"), name: $(element).attr("name")  ,  label: $(element).attr("label"), response: respuesta });
+		} 
+		else {
+			for (i in webComponent.checked){
+				if (webComponent.checked[i].idField === $(element).attr("id") ){
+					webComponent.checked.splice(i, 1);
+				}
+			}
+		}
+
+	},
+
+	_evaluateValueInRegex: function(value,regex) {
+		var exp = new RegExp(b64_to_utf8( regex ));
+		return  exp.test(value);
+		function b64_to_utf8( str ) {
+			return decodeURIComponent(escape(window.atob( str )));
+		}
+	},
+
+	_addErrorClass : function (fieldId, failType){
+		var failMessage;
+		if(failType === "required") {failMessage = "Campo Requerido"}
+		else {failMessage = "Campo invalido"}
+		var htmlInputField = $( '#'+fieldId );
+		_addErrorClassSimple(htmlInputField.parent(),failMessage);
+	},
+	_addErrorClassSimple : function (div, failMessage){
+        $(div).addClass('has-error');
+       	$( '.help-block', div ).html( failMessage).slideDown();
+	},	
 
 	_removeErrorClass : function (fieldId){	
 		var htmlInputField = $( '#'+fieldId );	
@@ -562,27 +594,27 @@ _addErrorClass : function (fieldId, failType){
 }
 
 
-$gmx(document).ready(function(){
-	$.datepicker.regional.es = {
-		closeText: 'Cerrar',
-		prevText: 'Ant',
-		nextText: 'Sig',
-		currentText: 'Hoy',
-		monthNames: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
-		monthNamesShort: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
-		dayNames: ['Domingo','Lunes','Martes','Mi&eacute;rcoles','Jueves','Viernes','S&aacute;bado'],
-		dayNamesShort: ['Dom','Lun','Mar','Mi&eacute;','Juv','Vie','S&aacute;b'],
-		dayNamesMin: ['Dom','Lun','Mar','Mie','Jue','Vie','S&aacute;b'],
-		weekHeader: 'Sm',
-		dateFormat: 'dd/mm/yy',
-		firstDay: 1,
-		isRTL: false,
-		showMonthAfterYear: false,
-		yearSuffix: ''
-	};
-	$.datepicker.setDefaults($.datepicker.regional.es);
+	$gmx(document).ready(function(){
+		$.datepicker.regional.es = {
+			closeText: 'Cerrar',
+			prevText: 'Ant',
+			nextText: 'Sig',
+			currentText: 'Hoy',
+			monthNames: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+			monthNamesShort: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
+			dayNames: ['Domingo','Lunes','Martes','Mi&eacute;rcoles','Jueves','Viernes','S&aacute;bado'],
+			dayNamesShort: ['Dom','Lun','Mar','Mi&eacute;','Juv','Vie','S&aacute;b'],
+			dayNamesMin: ['Dom','Lun','Mar','Mie','Jue','Vie','S&aacute;b'],
+			weekHeader: 'Sm',
+			dateFormat: 'dd/mm/yy',
+			firstDay: 1,
+			isRTL: false,
+			showMonthAfterYear: false,
+			yearSuffix: ''
+		};
+		$.datepicker.setDefaults($.datepicker.regional.es);
 
-	$('[data-toggle="tooltip"]').tooltip();
+		$('[data-toggle="tooltip"]').tooltip();
 
-});
+	});
 
