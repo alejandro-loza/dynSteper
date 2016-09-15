@@ -237,9 +237,9 @@ var webComponent = {
 			if(field.description){
 				addToolTip(labelObject, field.description, "top");
 			}
-			if( field.textoApoyo != undefined ) {
+			if( field.textoapoyo != undefined ) {
 				var p = $('<p/>')
-				.text(field.textoApoyo)
+				.text(field.textoapoyo)
 				.appendTo(div);
 			}
 			return labelObject;
@@ -446,7 +446,7 @@ var webComponent = {
 			var divCheck = $("<div/>").addClass("checkbox row");
 			$.each( field.options , function( index, opt ) {
 				var contain = $('<div/>').addClass('col-md-12 clearfix');
-				var lab = $("<label/>").html("<input id='"+id + "-" + index +"' parentId='"+div.attr("id")+"' type='checkbox' label = '"+ unescapeHtml(field.label) + "' onclick=\'webComponent.saveChecks(this, "+ index +", "+ field.maxToCheck +" )' resp = '"+ unescapeHtml(opt.text) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text +
+				var lab = $("<label/>").html("<input id='"+id + "-" + index +"' parentId='"+div.attr("id")+"' type='checkbox' label = '"+ unescapeHtml(field.label) + "' onclick=\'webComponent.saveChecks(this, "+ index +", "+ field.nseleccionados +" )' resp = '"+ unescapeHtml(opt.text) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text +
 					((opt.text=='Otro')? "<input type='text' maxlength='100' class='form-control' id='camOtro"+index+"'>": ""));
 				lab.on("change", function(evt){
                    var seleccionados = lab.parent().parent().parent().find("input:checked");  
