@@ -44,7 +44,7 @@ var webComponent = {
 					var div = $(requiredField).attr("parentId");
 					var seleccionados =  $("#"+div).find("input:checked");
 					if(seleccionados.length === 0){
-					   webComponent.errorFields.push($(requiredField));	
+						webComponent.errorFields.push($(requiredField));	
 					}
 				}
 				else if($(requiredField).val() == ''){
@@ -56,7 +56,7 @@ var webComponent = {
 				$.each(webComponent.errorFields, function(index,field){
 					if($(field).attr("parentId")){
 						var divId = $(field).attr("parentId");
-                        webComponent._addErrorClassSimple($("#"+divId), "Campo Requerido");
+						webComponent._addErrorClassSimple($("#"+divId), "Campo Requerido");
 					}else{
 						webComponent._addErrorClass(field.id);
 					}
@@ -119,6 +119,7 @@ var webComponent = {
 		webComponent.canvas = container;
 		var controller = this;
 		$.each( webComponent._formValues, function( index, field ) {
+			
 			validateFieldsClass(field);
 			switch(field.type) {
 				case "text":
@@ -147,6 +148,8 @@ var webComponent = {
 		});
 
 		if(webComponent.searchType !== "acta"){
+
+			createCaptcha($("#" + container));
 			createNavBar($("#" + container));
 		}
 		function createHeader(field, index){
@@ -447,13 +450,14 @@ var webComponent = {
 			$.each( field.options , function( index, opt ) {
 				var contain = $('<div/>').addClass('col-md-12 clearfix');
 				var lab = $("<label/>").html("<input id='"+id + "-" + index +"' parentId='"+div.attr("id")+"' type='checkbox' label = '"+ unescapeHtml(field.label) + "' onclick=\'webComponent.saveChecks(this, "+ index +", "+ field.nseleccionados +" )' resp = '"+ unescapeHtml(opt.text) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text +
-					((opt.text=='Otro')? "<input type='text' maxlength='100' class='form-control' id='camOtro"+index+"'>": ""));
+					
+					((opt.text.toUpperCase().trim() =='OTRO')? "<input type='text' maxlength='100' class='form-control' id='camOtro"+index+"'>": ""));
 				lab.on("change", function(evt){
-                   var seleccionados = lab.parent().parent().parent().find("input:checked");  
-                   if(seleccionados.length > 0){
-                   	    lab.parent().parent().parent().removeClass( 'has-error' );
+					var seleccionados = lab.parent().parent().parent().find("input:checked");  
+					if(seleccionados.length > 0){
+						lab.parent().parent().parent().removeClass( 'has-error' );
 						$( '.help-block', lab.parent().parent().parent()  ).slideUp().html( '' );
-                   }
+					}
 				});
 				lab.appendTo(contain)
 				contain.appendTo(divCheck)
@@ -488,6 +492,7 @@ var webComponent = {
 		};
 
 		function createNavBar(holder){
+
 			var navbar = getOrCreateDiv("id", 'form-group col-md-12')
 			.addClass('form-group col-md-12')
 			.css({'margin-right':'12px'})
@@ -498,37 +503,59 @@ var webComponent = {
 			.css({'margin-right':'12px'})
 			.appendTo(navbar)
 			.click(function(e) {
+				var captcha = $('.validationValue').val();
+				
 				if(webComponent._isValidForm() ){
-					var responses = $.map(webComponent._getAllValues(), function(n,i){
-						return JSON.parse('{"' + n.label + '" : "' + n.response + '"}');
-					});
-					var payload = {};
-					payload.id_tramite  = webComponent._modelValues['id_tramite'];
-					payload.id_dependencia = webComponent._modelValues['id_dependencia'];
-					payload.nombre  = webComponent._modelValues['nombre'];
-					payload.dependencia = webComponent._modelValues['dependencia'];
-					payload.respuestas = responses;
+					if (captcha){
 
-					$.ajax({
-						url: 'http://10.15.9.2:3000/gobmx/resultados',
-						type: 'POST',
-						dataType: 'json',
-						contentType: 'application/json',
-						data: JSON.stringify(payload),
-						success: function(response){
-							alert("Encuesta Guardada.");
-						},
-						error: function(e){
-							alert("Error: " + JSON.stringify(e));
-						},
-						complete: function(){
-						}
-					});
+						var responses = $.map(webComponent._getAllValues(), function(n,i){
+							return JSON.parse('{"' + n.label + '" : "' + n.response + '"}');
+						});
+
+						var payload = {};
+						payload.id_tramite  = webComponent._modelValues['id_tramite'];
+						payload.id_dependencia = webComponent._modelValues['id_dependencia'];
+						payload.nombre  = webComponent._modelValues['nombre'];
+						payload.dependencia = webComponent._modelValues['dependencia'];
+						payload.respuestas = responses;
+
+						$.ajax({
+							url: 'http://10.15.9.2:3000/gobmx/resultados',
+							type: 'POST',
+							dataType: 'json',
+							contentType: 'application/json',
+							data: JSON.stringify(payload),
+							success: function(response){
+								alert("Encuesta Guardada.");
+							},
+							error: function(e){
+								alert("Error: " + JSON.stringify(e));
+							},
+							complete: function(){
+							}
+						});
+
+					}else {
+						alert ("El captcha es obligatorio");
+					}
 
 				}
+				
 				e.preventDefault();
 
 			});
+
+		};
+		/* Genera el captcha */
+		function createCaptcha(holder){
+			var captcha= webComponent._modelValues['captcha'];
+			if (captcha === true){
+				var navbar = getOrCreateDiv("id_captcha", 'form-group col-md-12')
+
+				var html = $('<input type="hidden" name="" class="validationValue"><br><br>	<label>Eres un Humano? &nbsp;</label><label class="respuesta_captcha" > </label>	<div id="PuzzleCaptcha"></div>');
+				html.appendTo(navbar);
+
+			}
 
 		};
 
@@ -576,22 +603,22 @@ var webComponent = {
 	_addErrorClass : function (fieldId, failType){
 		var failMessage;
 		if(failType === "required") {failMessage = "Campo Requerido"}
-		else {failMessage = "Campo invalido"}
-		var htmlInputField = $( '#'+fieldId );
-		_addErrorClassSimple(htmlInputField.parent(),failMessage);
-	},
-	_addErrorClassSimple : function (div, failMessage){
-        $(div).addClass('has-error');
-       	$( '.help-block', div ).html( failMessage).slideDown();
-	},	
+			else {failMessage = "Campo invalido"}
+				var htmlInputField = $( '#'+fieldId );
+			_addErrorClassSimple(htmlInputField.parent(),failMessage);
+		},
+		_addErrorClassSimple : function (div, failMessage){
+			$(div).addClass('has-error');
+			$( '.help-block', div ).html( failMessage).slideDown();
+		},	
 
-	_removeErrorClass : function (fieldId){	
-		var htmlInputField = $( '#'+fieldId );	
-		htmlInputField.parent().removeClass( 'has-error' );
-		$( '.help-block', htmlInputField.parent()  ).slideUp().html( '' );
+		_removeErrorClass : function (fieldId){	
+			var htmlInputField = $( '#'+fieldId );	
+			htmlInputField.parent().removeClass( 'has-error' );
+			$( '.help-block', htmlInputField.parent()  ).slideUp().html( '' );
+		}
+
 	}
-
-}
 
 
 	$gmx(document).ready(function(){
