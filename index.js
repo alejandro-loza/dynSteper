@@ -14,17 +14,30 @@ var webComponent = {
 	_getAllValues:function() {
 		var inputValues = [];
 		$('#' + webComponent.canvas +' input[type="text"], textarea').each(function() {
-			if($(this).val().length > 0){
+			//if($(this).val().length > 0){
 				inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val() });
-			}
+			//}
 		});
+
+		$('#' + webComponent.canvas +' input[type="radio"] ').each(function() {
+			var value = '';
+			if($(this).attr('checked')){
+				value = $(this).val();
+			}
+			//if($(this).val().length > 0){
+				inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: value });
+			//}
+		});
+
 
 		$('#' + webComponent.canvas +'  option:selected').each(function() {
-			if ($(this).val() != ''){
+			//if ($(this).val() != ''){
+				alert("option data label" + $(this).attr("data-label") );
 				inputValues.push({ idField: $(this).parent().attr("id"), name: $(this).attr("data-name") ,  label: $(this).attr("data-label"), response: $(this).val() });
-			}
+			//}
 		});
-
+         
+         alert("inputValues:  "+JSON.stringify(inputValues));
 		return inputValues.concat(webComponent.checked);
 	},
 
@@ -231,7 +244,7 @@ var webComponent = {
 		function getOrCreateLabel(div, id, field){
 			var labelObject = $("#label-" + id );
 			if(labelObject.length === 0){
-				labelObject = $("<label class='control-label' id='label-"+ id +"' for = "+ id + " >"+ field.label + "</label>");
+				labelObject = $("<label class='control-label' id='label-"+ id +"' for = "+ id + " >"+ unescapeHtml(field.label) + "</label>");
 				div.append(labelObject);
 			}
 			if(field.description){
@@ -304,18 +317,22 @@ var webComponent = {
 		    };
 		    // Add the options to the select box
 		    function populateSelect(select, index, selection, field){
+		    	var label = unescapeHtml(field.label);
+		        var name = unescapeHtml(field.name);
 		    	select.html("");
-		    	select.append($("<option value='' >------</option>"));
+		    	select.append($("<option />").val('').attr("data-name", name).attr("data-label", label).text('').prop('selected', true));
 		    	var options =  selection["options"] 
 			 	 // Current selected
 			 	 var currentSelectedIndex = selection["selected"];
 		        // Add the options to the select box
-		        $.each( options , function( index, opt ) {	        	
+		
+		        $.each( options , function( index, opt ) {	 
+
 		        	if(index === currentSelectedIndex){	        		
-		        		select.append($("<option />").val(opt.value).attr("data-name", field.name).attr("data-label", field.label).text(opt.text).prop('selected', true));
+		        		select.append($("<option />").val(opt.value).attr("data-name", name).attr("data-label", label).text(opt.text).prop('selected', true));
 		        	}
 		        	else{
-		        		select.append($("<option />").val(opt.value).attr("data-name", field.name).attr("data-label", field.label).text(opt.text));
+		        		select.append($("<option />").val(opt.value).attr("data-name", name).attr("data-label", label).text(opt.text));
 		        	}
 		        });
 		    };
