@@ -506,6 +506,10 @@ var webComponent = {
 				var captcha = $('.validationValue').val();
 				
 				if(webComponent._isValidForm() ){
+					var cap =  webComponent._modelValues['captcha'];
+					if (cap ==='f'){
+						captcha = true;
+					}
 					if (captcha){
 
 						var responses = $.map(webComponent._getAllValues(), function(n,i){
@@ -549,7 +553,8 @@ var webComponent = {
 		/* Genera el captcha */
 		function createCaptcha(holder){
 			var captcha= webComponent._modelValues['captcha'];
-			if (captcha === true){
+
+			if (captcha === 't'){
 				var navbar = getOrCreateDiv("id_captcha", 'form-group col-md-12')
 
 				var html = $('<input type="hidden" name="" class="validationValue"><br><br>	<label>Eres un Humano? &nbsp;</label><label class="respuesta_captcha" > </label>	<div id="PuzzleCaptcha"></div>');
