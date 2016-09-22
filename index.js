@@ -13,31 +13,39 @@ var webComponent = {
 
 	_getAllValues:function() {
 		var inputValues = [];
+		var notChecked = [];
+
 		$('#' + webComponent.canvas +' input[type="text"], textarea').each(function() {
 			//if($(this).val().length > 0){
 				inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val() });
 			//}
 		});
 
-		$('#' + webComponent.canvas +' input[type="radio"] ').each(function() {
-			var value = '';
-			if($(this).attr('checked')){
-				value = $(this).val();
+		$('#' + webComponent.canvas +' input[type="radio"]:checked ').each(function() {
+			if($(this).val().length > 0){
+				inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).text() });
 			}
-			//if($(this).val().length > 0){
-				inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: value });
-			//}
+		});
+
+		$('#' + webComponent.canvas +' input[type="radio"]').not(':checked').each(function() {
+			if($(this).attr("parentId")){
+				var div = $(this).attr("parentId");
+				var seleccionados =  $("#"+div).find(":checked");
+				if(seleccionados.length === 0 && notChecked.indexOf($(this).attr("label")) === -1){
+					notChecked.push($(this).attr("label"));
+					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response:'' });
+				}
+			}
 		});
 
 
 		$('#' + webComponent.canvas +'  option:selected').each(function() {
 			//if ($(this).val() != ''){
-				alert("option data label" + $(this).attr("data-label") );
 				inputValues.push({ idField: $(this).parent().attr("id"), name: $(this).attr("data-name") ,  label: $(this).attr("data-label"), response: $(this).val() });
 			//}
 		});
-         
-         alert("inputValues:  "+JSON.stringify(inputValues));
+
+		alert("inputValues:  "+JSON.stringify(inputValues));
 		return inputValues.concat(webComponent.checked);
 	},
 
@@ -57,7 +65,7 @@ var webComponent = {
 					var div = $(requiredField).attr("parentId");
 					var seleccionados =  $("#"+div).find("input:checked");
 					if(seleccionados.length === 0){
-					   webComponent.errorFields.push($(requiredField));	
+						webComponent.errorFields.push($(requiredField));	
 					}
 				}
 				else if($(requiredField).val() == ''){
@@ -69,7 +77,7 @@ var webComponent = {
 				$.each(webComponent.errorFields, function(index,field){
 					if($(field).attr("parentId")){
 						var divId = $(field).attr("parentId");
-                        webComponent._addErrorClassSimple($("#"+divId), "Campo Requerido");
+						webComponent._addErrorClassSimple($("#"+divId), "Campo Requerido");
 					}else{
 						webComponent._addErrorClass(field.id);
 					}
@@ -318,14 +326,14 @@ var webComponent = {
 		    // Add the options to the select box
 		    function populateSelect(select, index, selection, field){
 		    	var label = unescapeHtml(field.label);
-		        var name = unescapeHtml(field.name);
+		    	var name = unescapeHtml(field.name);
 		    	select.html("");
 		    	select.append($("<option />").val('').attr("data-name", name).attr("data-label", label).text('').prop('selected', true));
 		    	var options =  selection["options"] 
 			 	 // Current selected
 			 	 var currentSelectedIndex = selection["selected"];
 		        // Add the options to the select box
-		
+
 		        $.each( options , function( index, opt ) {	 
 
 		        	if(index === currentSelectedIndex){	        		
@@ -452,7 +460,7 @@ var webComponent = {
 					divRadio = $('<div/>')
 					divRadio.attr("id", id + index)
 					divRadio.addClass("radio row clearfix");
-					var lab = $("<label/>").html("<input  type='radio' label = '"+ unescapeHtml(field.label) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
+					var lab = $("<label/>").html("<input  type='radio' parentId='"+div.attr("id")+"' label = '"+ unescapeHtml(field.label) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
 					lab.appendTo($(divRadio))
 					divRadio.appendTo(div);
 				}
@@ -466,11 +474,11 @@ var webComponent = {
 				var lab = $("<label/>").html("<input id='"+id + "-" + index +"' parentId='"+div.attr("id")+"' type='checkbox' label = '"+ unescapeHtml(field.label) + "' onclick=\'webComponent.saveChecks(this, "+ index +", "+ field.maxToCheck +" )' resp = '"+ unescapeHtml(opt.text) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text +
 					((opt.text=='Otro')? "<input type='text' maxlength='100' class='form-control' id='camOtro"+index+"'>": ""));
 				lab.on("change", function(evt){
-                   var seleccionados = lab.parent().parent().parent().find("input:checked");  
-                   if(seleccionados.length > 0){
-                   	    lab.parent().parent().parent().removeClass( 'has-error' );
+					var seleccionados = lab.parent().parent().parent().find("input:checked");  
+					if(seleccionados.length > 0){
+						lab.parent().parent().parent().removeClass( 'has-error' );
 						$( '.help-block', lab.parent().parent().parent()  ).slideUp().html( '' );
-                   }
+					}
 				});
 				lab.appendTo(contain)
 				contain.appendTo(divCheck)
@@ -593,22 +601,22 @@ var webComponent = {
 	_addErrorClass : function (fieldId, failType){
 		var failMessage;
 		if(failType === "required") {failMessage = "Campo Requerido"}
-		else {failMessage = "Campo invalido"}
-		var htmlInputField = $( '#'+fieldId );
-		_addErrorClassSimple(htmlInputField.parent(),failMessage);
-	},
-	_addErrorClassSimple : function (div, failMessage){
-        $(div).addClass('has-error');
-       	$( '.help-block', div ).html( failMessage).slideDown();
-	},	
+			else {failMessage = "Campo invalido"}
+				var htmlInputField = $( '#'+fieldId );
+			_addErrorClassSimple(htmlInputField.parent(),failMessage);
+		},
+		_addErrorClassSimple : function (div, failMessage){
+			$(div).addClass('has-error');
+			$( '.help-block', div ).html( failMessage).slideDown();
+		},	
 
-	_removeErrorClass : function (fieldId){	
-		var htmlInputField = $( '#'+fieldId );	
-		htmlInputField.parent().removeClass( 'has-error' );
-		$( '.help-block', htmlInputField.parent()  ).slideUp().html( '' );
+		_removeErrorClass : function (fieldId){	
+			var htmlInputField = $( '#'+fieldId );	
+			htmlInputField.parent().removeClass( 'has-error' );
+			$( '.help-block', htmlInputField.parent()  ).slideUp().html( '' );
+		}
+
 	}
-
-}
 
 
 	$gmx(document).ready(function(){
