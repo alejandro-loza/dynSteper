@@ -42,7 +42,7 @@ var webComponent = {
 			//if($(this).val().length > 0){
 				var response = ''
 				if ($(this).is(':checked')) {
-					response = $(this).text(); 
+					response = $(this).val(); 
 				}
 				inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: response });
 			//}
@@ -529,7 +529,7 @@ var webComponent = {
 			.click(function(e) {
 				if(webComponent._isValidForm() ){
 					var responses = $.map(webComponent._getAllValues(), function(n,i){
-						return JSON.parse('{"' + webComponent.unescapeHtml(n.label) + '" : "' + webComponent.unescapeHtml(n.response) + '"}');
+						return JSON.parse('{"' + webComponent.unescapeHtml(n.label.replace(/\./g,' ')) + '" : "' + webComponent.unescapeHtml(n.response.replace(/\./g,' ')) + '"}');
 					});
 					var payload = {};
 					payload.id_tramite  = webComponent._modelValues['id_tramite'];
@@ -540,8 +540,8 @@ var webComponent = {
 					$.ajax({
 						url: 'http://10.15.9.2:3000/gobmx/resultados',
 						type: 'POST',
-						dataType: 'json',
-						contentType: 'application/json charset=utf-8',
+						dataType: 'text',
+						contentType: 'application/json',
 						data: JSON.stringify(payload),
 						success: function(response){
 							alert("Encuesta Guardada.");
@@ -613,6 +613,7 @@ var webComponent = {
 		var htmlInputField = $( '#'+fieldId );
 		_addErrorClassSimple(htmlInputField.parent(),failMessage);
 	},
+
 	_addErrorClassSimple : function (div, failMessage){
 		$(div).addClass('has-error');
 		$( '.help-block', div ).html( failMessage).slideDown();
