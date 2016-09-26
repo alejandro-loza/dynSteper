@@ -24,8 +24,27 @@ var webComponent = {
 				inputValues.push({ idField: $(this).parent().attr("id"), name: $(this).attr("data-name") ,  label: $(this).attr("data-label"), response: $(this).val() });
 			}
 		});
+		
 
-		return inputValues.concat(webComponent.checked);
+		var distinct = []
+		for (var i = 0; i < webComponent.checked.length; i++){
+			if (!(webComponent.checked[i].name in distinct)){
+				distinct.push(webComponent.checked[i].name);
+			}
+		}
+
+		alert("DISTINCT: " + JSON.stringify(distinct));
+
+		$.each($.unique(distinct), function(index,field){
+			var result = $.grep(webComponent.checked, function(e){ return e.name === field;  });
+			$.each(result, function(i,f){
+				f["order"] = i;
+			});
+			inputValues.push.apply(inputValues, result );
+		});
+
+		alert("Input Values : " + JSON.stringify(inputValues));
+		return inputValues;
 	},
 
 	_isValidForm: function(){
@@ -44,7 +63,7 @@ var webComponent = {
 					var div = $(requiredField).attr("parentId");
 					var seleccionados =  $("#"+div).find("input:checked");
 					if(seleccionados.length === 0){
-					   webComponent.errorFields.push($(requiredField));	
+						webComponent.errorFields.push($(requiredField));	
 					}
 				}
 				else if($(requiredField).val() == ''){
@@ -56,7 +75,7 @@ var webComponent = {
 				$.each(webComponent.errorFields, function(index,field){
 					if($(field).attr("parentId")){
 						var divId = $(field).attr("parentId");
-                        webComponent._addErrorClassSimple($("#"+divId), "Campo Requerido");
+						webComponent._addErrorClassSimple($("#"+divId), "Campo Requerido");
 					}else{
 						webComponent._addErrorClass(field.id);
 					}
@@ -449,11 +468,11 @@ var webComponent = {
 				var lab = $("<label/>").html("<input id='"+id + "-" + index +"' parentId='"+div.attr("id")+"' type='checkbox' label = '"+ unescapeHtml(field.label) + "' onclick=\'webComponent.saveChecks(this, "+ index +", "+ field.nseleccionados +" )' resp = '"+ unescapeHtml(opt.text) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text +
 					((opt.text=='Otro')? "<input type='text' maxlength='100' class='form-control' id='camOtro"+index+"'>": ""));
 				lab.on("change", function(evt){
-                   var seleccionados = lab.parent().parent().parent().find("input:checked");  
-                   if(seleccionados.length > 0){
-                   	    lab.parent().parent().parent().removeClass( 'has-error' );
+					var seleccionados = lab.parent().parent().parent().find("input:checked");  
+					if(seleccionados.length > 0){
+						lab.parent().parent().parent().removeClass( 'has-error' );
 						$( '.help-block', lab.parent().parent().parent()  ).slideUp().html( '' );
-                   }
+					}
 				});
 				lab.appendTo(contain)
 				contain.appendTo(divCheck)
@@ -510,7 +529,7 @@ var webComponent = {
 					payload.respuestas = responses;
 
 					$.ajax({
-						url: 'http://10.15.9.2:3000/gobmx/resultados',
+						url: 'http://localhost:1337/options',
 						type: 'POST',
 						dataType: 'json',
 						contentType: 'application/json',
@@ -535,6 +554,7 @@ var webComponent = {
 	},
 
 	saveChecks: function(element, indexValidation, max){
+		alert("max to check: " + max);
 		var seleccionados = $(element).parent().parent().parent().parent().find("input:checked");
 		if ($(element).is(":checked")) {
 			var respuesta = $(element).attr("resp")
@@ -553,7 +573,7 @@ var webComponent = {
 				}
 				respuesta = $("#camOtro" + indexValidation).val().trim()
 			}
-			webComponent.checked.push({ idField: $(element).attr("id"), name: $(element).attr("name")  ,  label: $(element).attr("label"), response: respuesta });
+			webComponent.checked.push({ idField: $(element).parent().parent().parent().parent().attr("id"), name: $(element).attr("name")  ,  label: $(element).attr("label"), response: respuesta });
 		} 
 		else {
 			for (i in webComponent.checked){
@@ -576,22 +596,22 @@ var webComponent = {
 	_addErrorClass : function (fieldId, failType){
 		var failMessage;
 		if(failType === "required") {failMessage = "Campo Requerido"}
-		else {failMessage = "Campo invalido"}
-		var htmlInputField = $( '#'+fieldId );
-		_addErrorClassSimple(htmlInputField.parent(),failMessage);
-	},
-	_addErrorClassSimple : function (div, failMessage){
-        $(div).addClass('has-error');
-       	$( '.help-block', div ).html( failMessage).slideDown();
-	},	
+			else {failMessage = "Campo invalido"}
+				var htmlInputField = $( '#'+fieldId );
+			_addErrorClassSimple(htmlInputField.parent(),failMessage);
+		},
+		_addErrorClassSimple : function (div, failMessage){
+			$(div).addClass('has-error');
+			$( '.help-block', div ).html( failMessage).slideDown();
+		},	
 
-	_removeErrorClass : function (fieldId){	
-		var htmlInputField = $( '#'+fieldId );	
-		htmlInputField.parent().removeClass( 'has-error' );
-		$( '.help-block', htmlInputField.parent()  ).slideUp().html( '' );
+		_removeErrorClass : function (fieldId){	
+			var htmlInputField = $( '#'+fieldId );	
+			htmlInputField.parent().removeClass( 'has-error' );
+			$( '.help-block', htmlInputField.parent()  ).slideUp().html( '' );
+		}
+
 	}
-
-}
 
 
 	$gmx(document).ready(function(){

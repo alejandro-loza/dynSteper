@@ -179,6 +179,9 @@
 		<div class="row tramite-content "  >
 			<div id="container"></div>
 		</div>
+		<div class="form-group col-md-2">
+					<button  class="btn btn-primary btn-lg" style="margin-right: 12px;"  type="button" onclick="webComponent._getAllValues()">Todos los valores</button>
+				</div>
 	</div>
 	</main>
 <!-- 
@@ -198,7 +201,7 @@
 
 			var form = [];
 			
-			if(forma.searchType === "acta"){
+/*			if(forma.searchType === "acta"){
 				var estado = $("#estados");
 				var pago = $("#payment");
 				var formName = $("#nameSearch");
@@ -219,11 +222,11 @@
                 }else{
                 	form = webComponent.main('http://10.15.9.2:3000/gobmx/encuestas/findOne?filter[where][and][0][fecha_inicio][lte]='+date+'&filter[where][and][1][fecha_fin][gte]='+date+'&filter[where][and][2][id_dependencia]='+dependencia.val()+'&filter[where][and][2][id_tramite]='+tramite.val());
                 }				
-			}
+			}*/
 			
 			
-			
-			//var form = webComponent.main('http://localhost:1337/options/1');
+
+			var form = webComponent.main('http://localhost:1337/options/1');
 			if(form){
 				webComponent._render('container');
 			}else{
