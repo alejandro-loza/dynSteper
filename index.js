@@ -168,7 +168,8 @@ var webComponent = {
 				createSelect(field,index);		
 				break;
 				case "date":
-				createDatePicker(field,index);				
+				createDatePicker(field,index);	
+				break;			
 				case "header":
 				createHeader(field,index);
 				break;
@@ -203,12 +204,14 @@ var webComponent = {
 		};
 		function createDatePicker (field, index) {
 			var id = field.name + index;
+
 			field["id"] = id;
 			var div = getOrCreateDiv(id, field.class + ' datepicker-group');
 			getOrCreateLabel(div,id, field);
 			getOrCreateDatePickerInput(div,id, field);
-			addGlyphicon(div);
-			addHelperBlock(div);		
+
+			 addGlyphicon(div);
+			 addHelperBlock(div);		
 		};
 		function createRadioGroup(field, index){
 			var id = field.name + index;
@@ -417,7 +420,7 @@ var webComponent = {
 				input.attr("type", "text")
 				input.attr("name", field.name)
 				input.attr("label", field.label)
-				input.attr("placeholder", webComponent.unescapeHtml(field.placeholder))
+				//input.attr("placeholder", webComponent.unescapeHtml(field.placeholder))
 				input.focusout(	function(){
 					if(field.required && $(this).val().length === 0 ){
 						webComponent._addErrorClass(id,"required");
@@ -587,7 +590,6 @@ var webComponent = {
 			for (i in webComponent.checked){
 				if (webComponent.checked[i].idField === $(element).attr("id") ){
 					webComponent.checked.splice(i, 1);
-					//webComponent.checked[i].response === '';
 				}
 			}
 		}
