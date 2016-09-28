@@ -13,37 +13,75 @@ var webComponent = {
 
 	_getAllValues:function() {
 		var inputValues = [];
+		var notChecked = [];
+
 		$('#' + webComponent.canvas +' input[type="text"], textarea').each(function() {
-			if($(this).val().length > 0){
+			if($(this).attr("id").substr(0, 7) != "camOtro"){
 				inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val() });
 			}
 		});
 
+		$('#' + webComponent.canvas +' input[type="radio"]:checked ').each(function() {
+			//if($(this).val().length > 0){
+				inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val() });
+			//}
+		});
+
+		$('#' + webComponent.canvas +' input[type="radio"]').not(':checked').each(function() {
+			if($(this).attr("parentId")){
+				var div = $(this).attr("parentId");
+				var seleccionados =  $("#"+div).find(":checked");
+				if(seleccionados.length === 0 && notChecked.indexOf($(this).attr("label")) === -1){
+					notChecked.push($(this).attr("label"));
+					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response:'' });
+				}
+			}
+		});
+
+		$('#' + webComponent.canvas +' input[type="checkbox"]').each(function() {
+			//if($(this).val().length > 0){
+				var response = ''
+				var order = ''
+				if ($(this).is(':checked')) {
+
+					var id =  $(this).attr("id");
+					var finder = $.grep( getClickedOrderedCheckedBoxes(), function(e){
+					   return e.id == id ; 
+					});
+					order = finder[0].order;
+					response = finder[0].response; 
+
+				}
+				inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: response, order:order });
+			//}
+		});
+
 		$('#' + webComponent.canvas +'  option:selected').each(function() {
-			if ($(this).val() != ''){
-				inputValues.push({ idField: $(this).parent().attr("id"), name: $(this).attr("data-name") ,  label: $(this).attr("data-label"), response: $(this).val() });
-			}
+			//if ($(this).val() != ''){
+				inputValues.push({  idField: $(this).parent().attr("id"), name: $(this).attr("data-name") ,  label: $(this).attr("data-label"), response: $(this).val() });
+			//}
 		});
-		
 
-		var distinct = []
-		for (var i = 0; i < webComponent.checked.length; i++){
-			if (!(webComponent.checked[i].name in distinct)){
-				distinct.push(webComponent.checked[i].name);
+
+		function getClickedOrderedCheckedBoxes() {
+			var distinct = []
+			for (var i = 0; i < webComponent.checked.length; i++){
+				if (!(webComponent.checked[i].name in distinct)){
+					distinct.push(webComponent.checked[i].name);
+				}
 			}
-		}
 
-		alert("DISTINCT: " + JSON.stringify(distinct));
-
-		$.each($.unique(distinct), function(index,field){
-			var result = $.grep(webComponent.checked, function(e){ return e.name === field;  });
-			$.each(result, function(i,f){
-				f["order"] = i;
+			$.each($.unique(distinct), function(index,field){
+				var result = $.grep(webComponent.checked, function(e){ return e.name === field;  });
+				$.each(result, function(i,f){
+					f["order"] = i;
+				});
+				//inputValues.push.apply(inputValues, result );
 			});
-			inputValues.push.apply(inputValues, result );
-		});
 
-		alert("Input Values : " + JSON.stringify(inputValues));
+			return webComponent.checked;
+		};
+
 		return inputValues;
 	},
 
@@ -156,7 +194,8 @@ var webComponent = {
 				createSelect(field,index);		
 				break;
 				case "date":
-				createDatePicker(field,index);				
+				createDatePicker(field,index);	
+				break;			
 				case "header":
 				createHeader(field,index);
 				break;
@@ -191,10 +230,12 @@ var webComponent = {
 		};
 		function createDatePicker (field, index) {
 			var id = field.name + index;
+
 			field["id"] = id;
 			var div = getOrCreateDiv(id, field.class + ' datepicker-group');
 			getOrCreateLabel(div,id, field);
 			getOrCreateDatePickerInput(div,id, field);
+
 			addGlyphicon(div);
 			addHelperBlock(div);		
 		};
@@ -250,7 +291,7 @@ var webComponent = {
 		function getOrCreateLabel(div, id, field){
 			var labelObject = $("#label-" + id );
 			if(labelObject.length === 0){
-				labelObject = $("<label class='control-label' id='label-"+ id +"' for = "+ id + " >"+ field.label + "</label>");
+				labelObject = $("<label class='control-label' id='label-"+ id +"' for = "+ id + " >"+ webComponent.unescapeHtml(field.label) + "</label>");
 				div.append(labelObject);
 			}
 			if(field.description){
@@ -323,18 +364,22 @@ var webComponent = {
 		    };
 		    // Add the options to the select box
 		    function populateSelect(select, index, selection, field){
+		    	var label = webComponent.unescapeHtml(field.label);
+		    	var name = webComponent.unescapeHtml(field.name);
 		    	select.html("");
-		    	select.append($("<option value='' >------</option>"));
+		    	select.append($("<option />").val('').attr("data-name", name).attr("data-label", label).text('').prop('selected', true));
 		    	var options =  selection["options"] 
 			 	 // Current selected
 			 	 var currentSelectedIndex = selection["selected"];
 		        // Add the options to the select box
-		        $.each( options , function( index, opt ) {	        	
+
+		        $.each( options , function( index, opt ) {	 
+
 		        	if(index === currentSelectedIndex){	        		
-		        		select.append($("<option />").val(opt.value).attr("data-name", field.name).attr("data-label", field.label).text(opt.text).prop('selected', true));
+		        		select.append($("<option />").val(opt.value).attr("data-name", name).attr("data-label", label).text(opt.text).prop('selected', true));
 		        	}
 		        	else{
-		        		select.append($("<option />").val(opt.value).attr("data-name", field.name).attr("data-label", field.label).text(opt.text));
+		        		select.append($("<option />").val(opt.value).attr("data-name", name).attr("data-label", label).text(opt.text));
 		        	}
 		        });
 		    };
@@ -373,8 +418,8 @@ var webComponent = {
 				input.addClass('form-control')
 				input.attr("type", field.subtype || field.type)
 				input.attr("name", field.name)
-				input.attr("label", unescapeHtml(field.label))
-				input.attr("placeholder", unescapeHtml(field.placeholder))
+				input.attr("label", webComponent.unescapeHtml(field.label))
+				input.attr("placeholder", webComponent.unescapeHtml(field.placeholder))
 				input.attr("maxlength", field.maxlength) 
 				input.focusout(	function(){
 					if(field.required && $(this).val().length === 0 ){
@@ -401,7 +446,7 @@ var webComponent = {
 				input.attr("type", "text")
 				input.attr("name", field.name)
 				input.attr("label", field.label)
-				input.attr("placeholder", unescapeHtml(field.placeholder))
+				//input.attr("placeholder", webComponent.unescapeHtml(field.placeholder))
 				input.focusout(	function(){
 					if(field.required && $(this).val().length === 0 ){
 						webComponent._addErrorClass(id,"required");
@@ -428,8 +473,8 @@ var webComponent = {
 				input.addClass('form-control')
 				input.attr("type", field.type)
 				input.attr("name", field.name)
-				input.attr("label", unescapeHtml(field.label))
-				input.attr("placeholder", unescapeHtml(field.placeholder))
+				input.attr("label", webComponent.unescapeHtml(field.label))
+				input.attr("placeholder", webComponent.unescapeHtml(field.placeholder))
 				input.attr("maxlength", field.maxlength) 
 				input.focusout(	function(){
 					if(field.required && $(this).val().length === 0 ){
@@ -454,7 +499,7 @@ var webComponent = {
 					divRadio = $('<div/>')
 					divRadio.attr("id", id + index)
 					divRadio.addClass("radio row clearfix");
-					var lab = $("<label/>").html("<input  type='radio' label = '"+ unescapeHtml(field.label) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
+					var lab = $("<label/>").html("<input  type='radio' parentId='"+div.attr("id")+"' label = '"+ webComponent.unescapeHtml(field.label) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
 					lab.appendTo($(divRadio))
 					divRadio.appendTo(div);
 				}
@@ -465,8 +510,9 @@ var webComponent = {
 			var divCheck = $("<div/>").addClass("checkbox row");
 			$.each( field.options , function( index, opt ) {
 				var contain = $('<div/>').addClass('col-md-12 clearfix');
-				var lab = $("<label/>").html("<input id='"+id + "-" + index +"' parentId='"+div.attr("id")+"' type='checkbox' label = '"+ unescapeHtml(field.label) + "' onclick=\'webComponent.saveChecks(this, "+ index +", "+ field.nseleccionados +" )' resp = '"+ unescapeHtml(opt.text) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text +
-					((opt.text=='Otro')? "<input type='text' maxlength='100' class='form-control' id='camOtro"+index+"'>": ""));
+				var newId = id + "-" + index ;
+				var lab = $("<label/>").html("<input id='"+ newId +"' parentId='"+div.attr("id")+"' type='checkbox' label = '"+ webComponent.unescapeHtml(field.label) + "' onclick=\'webComponent.saveChecks(this, \""+ newId  +"\" , "+ field.nseleccionados +" )' resp = '"+ webComponent.unescapeHtml(opt.text) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text +
+					((opt.text=='Otro')? "<input type='text' maxlength='100' class='form-control' id='camOtro-"+ newId +"'>": ""));
 				lab.on("change", function(evt){
 					var seleccionados = lab.parent().parent().parent().find("input:checked");  
 					if(seleccionados.length > 0){
@@ -493,18 +539,12 @@ var webComponent = {
 		function addToolTip(input, title, side){
 			input.attr("data-toggle", "tooltip" );
 			input.attr("data-placement", side );
-			input.attr("title", unescapeHtml(title));
-			var helper = $('<span class="tooltip-element" tooltip="' +  unescapeHtml(title) + '" style="display: inline-block;">?</span>');
+			input.attr("title", webComponent.unescapeHtml(title));
+			var helper = $('<span class="tooltip-element" tooltip="' +  webComponent.unescapeHtml(title) + '" style="display: inline-block;">?</span>');
 			input.append(helper);
 			return input;
 		};
 
-		function unescapeHtml(escapedStr) {
-			var div = document.createElement('div');
-			div.innerHTML = escapedStr;
-			var child = div.childNodes[0];
-			return child ? child.nodeValue : '';
-		};
 
 		function createNavBar(holder){
 			var navbar = getOrCreateDiv("id", 'form-group col-md-12')
@@ -519,19 +559,18 @@ var webComponent = {
 			.click(function(e) {
 				if(webComponent._isValidForm() ){
 					var responses = $.map(webComponent._getAllValues(), function(n,i){
-						return JSON.parse('{"' + n.label + '" : "' + n.response + '"}');
+						return JSON.parse('{"' + webComponent.unescapeHtml(n.label.replace(/\./g,' ')) + '" : "' + webComponent.unescapeHtml(n.response.replace(/\./g,' ')) + '"}');
 					});
 					var payload = {};
 					payload.id_tramite  = webComponent._modelValues['id_tramite'];
 					payload.id_dependencia = webComponent._modelValues['id_dependencia'];
-					payload.nombre  = webComponent._modelValues['nombre'];
-					payload.dependencia = webComponent._modelValues['dependencia'];
+					payload.nombre  =  webComponent.unescapeHtml(webComponent._modelValues['nombre']);
+					payload.dependencia = webComponent.unescapeHtml(webComponent._modelValues['dependencia']);
 					payload.respuestas = responses;
-
 					$.ajax({
 						url: 'http://localhost:1337/options',
 						type: 'POST',
-						dataType: 'json',
+						dataType: 'text',
 						contentType: 'application/json',
 						data: JSON.stringify(payload),
 						success: function(response){
@@ -549,92 +588,106 @@ var webComponent = {
 
 			});
 
-		};
+};
 
-	},
+},
 
-	saveChecks: function(element, indexValidation, max){
-		alert("max to check: " + max);
-		var seleccionados = $(element).parent().parent().parent().parent().find("input:checked");
-		if ($(element).is(":checked")) {
-			var respuesta = $(element).attr("resp")
-			if (max != -1) {
-				if (seleccionados.length > max) {
-					alert("no puedes seleccionar más de " + max + " opciones");
-					$(element).prop('checked', false);
-					return false;
-				}
-			}
-			if (respuesta.trim() == "Otro") {
-				if ($("#camOtro" + indexValidation).val().trim() == "") {
-					alert("Debe describir la opción, antes de seleccionar")
-					$(element).prop('checked', false);
-					return false;
-				}
-				respuesta = $("#camOtro" + indexValidation).val().trim()
-			}
-			webComponent.checked.push({ idField: $(element).parent().parent().parent().parent().attr("id"), name: $(element).attr("name")  ,  label: $(element).attr("label"), response: respuesta });
-		} 
-		else {
-			for (i in webComponent.checked){
-				if (webComponent.checked[i].idField === $(element).attr("id") ){
-					webComponent.checked.splice(i, 1);
-				}
+saveChecks: function(element, indexValidation, max){
+	var seleccionados = $(element).parent().parent().parent().parent().find("input:checked");
+	if ($(element).is(":checked")) {
+		var respuesta = $(element).attr("resp")
+		if (max != -1) {
+			if (seleccionados.length > max) {
+				alert("No puedes seleccionar más de " + max + " opciones");
+				$(element).prop('checked', false);
+				return false;
 			}
 		}
 
-	},
-
-	_evaluateValueInRegex: function(value,regex) {
-		var exp = new RegExp(b64_to_utf8( regex ));
-		return  exp.test(value);
-		function b64_to_utf8( str ) {
-			return decodeURIComponent(escape(window.atob( str )));
+		if (respuesta.trim() == "Otro") {
+			if ($("#camOtro-" + indexValidation).val().trim() == "") {
+				alert("Debe describir la opción, antes de seleccionar")
+				$(element).prop('checked', false);
+				return false;
+			}
+			respuesta = $("#camOtro-" + indexValidation).val().trim()
 		}
-	},
-
-	_addErrorClass : function (fieldId, failType){
-		var failMessage;
-		if(failType === "required") {failMessage = "Campo Requerido"}
-			else {failMessage = "Campo invalido"}
-				var htmlInputField = $( '#'+fieldId );
-			_addErrorClassSimple(htmlInputField.parent(),failMessage);
-		},
-		_addErrorClassSimple : function (div, failMessage){
-			$(div).addClass('has-error');
-			$( '.help-block', div ).html( failMessage).slideDown();
-		},	
-
-		_removeErrorClass : function (fieldId){	
-			var htmlInputField = $( '#'+fieldId );	
-			htmlInputField.parent().removeClass( 'has-error' );
-			$( '.help-block', htmlInputField.parent()  ).slideUp().html( '' );
+		webComponent.checked.push({id: $(element).attr("id"),  idField: $(element).parent().parent().parent().parent().attr("id"), name: $(element).attr("name")  ,  label: $(element).attr("label"), response: respuesta });
+	} 
+	else {
+		for (i in webComponent.checked){
+			if (webComponent.checked[i].idField === $(element).attr("id") ){
+				webComponent.checked.splice(i, 1);
+			}
 		}
-
 	}
 
+},
 
-	$gmx(document).ready(function(){
-		$.datepicker.regional.es = {
-			closeText: 'Cerrar',
-			prevText: 'Ant',
-			nextText: 'Sig',
-			currentText: 'Hoy',
-			monthNames: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
-			monthNamesShort: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
-			dayNames: ['Domingo','Lunes','Martes','Mi&eacute;rcoles','Jueves','Viernes','S&aacute;bado'],
-			dayNamesShort: ['Dom','Lun','Mar','Mi&eacute;','Juv','Vie','S&aacute;b'],
-			dayNamesMin: ['Dom','Lun','Mar','Mie','Jue','Vie','S&aacute;b'],
-			weekHeader: 'Sm',
-			dateFormat: 'dd/mm/yy',
-			firstDay: 1,
-			isRTL: false,
-			showMonthAfterYear: false,
-			yearSuffix: ''
-		};
-		$.datepicker.setDefaults($.datepicker.regional.es);
+_evaluateValueInRegex: function(value,regex) {
+	var exp = new RegExp(b64_to_utf8( regex ));
+	return  exp.test(value);
+	function b64_to_utf8( str ) {
+		return decodeURIComponent(escape(window.atob( str )));
+	}
+},
 
-		$('[data-toggle="tooltip"]').tooltip();
+_addErrorClass : function (fieldId, failType){
+	var failMessage;
 
-	});
+	if(failType === "required") {
+		failMessage = "Campo Requerido"
+	}
+	else {
+		failMessage = "Campo invalido"
+	}
+	var htmlInputField = $( '#'+fieldId );
+	_addErrorClassSimple(htmlInputField.parent(),failMessage);
+},
+
+_addErrorClassSimple : function (div, failMessage){
+	$(div).addClass('has-error');
+	$( '.help-block', div ).html( failMessage).slideDown();
+},	
+
+_removeErrorClass : function (fieldId){	
+	var htmlInputField = $( '#'+fieldId );	
+	htmlInputField.parent().removeClass( 'has-error' );
+	$( '.help-block', htmlInputField.parent()  ).slideUp().html( '' );
+},
+
+unescapeHtml: function(escapedStr) {
+	var div = document.createElement('div');
+	div.innerHTML = escapedStr;
+	var child = div.childNodes[0];
+	return child ? child.nodeValue : '';
+},
+
+
+}
+
+
+$gmx(document).ready(function(){
+	$.datepicker.regional.es = {
+		closeText: 'Cerrar',
+		prevText: 'Ant',
+		nextText: 'Sig',
+		currentText: 'Hoy',
+		monthNames: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+		monthNamesShort: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
+		dayNames: ['Domingo','Lunes','Martes','Mi&eacute;rcoles','Jueves','Viernes','S&aacute;bado'],
+		dayNamesShort: ['Dom','Lun','Mar','Mi&eacute;','Juv','Vie','S&aacute;b'],
+		dayNamesMin: ['Dom','Lun','Mar','Mie','Jue','Vie','S&aacute;b'],
+		weekHeader: 'Sm',
+		dateFormat: 'dd/mm/yy',
+		firstDay: 1,
+		isRTL: false,
+		showMonthAfterYear: false,
+		yearSuffix: ''
+	};
+	$.datepicker.setDefaults($.datepicker.regional.es);
+
+	$('[data-toggle="tooltip"]').tooltip();
+
+});
 
