@@ -14,6 +14,7 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 	<script src="http://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js"></script>
 	<script src="http://framework-gb.cdn.gob.mx/gobmx.js"></script>
+
 	 <style>
         .form-group.required .control-label:after{
           content:"*";
@@ -223,13 +224,21 @@
                 	form = webComponent.main('http://10.15.9.2:3000/gobmx/encuestas/findOne?filter[where][and][0][fecha_inicio][lte]='+date+'&filter[where][and][1][fecha_fin][gte]='+date+'&filter[where][and][2][id_dependencia]='+dependencia.val()+'&filter[where][and][2][id_tramite]='+tramite.val());
                 }				
 			}
-			
-			
+
 
 			//var form = webComponent.main('http://localhost:1337/options/1');
 
 			if(form){
+
+				console.log(JSON.stringify(form));
 				webComponent._render('container');
+
+			$("#PuzzleCaptcha").PuzzleCAPTCHA({
+				rows:3,
+				targetInput:'.validationValue',
+				targetVal:'true',
+				targetButton:'.btnSubmit'
+			});
 			}else{
 				alert("error");
 			}				
@@ -251,11 +260,16 @@
 			}
 		}
 	</script>
-	<script src="bower_components/jquery/dist/jquery.js"></script>
-
 
 	<script src="index.js"></script>
 	<script src="https://framework-gb.cdn.gob.mx/assets/scripts/jquery-ui-datepicker.js"></script>
+	
+
+	<!-- PuzzleCAPTCHA Style -->
+	<link rel="stylesheet" href="css/puzzleCAPTCHA.css">
+
+	<!-- PuzzleCAPTCHA Plugin -->
+	<script src="js/puzzleCAPTCHA.js"></script>
 
 </body>
 </html>

@@ -46,7 +46,7 @@ var webComponent = {
 
 					var id =  $(this).attr("id");
 					var finder = $.grep( getClickedOrderedCheckedBoxes(), function(e){
-					   return e.id == id ; 
+						return e.id == id ; 
 					});
 					order = finder[0].order;
 					response = finder[0].response; 
@@ -176,6 +176,7 @@ var webComponent = {
 		webComponent.canvas = container;
 		var controller = this;
 		$.each( webComponent._formValues, function( index, field ) {
+			
 			validateFieldsClass(field);
 			switch(field.type) {
 				case "text":
@@ -205,6 +206,8 @@ var webComponent = {
 		});
 
 		if(webComponent.searchType !== "acta"){
+
+			createCaptcha($("#" + container));
 			createNavBar($("#" + container));
 		}
 		function createHeader(field, index){
@@ -525,69 +528,122 @@ var webComponent = {
 				contain.appendTo(divCheck)
 				divCheck.appendTo(div)
 			});
-		};
+};
 
-		function addHelperBlock (div) {
-			var helper = $('<span class="help-block"></span>');
-			div.append(helper);
-		};
+function addHelperBlock (div) {
+	var helper = $('<span class="help-block"></span>');
+	div.append(helper);
+};
 
-		function addGlyphicon (input) {
-			var helper = $('<span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>');
-			input.append(helper);
-		};
+function addGlyphicon (input) {
+	var helper = $('<span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>');
+	input.append(helper);
+};
 
-		function addToolTip(input, title, side){
-			input.attr("data-toggle", "tooltip" );
-			input.attr("data-placement", side );
-			input.attr("title", webComponent.unescapeHtml(title));
-			var helper = $('<span class="tooltip-element" tooltip="' +  webComponent.unescapeHtml(title) + '" style="display: inline-block;">?</span>');
-			input.append(helper);
-			return input;
-		};
+function addToolTip(input, title, side){
+	input.attr("data-toggle", "tooltip" );
+	input.attr("data-placement", side );
+	input.attr("title", webComponent.unescapeHtml(title));
+	var helper = $('<span class="tooltip-element" tooltip="' +  webComponent.unescapeHtml(title) + '" style="display: inline-block;">?</span>');
+	input.append(helper);
+	return input;
+};
 
 
-		function createNavBar(holder){
-			var navbar = getOrCreateDiv("id", 'form-group col-md-12')
-			.addClass('form-group col-md-12')
-			.css({'margin-right':'12px'})
-			.appendTo(holder);
-			var next = $('<button/>')
-			.addClass('btn btn-primary btn-lg')
-			.text('Enviar')
-			.css({'margin-right':'12px'})
-			.appendTo(navbar)
-			.click(function(e) {
-				if(webComponent._isValidForm() ){
-					var responses = $.map(webComponent._getAllValues(), function(n,i){
-						return JSON.parse('{"' + webComponent.unescapeHtml(n.label.replace(/\./g,' ')) + '" : "' + webComponent.unescapeHtml(n.response.replace(/\./g,' ')) + '"}');
-					});
-					var payload = {};
-					payload.id_tramite  = webComponent._modelValues['id_tramite'];
-					payload.id_dependencia = webComponent._modelValues['id_dependencia'];
-					payload.nombre  =  webComponent.unescapeHtml(webComponent._modelValues['nombre']);
-					payload.dependencia = webComponent.unescapeHtml(webComponent._modelValues['dependencia']);
-					payload.respuestas = responses;
-					$.ajax({
-						url: 'http://localhost:1337/options',
-						type: 'POST',
-						dataType: 'text',
-						contentType: 'application/json',
-						data: JSON.stringify(payload),
-						success: function(response){
-							alert("Encuesta Guardada.");
-						},
-						error: function(e){
-							alert("Error: " + JSON.stringify(e));
-						},
-						complete: function(){
-						}
-					});
+function createNavBar(holder){
 
-				}
-				e.preventDefault();
+	var navbar = getOrCreateDiv("id", 'form-group col-md-12')
+	.addClass('form-group col-md-12')
+	.css({'margin-right':'12px'})
+	.appendTo(holder);
+	var next = $('<button/>')
+	.addClass('btn btn-primary btn-lg')
+	.text('Enviar')
+	.css({'margin-right':'12px'})
+	.appendTo(navbar)
+	.click(function(e) {
+		var captcha = $('.validationValue').val();
 
+		if(webComponent._isValidForm() ){
+			var responses = $.map(webComponent._getAllValues(), function(n,i){
+				return JSON.parse('{"' + webComponent.unescapeHtml(n.label.replace(/\./g,' ')) + '" : "' + webComponent.unescapeHtml(n.response.replace(/\./g,' ')) + '"}');
 			});
+			var payload = {};
+			payload.id_tramite  = webComponent._modelValues['id_tramite'];
+			payload.id_dependencia = webComponent._modelValues['id_dependencia'];
+			payload.nombre  =  webComponent.unescapeHtml(webComponent._modelValues['nombre']);
+			payload.dependencia = webComponent.unescapeHtml(webComponent._modelValues['dependencia']);
+			payload.respuestas = responses;
+			$.ajax({
+				url: 'http://localhost:1337/options',
+				type: 'POST',
+				dataType: 'text',
+				contentType: 'application/json',
+				data: JSON.stringify(payload),
+				success: function(response){
+					alert("Encuesta Guardada.");
+				},
+				error: function(e){
+					alert("Error: " + JSON.stringify(e));
+				},
+				complete: function(){
+				}
+			});
+
+			var cap =  webComponent._modelValues['captcha'];
+			if (cap ==='f'){
+				captcha = true;
+			}
+			if (captcha){
+
+				var responses = $.map(webComponent._getAllValues(), function(n,i){
+					return JSON.parse('{"' + n.label + '" : "' + n.response + '"}');
+				});
+
+				var payload = {};
+				payload.id_tramite  = webComponent._modelValues['id_tramite'];
+				payload.id_dependencia = webComponent._modelValues['id_dependencia'];
+				payload.nombre  = webComponent._modelValues['nombre'];
+				payload.dependencia = webComponent._modelValues['dependencia'];
+				payload.respuestas = responses;
+
+				$.ajax({
+					url: 'http://10.15.9.2:3000/gobmx/resultados',
+					type: 'POST',
+					dataType: 'json',
+					contentType: 'application/json',
+					data: JSON.stringify(payload),
+					success: function(response){
+						alert("Encuesta Guardada.");
+					},
+					error: function(e){
+						alert("Error: " + JSON.stringify(e));
+					},
+					complete: function(){
+					}
+				});
+
+			}else {
+				alert ("El captcha es obligatorio");
+			}
+
+		}
+
+		e.preventDefault();
+
+	});
+};
+/* Genera el captcha */
+function createCaptcha(holder){
+	var captcha= webComponent._modelValues['captcha'];
+
+	if (captcha === 't'){
+		var navbar = getOrCreateDiv("id_captcha", 'form-group col-md-12')
+
+		var html = $('<input type="hidden" name="" class="validationValue"><br><br>	<label>Eres un Humano? &nbsp;</label><label class="respuesta_captcha" > </label>	<div id="PuzzleCaptcha"></div>');
+		html.appendTo(navbar);
+
+	}
 
 };
 
