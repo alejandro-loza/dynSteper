@@ -511,7 +511,8 @@ var webComponent = {
 			$.each( field.options , function( index, opt ) {
 				var contain = $('<div/>').addClass('col-md-12 clearfix');
 				var newId = id + "-" + index ;
-				var lab = $("<label/>").html("<input id='"+ newId +"' parentId='"+div.attr("id")+"' type='checkbox' label = '"+ webComponent.unescapeHtml(field.label) + "' onclick=\'webComponent.saveChecks(this, \""+ newId  +"\" , "+ field.nseleccionados +" )' resp = '"+ webComponent.unescapeHtml(opt.text) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text +
+				var maxToCheck = field.nseleccionados || 100;	
+				var lab = $("<label/>").html("<input id='"+ newId +"' parentId='"+div.attr("id")+"' type='checkbox' label = '"+ webComponent.unescapeHtml(field.label) + "' onclick=\'webComponent.saveChecks(this, \""+ newId  +"\" , "+ maxToCheck +" )' resp = '"+ webComponent.unescapeHtml(opt.text) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text +
 					((opt.text=='Otro')? "<input type='text' maxlength='100' class='form-control' id='camOtro-"+ newId +"'>": ""));
 				lab.on("change", function(evt){
 					var seleccionados = lab.parent().parent().parent().find("input:checked");  
