@@ -48,13 +48,16 @@ var webComponent = {
 					var finder = $.grep( getClickedOrderedCheckedBoxes(), function(e){
 						return e.id == id ; 
 					});
-					order = finder[0].order;
+					order = String(finder[0].order);
 					response = finder[0].response; 
-
 				}
-				inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: response, order:order });
-			//}
-		});
+               
+				if(order != ''){
+					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: response+"-"+order, order:order });
+				}else {	
+					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: response, order:order });
+				}
+			});
 
 		$('#' + webComponent.canvas +'  option:selected').each(function() {
 			//if ($(this).val() != ''){
@@ -566,7 +569,8 @@ function createNavBar(holder){
 
 		if(webComponent._isValidForm() ){
 			var responses = $.map(webComponent._getAllValues(), function(n,i){
-				return JSON.parse('{"' + webComponent.unescapeHtml(n.label.replace(/\./g,' ')) + '" : "' + webComponent.unescapeHtml(n.response.replace(/\./g,' ')) + '"}');
+				return JSON.parse('{"' + webComponent.unescapeHtml(n.label.replace(/\./g,' ')) + '" : "' + webComponent.unescapeHtml(n.response.replace(/\./g,' ')) + '"}');				
+				
 			});
 			var payload = {};
 			payload.id_tramite  = webComponent._modelValues['id_tramite'];
@@ -575,7 +579,7 @@ function createNavBar(holder){
 			payload.dependencia = webComponent.unescapeHtml(webComponent._modelValues['dependencia']);
 			payload.respuestas = responses;
 			$.ajax({
-				url: 'http://localhost:1337/options',
+				url: 'http://10.15.9.2:3000/gobmx/resultados',
 				type: 'POST',
 				dataType: 'text',
 				contentType: 'application/json',
