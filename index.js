@@ -194,6 +194,9 @@ var webComponent = {
 				case "select":
 				createSelect(field,index);		
 				break;
+				case "select-ws":
+				createSelectWs(field,index);		
+				break;
 				case "date":
 				createDatePicker(field,index);	
 				break;			
@@ -260,7 +263,15 @@ var webComponent = {
 		};
 		function createSelect(field, index){
 			if(webComponent.selected.length === 0){
-				webComponent.selected.push({"options": field.options, "selected":''});
+				if(field.wsList){
+					var wsOptions = getValuesFromWs(index,field);					
+					if(wsOptions){
+						webComponent.selected.push( {"options":wsOptions, "selected":''} );
+					}
+				}
+				else{
+					webComponent.selected.push({"options": field.options, "selected":''});
+				}
 			}
 			var length = webComponent.selected.length;			
 			if(webComponent.lastCount > length ){	
@@ -344,17 +355,24 @@ var webComponent = {
 			            var controller = evt.data.controller;
 			            var index = evt.data.index;
 			            var selected = webComponent.selected;
-
 			            // The selected field
 			            var selectedFieldName = $(this).val();
 			            // Update the selected
 			            selected = selected.slice(0, index + 1);
-			            var selectedOptionModel = setModelNameFromFieldName(selectedFieldName, idx);
+			            var selectedOptionModel = setModelNameFromFieldName(selectedFieldName, idx, field);
 			            if(selectedOptionModel){		           
 			            	if (selectedOptionModel.options){
 			            		controller.lastCount = controller.lastCount + 1;
 			            		selected.push({"options":selectedOptionModel.options,"selected":''} );
 			            	}
+			            	else if(field.wsList){
+			            		var options = getValuesFromWs(idx, field);
+			            		if(options){
+			            			selected.push( {"options": options, "selected":''} );
+			            			controller.set("selected", selected);
+			            		}
+			            	}
+
 			            }
 			            webComponent.selected = selected;
 			            createSelect(field);
@@ -370,28 +388,119 @@ var webComponent = {
 		    	var label = webComponent.unescapeHtml(field.label);
 		    	var name = webComponent.unescapeHtml(field.name);
 		    	select.html("");
-		    	select.append($("<option />").val('').attr("data-name", name).attr("data-label", label).text('').prop('selected', true));
-		    	var options =  selection["options"] 
+		    	select.append($("<option />").val('').attr("data-name", name).attr("data-label", label).text('').prop('selected', true));		    	
+		    	var options =  selection["options"];
 			 	 // Current selected
 			 	 var currentSelectedIndex = selection["selected"];
 		        // Add the options to the select box
-
-		        $.each( options , function( index, opt ) {	 
-
-		        	if(index === currentSelectedIndex){	        		
-		        		select.append($("<option />").val(opt.value).attr("data-name", name).attr("data-label", label).text(opt.text).prop('selected', true));
+		        $.each( options , function( i, opt ) {
+		        	var text = '';
+		        	var value = '';
+		        	if(field.wsList){ 
+		        		var rd = field.wsList[index].responseDisplay;
+		        		text = opt[rd];
+		        		value = opt[field.wsList[index].responseValue];
 		        	}
 		        	else{
-		        		select.append($("<option />").val(opt.value).attr("data-name", name).attr("data-label", label).text(opt.text));
+		        		text = opt.text;
+		        		value = opt.value;
+		        	}
+
+		        	alert("text: " + text + " - " + index);	 
+
+		        	if(index === currentSelectedIndex){	        		
+		        		select.append($("<option />").val(value).attr("data-name", name).attr("data-label", label).text(text).prop('selected', true));
+		        	}
+
+		        	else{
+		        		select.append($("<option />").val(value).attr("data-name", name).attr("data-label", label).text(text));
 		        	}
 		        });
 		    };
 
-		    function setModelNameFromFieldName(fieldName,selectedIndex){
+		    function getValuesFromWs(idx,field){
+		    	var options = [];
+		    	var wsData = field.wsList[idx];
+		    	alert(JSON.stringify(wsData));
+		    	var url = wsData.url;
+		    	var regExp = /\{(.*?)\}/g;
+		    	var matches = url.match(regExp);
+		    	if(matches){
+		    		var selectionValues = getSelectionsValues();
+		    		var propertyList =  matches.map(function(el){
+		    			return el.substring(1, el.length - 1);
+		    		});
+		    		var findElements = propertyList.map(function (element, index){
+		    			var finds = selectionValues.map(function (el,i){
+		    				var keys = Object.keys(el);
+		    				if(keys.contains(element)){
+		    					return el;
+		    				}
+		    			})[0];
+		    			return finds;
+		    		}).filter(Boolean);
+		    		if(findElements.length >= propertyList.length){
+		    			findElements.forEach(function(el,i){
+		    				url = url.replace("{" + Object.keys(el) + "}", el[Object.keys(el)]);
+		    			});
+		    		}
 
+		    	}
+
+		    	var responseDisplay = wsData.responseDisplay;
+		    	var type ='';
+		    	var payload = '';
+		    	if(field.wsList[idx]["request"]){
+		    		payload = this.get('model')["request"]
+		    		type = 'POST'
+		    	}
+		    	else{
+		    		type = 'GET'
+		    	}
+
+		    	$.ajax({
+		    		url: url,
+		    		type: type,
+		    		dataType: 'json',
+		    		contentType: 'application/json',
+		    		'async': false,
+		    		data: JSON.stringify(payload),
+		    	})
+		    	.done(function(data) {
+		    		options = data;
+		    	})
+		    	.fail(function(data) {
+		    		alert("WS Fail " + JSON.stringify(data));
+		    	});
+		    	return options;
+		    };
+
+		    function  getSelectionsValues(){
+		    	return	webComponent.selected.map(function(el, index){
+/*		    		var currentSelected = getSelectedOption(el,index);
+		    		var name = p.model["wsList"][index].name ;
+		    		var value = p.model["wsList"][index].responseValue ;
+		    		var row = Ember.Object.create({});
+		    		row[name] = currentSelected[value];
+		    		return row;*/
+		    	});
+		    };
+
+		    function getSelectedOption (el, index) {
+		    	var selectOption = p.selected[index]["selected"];
+		    	return p.selected[index]["options"][selectOption];
+		    };
+
+		    function setModelNameFromFieldName(fieldName,selectedIndex, field){
 		    	var selectOptions = webComponent.selected[selectedIndex]["options"];
 		    	if(fieldName){
-		    		var optionModel =  $.grep(selectOptions, function(e){ return e.value === fieldName; });          
+		    		var optionModel = [];
+		    		if(field.wsList){
+		    			var display = field.wsList[selectedIndex].responseValue;
+		    			optionModel =  $.grep(selectOptions, function(e){ return String(e[display]) === String(fieldName); });
+		    		}else{
+		    			optionModel = $.grep(selectOptions, function(e){ return e.value === fieldName; });        
+		    		}
 		    		webComponent.selected[selectedIndex]["selected"] = selectOptions.indexOf(optionModel[0]);
 		    		return optionModel[0];
 		    	}else{
@@ -699,7 +808,7 @@ _addErrorClass : function (fieldId, failType){
 		failMessage = "Campo invalido"
 	}
 	var htmlInputField = $( '#'+fieldId );
-	_addErrorClassSimple(htmlInputField.parent(),failMessage);
+	webComponent._addErrorClassSimple(htmlInputField.parent(),failMessage);
 },
 
 _addErrorClassSimple : function (div, failMessage){
