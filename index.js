@@ -366,10 +366,10 @@ var webComponent = {
 			            		selected.push({"options":selectedOptionModel.options,"selected":''} );
 			            	}
 			            	else if(field.wsList){
-			            		var options = getValuesFromWs(idx, field);
+			            		var options = getValuesFromWs(idx + 1 , field);
 			            		if(options){
 			            			selected.push( {"options": options, "selected":''} );
-			            			controller.set("selected", selected);
+			            			//controller.set("selected", selected);
 			            		}
 			            	}
 
@@ -391,7 +391,7 @@ var webComponent = {
 		    	select.append($("<option />").val('').attr("data-name", name).attr("data-label", label).text('').prop('selected', true));		    	
 		    	var options =  selection["options"];
 			 	 // Current selected
-			 	 var currentSelectedIndex = selection["selected"];
+			 	var currentSelectedIndex = selection["selected"];
 		        // Add the options to the select box
 		        $.each( options , function( i, opt ) {
 		        	var text = '';
@@ -406,11 +406,9 @@ var webComponent = {
 		        		value = opt.value;
 		        	}
 
-		        	alert("text: " + text + " - " + index);	 
-
-		        	if(index === currentSelectedIndex){	        		
+		        	if(index + 1 === currentSelectedIndex){	        		
 		        		select.append($("<option />").val(value).attr("data-name", name).attr("data-label", label).text(text).prop('selected', true));
-		        	}
+		        	} 
 
 		        	else{
 		        		select.append($("<option />").val(value).attr("data-name", name).attr("data-label", label).text(text));
@@ -421,19 +419,18 @@ var webComponent = {
 		    function getValuesFromWs(idx,field){
 		    	var options = [];
 		    	var wsData = field.wsList[idx];
-		    	alert(JSON.stringify(wsData));
 		    	var url = wsData.url;
 		    	var regExp = /\{(.*?)\}/g;
 		    	var matches = url.match(regExp);
 		    	if(matches){
-		    		var selectionValues = getSelectionsValues();
+		    		var selectionValues = getSelectionsValues(field);
 		    		var propertyList =  matches.map(function(el){
 		    			return el.substring(1, el.length - 1);
 		    		});
 		    		var findElements = propertyList.map(function (element, index){
 		    			var finds = selectionValues.map(function (el,i){
 		    				var keys = Object.keys(el);
-		    				if(keys.contains(element)){
+		    				if(keys.indexOf(element) > -1){
 		    					return el;
 		    				}
 		    			})[0];
@@ -475,20 +472,20 @@ var webComponent = {
 		    	return options;
 		    };
 
-		    function  getSelectionsValues(){
+		    function  getSelectionsValues(field){
 		    	return	webComponent.selected.map(function(el, index){
-/*		    		var currentSelected = getSelectedOption(el,index);
-		    		var name = p.model["wsList"][index].name ;
-		    		var value = p.model["wsList"][index].responseValue ;
-		    		var row = Ember.Object.create({});
+		    		var currentSelected = getSelectedOption(el,index);
+		    		var name = field.wsList[index].name;
+		    		var value = field.wsList[index].responseValue ;
+		    		var row = Object.create({});
 		    		row[name] = currentSelected[value];
-		    		return row;*/
+		    		return row;
 		    	});
 		    };
 
 		    function getSelectedOption (el, index) {
-		    	var selectOption = p.selected[index]["selected"];
-		    	return p.selected[index]["options"][selectOption];
+		    	var selectOption = webComponent.selected[index]["selected"];
+		    	return webComponent.selected[index]["options"][selectOption];
 		    };
 
 		    function setModelNameFromFieldName(fieldName,selectedIndex, field){
