@@ -176,7 +176,7 @@ var webComponent = {
 		webComponent.canvas = container;
 		var controller = this;
 		$.each( webComponent._formValues, function( index, field ) {
-			
+			alert(field.name);
 			validateFieldsClass(field);
 			switch(field.type) {
 				case "text":
@@ -189,7 +189,7 @@ var webComponent = {
 				createRadioGroup(field,index);
 				break;
 				case "checkbox-group":
-				createCheckBoxGroup(field,index);		
+				createCheckBoxGroup(field,index);
 				break;
 				case "select":
 				createSelect(field,index);		
@@ -273,7 +273,7 @@ var webComponent = {
 					webComponent.selected.push({"options": field.options, "selected":''});
 				}
 			}
-			var length = webComponent.selected.length;			
+			var length = webComponent.selected.length;		
 			if(webComponent.lastCount > length ){	
 				for(var i=length -1; i <= webComponent.lastCount; i++){
 					$("#div-" + field.name + "-"+i).remove();
@@ -284,7 +284,11 @@ var webComponent = {
 				var id = field.name + "-" + f;
 				field["id"] = id;
 				var div = getOrCreateDiv(id, field.class);
-				getOrCreateLabel(div,id, field);
+				if(field.wsList){
+                    getOrCreateLabel(div,id, field, field.wsList[f].label); 
+				}else{
+					getOrCreateLabel(div,id, field);					
+				}
 				var select =getOrCreateSelect(div, id, field, f);
 				populateSelect(select,f, selection, field);
 				addHelperBlock(div);
@@ -302,10 +306,11 @@ var webComponent = {
 			return div;
 		};
 
-		function getOrCreateLabel(div, id, field){
+		function getOrCreateLabel(div, id, field, label){
 			var labelObject = $("#label-" + id );
+			var text = webComponent.unescapeHtml(label) || webComponent.unescapeHtml(field.label) 
 			if(labelObject.length === 0){
-				labelObject = $("<label class='control-label' id='label-"+ id +"' for = "+ id + " >"+ webComponent.unescapeHtml(field.label) + "</label>");
+				labelObject = $("<label class='control-label' id='label-"+ id +"' for = "+ id + " >"+ text + "</label>");
 				div.append(labelObject);
 			}
 			if(field.description){
@@ -391,7 +396,7 @@ var webComponent = {
 		    	select.append($("<option />").val('').attr("data-name", name).attr("data-label", label).text('').prop('selected', true));		    	
 		    	var options =  selection["options"];
 			 	 // Current selected
-			 	var currentSelectedIndex = selection["selected"];
+			 	 var currentSelectedIndex = selection["selected"];
 		        // Add the options to the select box
 		        $.each( options , function( i, opt ) {
 		        	var text = '';
@@ -406,7 +411,7 @@ var webComponent = {
 		        		value = opt.value;
 		        	}
 
-		        	if(index + 1 === currentSelectedIndex){	        		
+		        	if(i === currentSelectedIndex){	        		
 		        		select.append($("<option />").val(value).attr("data-name", name).attr("data-label", label).text(text).prop('selected', true));
 		        	} 
 
@@ -441,7 +446,6 @@ var webComponent = {
 		    				url = url.replace("{" + Object.keys(el) + "}", el[Object.keys(el)]);
 		    			});
 		    		}
-
 		    	}
 
 		    	var responseDisplay = wsData.responseDisplay;
@@ -661,7 +665,7 @@ function createNavBar(holder){
 	var navbar = getOrCreateDiv("id", 'form-group col-md-12')
 	.addClass('form-group col-md-12')
 	.css({'margin-right':'12px'})
-	.appendTo(holder);
+	.insertAfter(holder)
 	var next = $('<button/>')
 	.addClass('btn btn-primary btn-lg')
 	.text('Enviar')
