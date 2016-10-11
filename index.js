@@ -572,27 +572,6 @@ function createNavBar(holder){
 				return JSON.parse('{"' + webComponent.unescapeHtml(n.label.replace(/\./g,' ')) + '" : "' + webComponent.unescapeHtml(n.response.replace(/\./g,' ')) + '"}');				
 				
 			});
-			var payload = {};
-			payload.id_tramite  = webComponent._modelValues['id_tramite'];
-			payload.id_dependencia = webComponent._modelValues['id_dependencia'];
-			payload.nombre  =  webComponent.unescapeHtml(webComponent._modelValues['nombre']);
-			payload.dependencia = webComponent.unescapeHtml(webComponent._modelValues['dependencia']);
-			payload.respuestas = responses;
-			$.ajax({
-				url: 'http://10.15.9.2:3000/gobmx/resultados',
-				type: 'POST',
-				dataType: 'text',
-				contentType: 'application/json',
-				data: JSON.stringify(payload),
-				success: function(response){
-					alert("Encuesta Guardada.");
-				},
-				error: function(e){
-					alert("Error: " + JSON.stringify(e));
-				},
-				complete: function(){
-				}
-			});
 
 			var cap =  webComponent._modelValues['captcha'];
 			if (cap ==='f'){
