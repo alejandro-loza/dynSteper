@@ -53,7 +53,7 @@ var webComponent = {
 				}
                
 				if(order != ''){
-					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: response+"-"+order, order:order });
+					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: response+"-"+order + 1, order:order });
 				}else {	
 					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: response, order:order });
 				}
