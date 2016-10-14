@@ -48,12 +48,14 @@ var webComponent = {
 					var finder = $.grep( getClickedOrderedCheckedBoxes(), function(e){
 						return e.id == id ; 
 					});
-					order = String(finder[0].order);
+					if(finder[0].order){
+						order = String(finder[0].order);
+					}
 					response = finder[0].response; 
 				}
-               
+
 				if(order != ''){
-					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: response+"-"+order + 1, order:order });
+					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: response+"-"+order, order:order });
 				}else {	
 					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: response, order:order });
 				}
@@ -77,7 +79,10 @@ var webComponent = {
 			$.each($.unique(distinct), function(index,field){
 				var result = $.grep(webComponent.checked, function(e){ return e.name === field;  });
 				$.each(result, function(i,f){
-					f["order"] = i;
+					if(f.clickedOrder === 'true'){
+						f["order"] = i + 1;	
+					}
+					
 				});
 				//inputValues.push.apply(inputValues, result );
 			});
@@ -517,8 +522,12 @@ var webComponent = {
 			$.each( field.options , function( index, opt ) {
 				var contain = $('<div/>').addClass('col-md-12 clearfix');
 				var newId = id + "-" + index ;
-				var maxToCheck = field.nseleccionados || 100;	
-				var lab = $("<label/>").html("<input id='"+ newId +"' parentId='"+div.attr("id")+"' type='checkbox' label = '"+ webComponent.unescapeHtml(field.label) + "' onclick=\'webComponent.saveChecks(this, \""+ newId  +"\" , "+ maxToCheck +" )' resp = '"+ webComponent.unescapeHtml(opt.text) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text +
+				var maxToCheck = field.nseleccionados || 100;
+				var hasClickedOrder = false;
+				if(field.importancia === "Si"){
+					hasClickedOrder = true;
+				}	
+				var lab = $("<label/>").html("<input id='"+ newId +"' parentId='"+div.attr("id")+"' type='checkbox' label = '"+ webComponent.unescapeHtml(field.label) + "' onclick=\'webComponent.saveChecks(this, \""+ newId  +"\" , "+ maxToCheck +" )' resp = '"+ webComponent.unescapeHtml(opt.text) + "' name='"+ field.name +"' clickedOrder= " + hasClickedOrder + " value='"+ opt.value +"'  >" + opt.text +
 					((opt.text=='Otro')? "<input type='text' maxlength='100' class='form-control' id='camOtro-"+ newId +"'>": ""));
 				lab.on("change", function(evt){
 					var seleccionados = lab.parent().parent().parent().find("input:checked");  
@@ -652,7 +661,7 @@ saveChecks: function(element, indexValidation, max){
 			}
 			respuesta = $("#camOtro-" + indexValidation).val().trim()
 		}
-		webComponent.checked.push({id: $(element).attr("id"),  idField: $(element).parent().parent().parent().parent().attr("id"), name: $(element).attr("name")  ,  label: $(element).attr("label"), response: respuesta });
+		webComponent.checked.push({id: $(element).attr("id"),  idField: $(element).parent().parent().parent().parent().attr("id"), name: $(element).attr("name")  ,  label: $(element).attr("label"), response: respuesta,  clickedOrder: $(element).attr("clickedOrder") });
 	} 
 	else {
 		for (i in webComponent.checked){
