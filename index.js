@@ -43,14 +43,13 @@ var webComponent = {
 				var response = ''
 				var order = ''
 				if ($(this).is(':checked')) {
-
 					var id =  $(this).attr("id");
 					var finder = $.grep( getClickedOrderedCheckedBoxes(), function(e){
 						return e.id == id ; 
 					});
-					order = finder[0].order;
+					alert("finder" + JSON.stringify(finder));
+					order = String(finder[0].order);
 					response = finder[0].response; 
-
 				}
 				inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: response, order:order });
 			//}
@@ -73,6 +72,7 @@ var webComponent = {
 
 			$.each($.unique(distinct), function(index,field){
 				var result = $.grep(webComponent.checked, function(e){ return e.name === field;  });
+				alert("result " + JSON.stringify(result));
 				$.each(result, function(i,f){
 					f["order"] = i;
 				});
