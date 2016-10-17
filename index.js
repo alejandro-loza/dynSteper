@@ -691,7 +691,7 @@ _addErrorClass : function (fieldId, failType){
 		failMessage = "Campo invalido"
 	}
 	var htmlInputField = $( '#'+fieldId );
-	_addErrorClassSimple(htmlInputField.parent(),failMessage);
+webComponent._addErrorClassSimple(htmlInputField.parent(),failMessage);
 },
 
 _addErrorClassSimple : function (div, failMessage){
