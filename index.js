@@ -388,7 +388,7 @@ var webComponent = {
 			 	 // Current selected
 			 	 //var currentSelectedIndex = selection["selected"];
 		        // Add the options to the select box
-		        for (opt in options){
+		        for (opt  in options){
 		        	select.append($("<option />").val(options[opt].value).attr("data-name", name).attr("data-label", label).text(options[opt].text));
 		        }
 
