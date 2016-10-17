@@ -43,8 +43,7 @@ var webComponent = {
 				var response = ''
 				var order = ''
 				if ($(this).is(':checked')) {
-
-					var id =  $(this).attr("id");
+					var id =  $(this).attr("id")
 					var finder = $.grep( getClickedOrderedCheckedBoxes(), function(e){
 						return e.id == id ; 
 					});
@@ -214,10 +213,15 @@ var webComponent = {
 		});
 
 		if(webComponent.searchType !== "acta"){
-
 			createCaptcha($("#" + container));
 			createNavBar($("#" + container));
 		}
+		$("#PuzzleCaptcha").PuzzleCAPTCHA({
+			rows:3,
+			targetInput:'.validationValue',
+			targetVal:'true',
+			targetButton:'.btnSubmit'
+		});
 		function createHeader(field, index){
 			var div = getOrCreateDiv("id" + index, field.class);
 			getOrCreateHeader(div,field);
@@ -267,9 +271,9 @@ var webComponent = {
 			addHelperBlock(div);
 		};
 		function createSelect(field, index){
-			if(webComponent.selected.length === 0){
+			//if(webComponent.selected.length === 0){
 				webComponent.selected.push({"options": field.options, "selected":''});
-			}
+			//}
 			var length = webComponent.selected.length;			
 			if(webComponent.lastCount > length ){	
 				for(var i=length -1; i <= webComponent.lastCount; i++){
@@ -277,15 +281,16 @@ var webComponent = {
 				}
 				webComponent.lastCount = length;
 			}
-			$.each(webComponent.selected, function(f,selection){
-				var id = field.name + "-" + f;
+
+		//	$.each(webComponent.selected, function(f,selection){
+				var id = field.name //+ "-" + f;
 				field["id"] = id;
 				var div = getOrCreateDiv(id, field.class);
 				getOrCreateLabel(div,id, field);
-				var select =getOrCreateSelect(div, id, field, f);
-				populateSelect(select,f, selection, field);
+				var select =getOrCreateSelect(div, id, field);
+				populateSelect(select, field);
 				addHelperBlock(div);
-			});
+	//		});
 		};
 
 		function getOrCreateDiv(id, clazz){
@@ -347,7 +352,7 @@ var webComponent = {
 		          });			
 
 		          // Action to take if select is changed. State is made available through evt.data
-		          select.on("change", { controller: controller, index: idx }, function(evt){
+/*		          select.on("change", { controller: controller, index: idx }, function(evt){
 			            // Restore the state
 			            var controller = evt.data.controller;
 			            var index = evt.data.index;
@@ -366,7 +371,7 @@ var webComponent = {
 			            }
 			            webComponent.selected = selected;
 			            createSelect(field);
-			        });
+			        });*/
 
 		            // Add it to the component container
 		            div.append(select);
@@ -374,25 +379,29 @@ var webComponent = {
 		        return select;
 		    };
 		    // Add the options to the select box
-		    function populateSelect(select, index, selection, field){
+		    function populateSelect(select, field){
 		    	var label = webComponent.unescapeHtml(field.label);
 		    	var name = webComponent.unescapeHtml(field.name);
 		    	select.html("");
 		    	select.append($("<option />").val('').attr("data-name", name).attr("data-label", label).text('').prop('selected', true));
-		    	var options =  selection["options"] 
+		    	var options =  field["options"]; 
 			 	 // Current selected
-			 	 var currentSelectedIndex = selection["selected"];
+			 	 //var currentSelectedIndex = selection["selected"];
 		        // Add the options to the select box
+		        for (opt in options){
+		        	select.append($("<option />").val(options[opt].value).attr("data-name", name).attr("data-label", label).text(options[opt].text));
+		        }
 
-		        $.each( options , function( index, opt ) {	 
+		   /*     $.each( options , function( index, opt ) {	 
 
-		        	if(index === currentSelectedIndex){	        		
-		        		select.append($("<option />").val(opt.value).attr("data-name", name).attr("data-label", label).text(opt.text).prop('selected', true));
-		        	}
-		        	else{
+		        	// if(index === currentSelectedIndex){	        		
+		        	// 	select.append($("<option />").val(opt.value).attr("data-name", name).attr("data-label", label).text(opt.text).prop('selected', true));
+		        	// }
+		        	// else{
+		        		alert("opt" +  JSON.stringify(opt));
 		        		select.append($("<option />").val(opt.value).attr("data-name", name).attr("data-label", label).text(opt.text));
-		        	}
-		        });
+		        	//}
+		        });*/
 		    };
 
 		    function setModelNameFromFieldName(fieldName,selectedIndex){
@@ -595,7 +604,7 @@ function createNavBar(holder){
 				var payload = {};
 				payload.id_tramite  = webComponent._modelValues['id_tramite'];
 				payload.id_dependencia = webComponent._modelValues['id_dependencia'];
-				payload.nombre  = webComponent._modelValues['nombre'];
+				payload.nombre  =  webComponent.unescapeHtml(webComponent._modelValues['nombre'].replace(/\./g,' '));
 				payload.dependencia = webComponent._modelValues['dependencia'];
 				payload.respuestas = responses;
 
@@ -691,7 +700,7 @@ _addErrorClass : function (fieldId, failType){
 		failMessage = "Campo invalido"
 	}
 	var htmlInputField = $( '#'+fieldId );
-	_addErrorClassSimple(htmlInputField.parent(),failMessage);
+	webComponent._addErrorClassSimple(htmlInputField.parent(),failMessage);
 },
 
 _addErrorClassSimple : function (div, failMessage){
