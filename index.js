@@ -395,8 +395,9 @@ function getOrCreateSelect (div , id, field, idx){
 		    function populateSelect(select, field){
 		    	var label = webComponent.unescapeHtml(field.label);
 		    	var name = webComponent.unescapeHtml(field.name);
+		    	var placeholder = field.placeholder || '';
 		    	select.html("");
-		    	select.append($("<option />").val('').attr("data-name", name).attr("data-label", label).text('').prop('selected', true));
+		    	select.append($("<option />").val('').attr("data-name", name).attr("data-label", label).text(placeholder).prop('selected', true));
 		    	var options =  field["options"]; 
 			 	 // Current selected
 			 	 //var currentSelectedIndex = selection["selected"];
