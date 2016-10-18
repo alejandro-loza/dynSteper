@@ -536,8 +536,8 @@ function validateFieldsClass(item){
 					lab.on("change", function(evt){
 					var seleccionados = lab.parent().parent().find("input:checked");  
 					if(seleccionados.length > 0){
-						lab.parent().parent().parent().removeClass( 'has-error' );
-						$( '.help-block', lab.parent().parent().parent()  ).slideUp().html( '' );
+						div.removeClass( 'has-error' );
+						$( '.help-block', div.attr("id")  ).slideUp().html( '' );
 					}
 				});
 					lab.appendTo($(divRadio))
