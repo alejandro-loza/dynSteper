@@ -93,31 +93,44 @@ var webComponent = {
 	},
 
 	_isValidForm: function(){
-
 		return isFullRequired() && isFullRegexValid();
 
 		function isFullRequired(){
 			webComponent.errorFields = [];
-			$('.required select').attr('required',true).filter(':visible:first').each(function(i, requiredField){
+			$('.required select').each(function(i, requiredField){
 				if($(requiredField).val() == ''){
 					webComponent.errorFields.push(requiredField);
+					webComponent._addErrorClassSimple($("#div-" + $(requiredField).attr('id') ), "Campo Requerido");
 				}
 			});
-			$('.required input').attr('required',true).filter(':visible:first').each(function(i, requiredField){
-				if($(requiredField).attr("parentId")){
-					var div = $(requiredField).attr("parentId");
-					var seleccionados =  $("#"+div).find("input:checked");
-					if(seleccionados.length === 0){
-						webComponent.errorFields.push($(requiredField));	
-					}
-				}
-				else if($(requiredField).val() == ''){
+			$('.required   input[type="text"], textarea ').each(function(i, requiredField){
+				if($(requiredField).val() == ''){
 					webComponent.errorFields.push($(requiredField));
+					webComponent._addErrorClassSimple($("#div-" + $(requiredField).attr('id') ), "Campo Requerido");	
 				}
 			});
 
+			$('.required   input[type="checkbox"]').each(function(i, requiredField){
+				var seleccionados = $(requiredField).parent().parent().parent().parent().find("input:checked");
+				if (seleccionados.length === 0 ) {
+					webComponent.errorFields.push($(requiredField));
+					webComponent._addErrorClassSimple($("#" + $(requiredField).parent().parent().parent().parent().attr('id') ), "Campo Requerido");
+				}
+			});
+
+			$('.required   input[type="radio"]').each(function(i, requiredField){
+				var seleccionados = $(requiredField).parent().parent().parent().parent().find("input:checked");
+				if (seleccionados.length === 0 ) {
+					webComponent.errorFields.push($(requiredField));
+					webComponent._addErrorClassSimple($("#" + $(requiredField).parent().parent().parent().attr('id') ), "Campo Requerido");
+				}
+			});
+
+
+
 			if(webComponent.errorFields.length !== 0){
 				$.each(webComponent.errorFields, function(index,field){
+					// alert(field.attr("name"));
 					if($(field).attr("parentId")){
 						var divId = $(field).attr("parentId");
 						webComponent._addErrorClassSimple($("#"+divId), "Campo Requerido");
@@ -291,49 +304,49 @@ var webComponent = {
 				populateSelect(select, field);
 				addHelperBlock(div);
 	//		});
-		};
+};
 
-		function getOrCreateDiv(id, clazz){
-			var div = $("#div-" + id );
-			if(div.length === 0){
-				div = $('<div/>')
-				div.attr("id", "div-" + id)
-				div.addClass(clazz);
-				$("#" + webComponent.canvas).append(div);
-			}
-			return div;
-		};
+function getOrCreateDiv(id, clazz){
+	var div = $("#div-" + id );
+	if(div.length === 0){
+		div = $('<div/>')
+		div.attr("id", "div-" + id)
+		div.addClass(clazz);
+		$("#" + webComponent.canvas).append(div);
+	}
+	return div;
+};
 
-		function getOrCreateLabel(div, id, field){
-			var labelObject = $("#label-" + id );
-			if(labelObject.length === 0){
-				labelObject = $("<label class='control-label' id='label-"+ id +"' for = "+ id + " >"+ webComponent.unescapeHtml(field.label) + "</label>");
-				div.append(labelObject);
-			}
-			if(field.description){
-				addToolTip(labelObject, field.description, "top");
-			}
-			if( field.textoapoyo != undefined ) {
-				var p = $('<p/>')
-				.text(field.textoapoyo)
-				.appendTo(div);
-			}
-			return labelObject;
-		};
+function getOrCreateLabel(div, id, field){
+	var labelObject = $("#label-" + id );
+	if(labelObject.length === 0){
+		labelObject = $("<label class='control-label' id='label-"+ id +"' for = "+ id + " >"+ webComponent.unescapeHtml(field.label) + "</label>");
+		div.append(labelObject);
+	}
+	if(field.description){
+		addToolTip(labelObject, field.description, "top");
+	}
+	if( field.textoapoyo != undefined ) {
+		var p = $('<p/>')
+		.text(field.textoapoyo)
+		.appendTo(div);
+	}
+	return labelObject;
+};
 
-		function getOrCreateHeader(div, field){
-			var labelObject = $("#header");
-			if(labelObject.length === 0){
-				labelObject = $("<"+field.subtype+" class='"+ field.class +"' >"+ field.label + "</"+field.subtype+">");
-				div.append(labelObject);
-			}
-			if(field.description){
-				addToolTip(labelObject, field.description, "top");
-			}
-			return labelObject;
-		};
+function getOrCreateHeader(div, field){
+	var labelObject = $("#header");
+	if(labelObject.length === 0){
+		labelObject = $("<"+field.subtype+" class='"+ field.class +"' >"+ field.label + "</"+field.subtype+">");
+		div.append(labelObject);
+	}
+	if(field.description){
+		addToolTip(labelObject, field.description, "top");
+	}
+	return labelObject;
+};
 
-		function getOrCreateSelect (div , id, field, idx){
+function getOrCreateSelect (div , id, field, idx){
 		        // Determine the id of the select box
 		        id = "select-" + id + "_" + idx;
 		        // Try get the select box if it exists
@@ -402,27 +415,27 @@ var webComponent = {
 		        		select.append($("<option />").val(opt.value).attr("data-name", name).attr("data-label", label).text(opt.text));
 		        	//}
 		        });*/
-		    };
+};
 
-		    function setModelNameFromFieldName(fieldName,selectedIndex){
+function setModelNameFromFieldName(fieldName,selectedIndex){
 
-		    	var selectOptions = webComponent.selected[selectedIndex]["options"];
-		    	if(fieldName){
-		    		var optionModel =  $.grep(selectOptions, function(e){ return e.value === fieldName; });          
-		    		webComponent.selected[selectedIndex]["selected"] = selectOptions.indexOf(optionModel[0]);
-		    		return optionModel[0];
-		    	}else{
-		    		webComponent.selected[selectedIndex]["selected"] = -1;
-		    	}
-		    };
+	var selectOptions = webComponent.selected[selectedIndex]["options"];
+	if(fieldName){
+		var optionModel =  $.grep(selectOptions, function(e){ return e.value === fieldName; });          
+		webComponent.selected[selectedIndex]["selected"] = selectOptions.indexOf(optionModel[0]);
+		return optionModel[0];
+	}else{
+		webComponent.selected[selectedIndex]["selected"] = -1;
+	}
+};
 
-		    function validateFieldsClass(item){
-		    	var re = /form-control/gi;
-		    	item.class = item.class.replace(re, "").split(" ").join(' ');
-		    	item.placeholder = item.placeholder || "";
-		    	if(item.required){
-		    		item.class = item.class.concat(" required");
-		    	}
+function validateFieldsClass(item){
+	var re = /form-control/gi;
+	item.class = item.class.replace(re, "").split(" ").join(' ');
+	item.placeholder = item.placeholder || "";
+	if(item.required){
+		item.class = item.class.concat(" required");
+	}
 /*			if(item.options){
 				item.options = $.parseJSON(item.options);
 			}*/
@@ -520,6 +533,13 @@ var webComponent = {
 					divRadio.attr("id", id + index)
 					divRadio.addClass("radio row clearfix");
 					var lab = $("<label/>").html("<input  type='radio' parentId='"+div.attr("id")+"' label = '"+ webComponent.unescapeHtml(field.label) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
+					lab.on("change", function(evt){
+					var seleccionados = lab.parent().parent().find("input:checked");  
+					if(seleccionados.length > 0){
+						lab.parent().parent().parent().removeClass( 'has-error' );
+						$( '.help-block', lab.parent().parent().parent()  ).slideUp().html( '' );
+					}
+				});
 					lab.appendTo($(divRadio))
 					divRadio.appendTo(div);
 				}
@@ -628,6 +648,8 @@ function createNavBar(holder){
 				alert ("El captcha es obligatorio");
 			}
 
+		}else {
+			alert ("Formulario Invalido");
 		}
 
 		e.preventDefault();
