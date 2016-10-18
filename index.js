@@ -397,7 +397,7 @@ function getOrCreateSelect (div , id, field, idx){
 		    	var name = webComponent.unescapeHtml(field.name);
 		    	var placeholder = field.placeholder || '';
 		    	select.html("");
-		    	select.append($("<option />").val('').attr("data-name", name).attr("data-label", label).text(placeholder).prop('selected', true));
+		    	select.append($("<option />").val('').attr("data-name", name).attr("data-label", label).text(placeholder).prop('selected', true).attr("disabled", "disabled"));
 		    	var options =  field["options"]; 
 			 	 // Current selected
 			 	 //var currentSelectedIndex = selection["selected"];
@@ -617,20 +617,21 @@ function createNavBar(holder){
 				captcha = true;
 			}
 			if (captcha){
-
+/*
 				var responses = $.map(webComponent._getAllValues(), function(n,i){
 					return JSON.parse('{"' + n.label + '" : "' + n.response + '"}');
-				});
+				});*/
 
 				var payload = {};
 				payload.id_tramite  = webComponent._modelValues['id_tramite'];
 				payload.id_dependencia = webComponent._modelValues['id_dependencia'];
 				payload.nombre  =  webComponent.unescapeHtml(webComponent._modelValues['nombre'].replace(/\./g,' '));
-				payload.dependencia = webComponent._modelValues['dependencia'];
+				payload.dependencia = webComponent.unescapeHtml(webComponent._modelValues['dependencia'].replace(/\./g,' ') );
 				payload.respuestas = responses;
 
 				$.ajax({
-					url: 'http://10.15.9.2:3000/gobmx/resultados',
+					//url: 'http://10.15.9.2:3000/gobmx/resultados',
+					url: 'http://www.gob.mx/vun/resultados',
 					type: 'POST',
 					dataType: 'json',
 					contentType: 'application/json',
