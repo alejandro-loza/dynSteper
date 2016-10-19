@@ -533,13 +533,45 @@ function validateFieldsClass(item){
 					divRadio = $('<div/>')
 					divRadio.attr("id", id + index)
 					divRadio.addClass("radio row clearfix");
+
+					if(field.importancia === "Si") {
+		              hasClickedOrder = true;
+		            }
+
 					var lab = $("<label/>").html("<input  type='radio' parentId='"+div.attr("id")+"' label = '"+ webComponent.unescapeHtml(field.label) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
-					lab.on("change", function(evt){
-					var seleccionados = lab.parent().parent().find("input:checked");  
-					if(seleccionados.length > 0){
-						div.removeClass( 'has-error' );
-						$( '.help-block', div.attr("id")  ).slideUp().html( '' );
-					}
+					if(field.importancia === "Si") {
+		              lab.append('<span style="margin-left:8px;"></span>');
+		            }
+		            
+		            lab.on("change", function(evt) {;
+		              if(lab.find(':input').is(':checked')) {
+		                var seleccionados = lab.parent().parent().parent().find("input:checked");
+		                if(seleccionados.length > 0) {
+		                  lab.find('span').text(seleccionados.length);
+		                }
+		              } else {
+		                var aux = -1;
+		                for(var x = 0; x < field.options.length; x++) {
+		                  if($(this).parent().text().indexOf(field.options[x].text) != -1) {
+		                    field.options[x].order = x;
+		                    //lab.find('span').text("");
+		                    aux = parseInt($(this).parent().find("span").text());
+		                    $(this).parent().find("span").html("")
+		                  }
+		                }
+		                if (aux > -1) {
+		                    var prueba = $(this).parent().parent()
+		                    prueba.children().each(function(){
+		                        if ( $(this).find("span").text().trim() != "") {
+		                            var index = parseInt($(this).find("span").text())
+		                            if (aux < index){
+		                                index--;
+		                                $(this).find("span").text(index.toString())
+		                            }
+		                        }
+		                    });
+		                }
+		              }
 				});
 					lab.appendTo($(divRadio))
 					divRadio.appendTo(div);
