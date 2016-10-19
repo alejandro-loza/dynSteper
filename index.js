@@ -434,7 +434,7 @@ function validateFieldsClass(item){
 	var re = /form-control/gi;
 	item.class = item.class.replace(re, "").split(" ").join(' ');
 	item.placeholder = item.placeholder || "";
-	if(item.required){
+	if(item.required && item.required === "true"){
 		item.class = item.class.concat(" required");
 	}
 /*			if(item.options){
