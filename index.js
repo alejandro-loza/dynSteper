@@ -328,7 +328,7 @@ function getOrCreateLabel(div, id, field){
 	}
 	if( field.textoapoyo != undefined ) {
 		var p = $('<p/>')
-		.text(field.textoapoyo)
+		.text(webComponent.unescapeHtml(field.textoapoyo))
 		.appendTo(div);
 	}
 	return labelObject;
