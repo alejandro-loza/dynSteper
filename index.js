@@ -16,7 +16,7 @@ var webComponent = {
 		var notChecked = [];
 		
 
-		$('#' + webComponent.canvas +' input[type="text"], textarea').not(':button,:hidden').each(function() {
+		$('#' + webComponent.canvas +' input[type="text"], textarea, input[type="email"]').not(':button,:hidden').each(function() {
 			if($(this).attr("id").substr(0, 7) != "camOtro"){
 				inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val() });
 			}
@@ -88,7 +88,6 @@ var webComponent = {
 
 			return webComponent.checked;
 		};
-
 		return inputValues;
 	},
 
