@@ -226,8 +226,9 @@ var webComponent = {
 		});
 
 		if(webComponent.searchType !== "acta"){
-			createCaptcha($("#" + container));
-			createNavBar($("#" + container));
+			createCaptcha($("#div-id_captcha"));
+			var div = $('navBarr');
+			createNavBar(div);
 		}
 		$("#PuzzleCaptcha").PuzzleCAPTCHA({
 			rows:3,
@@ -626,17 +627,18 @@ function addToolTip(input, title, side){
 
 function createNavBar(holder){
 
-	var navbar = getOrCreateDiv("id", 'form-group col-md-12')
+	//var navbar = getOrCreateDiv("id", 'form-group col-md-12')
+	var navbar = $("#navBarr")
 	.addClass('form-group col-md-12')
 	.css({'margin-right':'12px'})
-	.appendTo(holder);
+	//.appendTo(holder);
 	var next = $('<button/>')
 	.addClass('btn btn-primary btn-lg')
 	.text('Enviar')
 	.css({'margin-right':'12px'})
 	.appendTo(navbar)
 	.click(function(e) {
-		var captcha = $('.validationValue').val();
+		var captcha = $("#g-recaptcha-response").val();
 
 		if(webComponent._isValidForm() ){
 			var responses = $.map(webComponent._getAllValues(), function(n,i){
@@ -647,7 +649,7 @@ function createNavBar(holder){
 			var cap =  webComponent._modelValues['captcha'];
 			if (cap ==='f'){
 				captcha = true;
-			}
+			}else{captcha = false}
 			if (captcha){
 /*
 				var responses = $.map(webComponent._getAllValues(), function(n,i){
@@ -691,15 +693,16 @@ function createNavBar(holder){
 	});
 };
 /* Genera el captcha */
-function createCaptcha(holder){
-	var captcha= webComponent._modelValues['captcha'];
-
+function createCaptcha(){
+	 var captcha= webComponent._modelValues['captcha'];
+    
 	if (captcha === 't'){
-		var navbar = getOrCreateDiv("id_captcha", 'form-group col-md-12')
-
-		var html = $('<input type="hidden" name="" class="validationValue"><br><br>	<label>Eres un Humano? &nbsp;</label><label class="respuesta_captcha" > </label>	<div id="PuzzleCaptcha"></div>');
-		html.appendTo(navbar);
-
+		//var navbar = getOrCreateDiv("id_captcha", 'form-group col-md-12')
+		/*var html = $('<div id="captcha" class=" g-recaptcha" data-sitekey="6LfulAwTAAAAALtjRGZxBinREdNMITvETTXByiyh"></div>');
+		html.appendTo(navbar);*/
+		grecaptcha.render('div-id_captcha', {
+            'sitekey' : '6LfulAwTAAAAALtjRGZxBinREdNMITvETTXByiyh'
+        });
 	}
 
 };
