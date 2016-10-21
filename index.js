@@ -14,8 +14,9 @@ var webComponent = {
 	_getAllValues:function() {
 		var inputValues = [];
 		var notChecked = [];
+		
 
-		$('#' + webComponent.canvas +' input[type="text"], textarea').each(function() {
+		$('#' + webComponent.canvas +' input[type="text"], textarea').not(':button,:hidden').each(function() {
 			if($(this).attr("id").substr(0, 7) != "camOtro"){
 				inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val() });
 			}
@@ -81,7 +82,6 @@ var webComponent = {
 					if(f.clickedOrder === 'true'){
 						f["order"] = i + 1;	
 					}
-					
 				});
 				//inputValues.push.apply(inputValues, result );
 			});
@@ -93,6 +93,7 @@ var webComponent = {
 	},
 
 	_isValidForm: function(){
+
 		return isFullRequired() && isFullRegexValid();
 
 		function isFullRequired(){
@@ -103,7 +104,7 @@ var webComponent = {
 					webComponent._addErrorClassSimple($("#div-" + $(requiredField).attr('id') ), "Campo Requerido");
 				}
 			});
-			$('.required   input[type="text"], textarea ').each(function(i, requiredField){
+			$('.required   input[type="text"], textarea ').not(':button,:hidden').each(function(i, requiredField){
 				if($(requiredField).val() == ''){
 					webComponent.errorFields.push($(requiredField));
 					webComponent._addErrorClassSimple($("#div-" + $(requiredField).attr('id') ), "Campo Requerido");	
@@ -130,7 +131,6 @@ var webComponent = {
 
 			if(webComponent.errorFields.length !== 0){
 				$.each(webComponent.errorFields, function(index,field){
-					// alert(field.attr("name"));
 					if($(field).attr("parentId")){
 						var divId = $(field).attr("parentId");
 						webComponent._addErrorClassSimple($("#"+divId), "Campo Requerido");
@@ -642,19 +642,14 @@ function createNavBar(holder){
 
 		if(webComponent._isValidForm() ){
 			var responses = $.map(webComponent._getAllValues(), function(n,i){
-				return JSON.parse('{"' + webComponent.unescapeHtml(n.label.replace(/\./g,' ')) + '" : "' + webComponent.unescapeHtml(n.response.replace(/\./g,' ')) + '"}');				
-				
+				return JSON.parse('{"' + webComponent.unescapeHtml(n.label.replace(/\./g,' ')) + '" : "' + webComponent.unescapeHtml(n.response.replace(/\./g,' ')) + '"}');			
 			});
 
 			var cap =  webComponent._modelValues['captcha'];
 			if (cap ==='f'){
 				captcha = true;
-			}else{captcha = false}
+			}
 			if (captcha){
-/*
-				var responses = $.map(webComponent._getAllValues(), function(n,i){
-					return JSON.parse('{"' + n.label + '" : "' + n.response + '"}');
-				});*/
 
 				var payload = {};
 				payload.id_tramite  = webComponent._modelValues['id_tramite'];
