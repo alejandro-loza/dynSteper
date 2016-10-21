@@ -14,8 +14,9 @@ var webComponent = {
 	_getAllValues:function() {
 		var inputValues = [];
 		var notChecked = [];
+		
 
-		$('#' + webComponent.canvas +' input[type="text"], textarea').each(function() {
+		$('#' + webComponent.canvas +' input[type="text"], textarea').not(':button,:hidden').each(function() {
 			if($(this).attr("id").substr(0, 7) != "camOtro"){
 				inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val() });
 			}
@@ -81,7 +82,6 @@ var webComponent = {
 					if(f.clickedOrder === 'true'){
 						f["order"] = i + 1;	
 					}
-					
 				});
 				//inputValues.push.apply(inputValues, result );
 			});
@@ -93,6 +93,7 @@ var webComponent = {
 	},
 
 	_isValidForm: function(){
+
 		return isFullRequired() && isFullRegexValid();
 
 		function isFullRequired(){
@@ -103,7 +104,7 @@ var webComponent = {
 					webComponent._addErrorClassSimple($("#div-" + $(requiredField).attr('id') ), "Campo Requerido");
 				}
 			});
-			$('.required   input[type="text"], textarea ').each(function(i, requiredField){
+			$('.required   input[type="text"], textarea ').not(':button,:hidden').each(function(i, requiredField){
 				if($(requiredField).val() == ''){
 					webComponent.errorFields.push($(requiredField));
 					webComponent._addErrorClassSimple($("#div-" + $(requiredField).attr('id') ), "Campo Requerido");	
@@ -130,7 +131,6 @@ var webComponent = {
 
 			if(webComponent.errorFields.length !== 0){
 				$.each(webComponent.errorFields, function(index,field){
-					// alert(field.attr("name"));
 					if($(field).attr("parentId")){
 						var divId = $(field).attr("parentId");
 						webComponent._addErrorClassSimple($("#"+divId), "Campo Requerido");
@@ -226,8 +226,9 @@ var webComponent = {
 		});
 
 		if(webComponent.searchType !== "acta"){
-			createCaptcha($("#" + container));
-			createNavBar($("#" + container));
+			createCaptcha($("#div-id_captcha"));
+			var div = $('navBarr');
+			createNavBar(div);
 		}
 		$("#PuzzleCaptcha").PuzzleCAPTCHA({
 			rows:3,
@@ -626,22 +627,22 @@ function addToolTip(input, title, side){
 
 function createNavBar(holder){
 
-	var navbar = getOrCreateDiv("id", 'form-group col-md-12')
+	//var navbar = getOrCreateDiv("id", 'form-group col-md-12')
+	var navbar = $("#navBarr")
 	.addClass('form-group col-md-12')
 	.css({'margin-right':'12px'})
-	.appendTo(holder);
+	//.appendTo(holder);
 	var next = $('<button/>')
 	.addClass('btn btn-primary btn-lg')
 	.text('Enviar')
 	.css({'margin-right':'12px'})
 	.appendTo(navbar)
 	.click(function(e) {
-		var captcha = $('.validationValue').val();
+		var captcha = $("#g-recaptcha-response").val();
 
 		if(webComponent._isValidForm() ){
 			var responses = $.map(webComponent._getAllValues(), function(n,i){
-				return JSON.parse('{"' + webComponent.unescapeHtml(n.label.replace(/\./g,' ')) + '" : "' + webComponent.unescapeHtml(n.response.replace(/\./g,' ')) + '"}');				
-				
+				return JSON.parse('{"' + webComponent.unescapeHtml(n.label.replace(/\./g,' ')) + '" : "' + webComponent.unescapeHtml(n.response.replace(/\./g,' ')) + '"}');			
 			});
 
 			var cap =  webComponent._modelValues['captcha'];
@@ -649,10 +650,6 @@ function createNavBar(holder){
 				captcha = true;
 			}
 			if (captcha){
-/*
-				var responses = $.map(webComponent._getAllValues(), function(n,i){
-					return JSON.parse('{"' + n.label + '" : "' + n.response + '"}');
-				});*/
 
 				var payload = {};
 				payload.id_tramite  = webComponent._modelValues['id_tramite'];
@@ -691,15 +688,16 @@ function createNavBar(holder){
 	});
 };
 /* Genera el captcha */
-function createCaptcha(holder){
-	var captcha= webComponent._modelValues['captcha'];
-
+function createCaptcha(){
+	 var captcha= webComponent._modelValues['captcha'];
+    
 	if (captcha === 't'){
-		var navbar = getOrCreateDiv("id_captcha", 'form-group col-md-12')
-
-		var html = $('<input type="hidden" name="" class="validationValue"><br><br>	<label>Eres un Humano? &nbsp;</label><label class="respuesta_captcha" > </label>	<div id="PuzzleCaptcha"></div>');
-		html.appendTo(navbar);
-
+		//var navbar = getOrCreateDiv("id_captcha", 'form-group col-md-12')
+		/*var html = $('<div id="captcha" class=" g-recaptcha" data-sitekey="6LfulAwTAAAAALtjRGZxBinREdNMITvETTXByiyh"></div>');
+		html.appendTo(navbar);*/
+		grecaptcha.render('div-id_captcha', {
+            'sitekey' : '6LfulAwTAAAAALtjRGZxBinREdNMITvETTXByiyh'
+        });
 	}
 
 };
