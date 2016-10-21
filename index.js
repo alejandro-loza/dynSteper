@@ -192,6 +192,8 @@ var webComponent = {
 
 	_render: function (container){
 		$("#" + container).html("");
+		$("#div-id_captcha").html("");
+		$('#navBarr').html("");
 		webComponent.canvas = container;
 		var controller = this;
 		$.each( webComponent._formValues, function( index, field ) {
