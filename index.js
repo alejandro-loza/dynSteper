@@ -672,15 +672,15 @@ function createNavBar(holder){
 				payload.respuestas = responses;
 
 				$.ajax({
+					//url: 'http://10.15.9.2:3000/gobmx/resultados',
 					url: 'http://10.20.58.9/vun/resultados',
-					//url: 'http://www.gob.mx/vun/resultados',
 					type: 'POST',
 					dataType: 'json',
 					contentType: 'application/json',
 					data: JSON.stringify(payload),
 					success: function(response){
 						alert("Encuesta Guardada.");
-					10.20.58.9/vun},
+					},
 					error: function(e){
 						alert("Error: " + JSON.stringify(e));
 					},
