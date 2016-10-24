@@ -13,8 +13,7 @@ var webComponent = {
 
 	_getAllValues:function() {
 		var inputValues = [];
-		var notChecked = [];
-		
+		var notChecked = [];		
 
 		$('#' + webComponent.canvas +' input[type="text"], textarea, input[type="email"]').not(':button,:hidden').each(function() {
 			if($(this).attr("id").substr(0, 7) != "camOtro"){
@@ -192,8 +191,8 @@ var webComponent = {
 
 	_render: function (container){
 		$("#" + container).html("");
-		$("#div-id_captcha").html("");
-		$('#navBarr').html("");
+		$("#div-id_captcha").empty();
+		$('#navBarr').empty();
 		webComponent.canvas = container;
 		var controller = this;
 		$.each( webComponent._formValues, function( index, field ) {
@@ -221,6 +220,9 @@ var webComponent = {
 				case "header":
 				createHeader(field,index);
 				break;
+				case "footer":
+				createFooter(field);
+				break;
 				default: 
 				//alert('Default case');
 			}
@@ -228,7 +230,7 @@ var webComponent = {
 
 		if(webComponent.searchType !== "acta"){
 			createCaptcha($("#div-id_captcha"));
-			var div = $('navBarr');
+			var div = $('#navBarr');
 			createNavBar(div);
 		}
 		$("#PuzzleCaptcha").PuzzleCAPTCHA({
@@ -238,8 +240,16 @@ var webComponent = {
 			targetButton:'.btnSubmit'
 		});
 		function createHeader(field, index){
-			var div = getOrCreateDiv("id" + index, field.class);
+			var div = getOrCreateDiv("id" + index, field.class);			
 			getOrCreateHeader(div,field);
+		};
+		function createFooter(field){
+		    var labelObject = $("#footer");
+			if(labelObject.length === 0){
+				labelObject = $("<"+field.subtype+" class='"+ field.class +"' >"+ field.label + "</"+field.subtype+">");
+			}
+			$("#navBarr").after(labelObject);
+			return labelObject;	
 		};
 
 		function createTextInput(field, index){
@@ -340,84 +350,80 @@ function getOrCreateHeader(div, field){
 	var labelObject = $("#header");
 	if(labelObject.length === 0){
 		labelObject = $("<"+field.subtype+" class='"+ field.class +"' >"+ field.label + "</"+field.subtype+">");
-		div.append(labelObject);
 	}
 	if(field.description){
 		addToolTip(labelObject, field.description, "top");
 	}
+	div.append(labelObject);
+
 	return labelObject;
 };
 
 function getOrCreateSelect (div , id, field, idx){
-		        // Determine the id of the select box
-		        id = "select-" + id + "_" + idx;
-		        // Try get the select box if it exists
-		        var select = $("#" + id ); 
-		        if(select.length === 0){
-		          // Create select box
-		          select = $("<select class='form-control' id='" + id + "'></select>");
+	id = "select-" + id + "_" + idx;
+	var select = $("#" + id ); 
+	if(select.length === 0){
+		select = $("<select class='form-control' id='" + id + "'></select>");
+		select.focusout(	function(){
+			if(field.required && $(this).val() === '' ){
+				webComponent._addErrorClass(id,"required");
+			}
+			else{
+				webComponent._removeErrorClass(id);						
+			}
+		});			
 
-		          select.focusout(	function(){
-		          	if(field.required && $(this).val() === '' ){
-		          		webComponent._addErrorClass(id,"required");
-		          	}
-		          	else{
-		          		webComponent._removeErrorClass(id);						
-		          	}
-		          });			
-
-		          // Action to take if select is changed. State is made available through evt.data
+          // Action to take if select is changed. State is made available through evt.data
 /*		          select.on("change", { controller: controller, index: idx }, function(evt){
-			            // Restore the state
-			            var controller = evt.data.controller;
-			            var index = evt.data.index;
-			            var selected = webComponent.selected;
+	            // Restore the state
+	            var controller = evt.data.controller;
+	            var index = evt.data.index;
+	            var selected = webComponent.selected;
 
-			            // The selected field
-			            var selectedFieldName = $(this).val();
-			            // Update the selected
-			            selected = selected.slice(0, index + 1);
-			            var selectedOptionModel = setModelNameFromFieldName(selectedFieldName, idx);
-			            if(selectedOptionModel){		           
-			            	if (selectedOptionModel.options){
-			            		controller.lastCount = controller.lastCount + 1;
-			            		selected.push({"options":selectedOptionModel.options,"selected":''} );
-			            	}
-			            }
-			            webComponent.selected = selected;
-			            createSelect(field);
-			        });*/
+	            // The selected field
+	            var selectedFieldName = $(this).val();
+	            // Update the selected
+	            selected = selected.slice(0, index + 1);
+	            var selectedOptionModel = setModelNameFromFieldName(selectedFieldName, idx);
+	            if(selectedOptionModel){		           
+	            	if (selectedOptionModel.options){
+	            		controller.lastCount = controller.lastCount + 1;
+	            		selected.push({"options":selectedOptionModel.options,"selected":''} );
+	            	}
+	            }
+	            webComponent.selected = selected;
+	            createSelect(field);
+	        });*/
 
-		            // Add it to the component container
-		            div.append(select);
-		        }
-		        return select;
-		    };
-		    // Add the options to the select box
-		    function populateSelect(select, field){
-		    	var label = webComponent.unescapeHtml(field.label);
-		    	var name = webComponent.unescapeHtml(field.name);
-		    	var placeholder = field.placeholder || '';
-		    	select.html("");
-		    	select.append($("<option />").val('').attr("data-name", name).attr("data-label", label).text(placeholder).prop('selected', true).attr("disabled", "disabled"));
-		    	var options =  field["options"]; 
-			 	 // Current selected
-			 	 //var currentSelectedIndex = selection["selected"];
-		        // Add the options to the select box
-		        for (opt  in options){
-		        	select.append($("<option />").val(options[opt].value).attr("data-name", name).attr("data-label", label).text(options[opt].text));
-		        }
+            // Add it to the component container
+            div.append(select);
+        }
+        return select;
+    };
+    function populateSelect(select, field){
+    	var label = webComponent.unescapeHtml(field.label);
+    	var name = webComponent.unescapeHtml(field.name);
+    	var placeholder = field.placeholder || '';
+    	select.html("");
+    	select.append($("<option />").val('').attr("data-name", name).attr("data-label", label).text(placeholder).prop('selected', true).attr("disabled", "disabled"));
+    	var options =  field["options"]; 
+	 	 // Current selected
+	 	 //var currentSelectedIndex = selection["selected"];
+        // Add the options to the select box
+        for (opt  in options){
+        	select.append($("<option />").val(options[opt].value).attr("data-name", name).attr("data-label", label).text(options[opt].text));
+        }
 
-		   /*     $.each( options , function( index, opt ) {	 
+   /*     $.each( options , function( index, opt ) {	 
 
-		        	// if(index === currentSelectedIndex){	        		
-		        	// 	select.append($("<option />").val(opt.value).attr("data-name", name).attr("data-label", label).text(opt.text).prop('selected', true));
-		        	// }
-		        	// else{
-		        		alert("opt" +  JSON.stringify(opt));
-		        		select.append($("<option />").val(opt.value).attr("data-name", name).attr("data-label", label).text(opt.text));
-		        	//}
-		        });*/
+        	// if(index === currentSelectedIndex){	        		
+        	// 	select.append($("<option />").val(opt.value).attr("data-name", name).attr("data-label", label).text(opt.text).prop('selected', true));
+        	// }
+        	// else{
+        		alert("opt" +  JSON.stringify(opt));
+        		select.append($("<option />").val(opt.value).attr("data-name", name).attr("data-label", label).text(opt.text));
+        	//}
+        });*/
 };
 
 function setModelNameFromFieldName(fieldName,selectedIndex){
@@ -537,73 +543,73 @@ function validateFieldsClass(item){
 					divRadio.addClass("radio row clearfix");
 
 					if(field.importancia === "Si") {
-		              hasClickedOrder = true;
-		            }
+						hasClickedOrder = true;
+					}
 
 					var lab = $("<label/>").html("<input  type='radio' parentId='"+div.attr("id")+"' label = '"+ webComponent.unescapeHtml(field.label) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
 					if(field.importancia === "Si") {
-		              lab.append('<span style="margin-left:8px;"></span>');
-		            }
-		            
-		            lab.on("change", function(evt) {;
-		              if(lab.find(':input').is(':checked')) {
-		                var seleccionados = lab.parent().parent().parent().find("input:checked");
-		                if(seleccionados.length > 0) {
-		                  lab.find('span').text(seleccionados.length);
-		                }
-		              } else {
-		                var aux = -1;
-		                for(var x = 0; x < field.options.length; x++) {
-		                  if($(this).parent().text().indexOf(field.options[x].text) != -1) {
-		                    field.options[x].order = x;
+						lab.append('<span style="margin-left:8px;"></span>');
+					}
+
+					lab.on("change", function(evt) {;
+						if(lab.find(':input').is(':checked')) {
+							var seleccionados = lab.parent().parent().parent().find("input:checked");
+							if(seleccionados.length > 0) {
+								lab.find('span').text(seleccionados.length);
+							}
+						} else {
+							var aux = -1;
+							for(var x = 0; x < field.options.length; x++) {
+								if($(this).parent().text().indexOf(field.options[x].text) != -1) {
+									field.options[x].order = x;
 		                    //lab.find('span').text("");
 		                    aux = parseInt($(this).parent().find("span").text());
 		                    $(this).parent().find("span").html("")
-		                  }
 		                }
-		                if (aux > -1) {
-		                    var prueba = $(this).parent().parent()
-		                    prueba.children().each(function(){
-		                        if ( $(this).find("span").text().trim() != "") {
-		                            var index = parseInt($(this).find("span").text())
-		                            if (aux < index){
-		                                index--;
-		                                $(this).find("span").text(index.toString())
-		                            }
-		                        }
-		                    });
-		                }
-		              }
-				});
-					lab.appendTo($(divRadio))
-					divRadio.appendTo(div);
-				}
-			});			
-		};
+		            }
+		            if (aux > -1) {
+		            	var prueba = $(this).parent().parent()
+		            	prueba.children().each(function(){
+		            		if ( $(this).find("span").text().trim() != "") {
+		            			var index = parseInt($(this).find("span").text())
+		            			if (aux < index){
+		            				index--;
+		            				$(this).find("span").text(index.toString())
+		            			}
+		            		}
+		            	});
+		            }
+		        }
+		    });
+lab.appendTo($(divRadio))
+divRadio.appendTo(div);
+}
+});			
+};
 
-		function getOrCreateCheckBoxGroupInput(div, id, field){
-			var divCheck = $("<div/>").addClass("checkbox row");
-			$.each( field.options , function( index, opt ) {
-				var contain = $('<div/>').addClass('col-md-12 clearfix');
-				var newId = id + "-" + index ;
-				var maxToCheck = field.nseleccionados || 100;
-				var hasClickedOrder = false;
-				if(field.importancia === "Si"){
-					hasClickedOrder = true;
-				}	
-				var lab = $("<label/>").html("<input id='"+ newId +"' parentId='"+div.attr("id")+"' type='checkbox' label = '"+ webComponent.unescapeHtml(field.label) + "' onclick=\'webComponent.saveChecks(this, \""+ newId  +"\" , "+ maxToCheck +" )' resp = '"+ webComponent.unescapeHtml(opt.text) + "' name='"+ field.name +"' clickedOrder= " + hasClickedOrder + " value='"+ opt.value +"'  >" + opt.text +
-					((opt.text=='Otro')? "<input type='text' maxlength='100' class='form-control' id='camOtro-"+ newId +"'>": ""));
-				lab.on("change", function(evt){
-					var seleccionados = lab.parent().parent().parent().find("input:checked");  
-					if(seleccionados.length > 0){
-						lab.parent().parent().parent().removeClass( 'has-error' );
-						$( '.help-block', lab.parent().parent().parent()  ).slideUp().html( '' );
-					}
-				});
-				lab.appendTo(contain)
-				contain.appendTo(divCheck)
-				divCheck.appendTo(div)
-			});
+function getOrCreateCheckBoxGroupInput(div, id, field){
+	var divCheck = $("<div/>").addClass("checkbox row");
+	$.each( field.options , function( index, opt ) {
+		var contain = $('<div/>').addClass('col-md-12 clearfix');
+		var newId = id + "-" + index ;
+		var maxToCheck = field.nseleccionados || 100;
+		var hasClickedOrder = false;
+		if(field.importancia === "Si"){
+			hasClickedOrder = true;
+		}	
+		var lab = $("<label/>").html("<input id='"+ newId +"' parentId='"+div.attr("id")+"' type='checkbox' label = '"+ webComponent.unescapeHtml(field.label) + "' onclick=\'webComponent.saveChecks(this, \""+ newId  +"\" , "+ maxToCheck +" )' resp = '"+ webComponent.unescapeHtml(opt.text) + "' name='"+ field.name +"' clickedOrder= " + hasClickedOrder + " value='"+ opt.value +"'  >" + opt.text +
+			((opt.text=='Otro')? "<input type='text' maxlength='100' class='form-control' id='camOtro-"+ newId +"'>": ""));
+		lab.on("change", function(evt){
+			var seleccionados = lab.parent().parent().parent().find("input:checked");  
+			if(seleccionados.length > 0){
+				lab.parent().parent().parent().removeClass( 'has-error' );
+				$( '.help-block', lab.parent().parent().parent()  ).slideUp().html( '' );
+			}
+		});
+		lab.appendTo(contain)
+		contain.appendTo(divCheck)
+		divCheck.appendTo(div)
+	});
 };
 
 function addHelperBlock (div) {
@@ -690,15 +696,15 @@ function createNavBar(holder){
 };
 /* Genera el captcha */
 function createCaptcha(){
-	 var captcha= webComponent._modelValues['captcha'];
-    
+	var captcha= webComponent._modelValues['captcha'];
+
 	if (captcha === 't'){
 		//var navbar = getOrCreateDiv("id_captcha", 'form-group col-md-12')
 		/*var html = $('<div id="captcha" class=" g-recaptcha" data-sitekey="6LfulAwTAAAAALtjRGZxBinREdNMITvETTXByiyh"></div>');
 		html.appendTo(navbar);*/
 		grecaptcha.render('div-id_captcha', {
-            'sitekey' : '6LfulAwTAAAAALtjRGZxBinREdNMITvETTXByiyh'
-        });
+			'sitekey' : '6LfulAwTAAAAALtjRGZxBinREdNMITvETTXByiyh'
+		});
 	}
 
 };
