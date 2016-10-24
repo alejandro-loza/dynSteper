@@ -213,10 +213,11 @@
 				var pago = $("#payment");
 				var formName = $("#nameSearch");
                 if(formName.val().length > 0){
-                   form = webComponent.main('http://10.15.9.2:3000/gobmx/actas_nacimiento/findOne?filter={"where":{"nombre":"'+ formName.val() + '"}}');
+                   form = webComponent.main('http://10.20.58.9/vun/actas_nacimiento/findOne?filter={"where":{"nombre":"'+ formName.val() + '"}}');
                 }else {
-                   form = webComponent.main('http://10.15.9.2:3000/gobmx/actas_nacimiento/findOne?filter={"where":{"id_estado":'+ estado.val() +',"id_tipo_pago":'+ pago.val() +'}}');		
-                }				
+                   form = webComponent.main('http://10.20.58.9/vun/actas_nacimiento/findOne?filter={"where":{"id_estado":'+ estado.val() +',"id_tipo_pago":'+ pago.val() +'}}');		
+                }	
+
 			}
 			else if(forma.searchType === "encuesta"){
 				var tramite = $("#tramite");
@@ -224,8 +225,8 @@
 				var formName = $("#nameSearch");
 				var formName = $("#nameSearch");
                 if(formName.val().length > 0){
-                  //  form = webComponent.main('http://10.15.9.2:3000/gobmx/encuestas/findOne?filter={"where":{"nombre":"'+ formName.val() + '"}}');   
-                    form = webComponent.main('https://www.gob.mx/vun/encuestas/findOne?filter={"where":{"nombre":"'+ formName.val() + '"}}');   
+                    form = webComponent.main('http://10.20.58.9/vun/encuestas/findOne?filter={"where":{"nombre":"'+ formName.val() + '"}}');   
+                    //form = webComponent.main('https://www.gob.mx/vun/encuestas/findOne?filter={"where":{"nombre":"'+ formName.val() + '"}}');   
 
                 }else{
                 	form = webComponent.main('http://10.20.58.9/vun/encuestas/findOne?filter[where][and][0][fecha_inicio][lte]='+date+'&filter[where][and][1][fecha_fin][gte]='+date+'&filter[where][and][2][id_dependencia]='+dependencia.val()+'&filter[where][and][2][id_tramite]='+tramite.val());
@@ -237,18 +238,17 @@
 			
 			//var form = webComponent.main('https://www.gob.mx/vun/encuestas/findOne?filter={%22where%22:{%22nombre%22:%22Atenci%C3%B3n%20a%20v%C3%ADctimas%22}}');
 			//var form = webComponent.main('http://localhost:1337/options/1');
-
 			if(form){
 
 				console.log(JSON.stringify(form));
 				webComponent._render('container');
-
+/*
 				$("#PuzzleCaptcha").PuzzleCAPTCHA({
 					rows:3,
 					targetInput:'.validationValue',
 					targetVal:'true',
 					targetButton:'.btnSubmit'
-				});
+				});*/
 			}else{
 				alert("error");
 			}				

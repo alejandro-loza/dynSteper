@@ -91,7 +91,6 @@ var webComponent = {
 	},
 
 	_isValidForm: function(){
-
 		return isFullRequired() && isFullRegexValid();
 
 		function isFullRequired(){
@@ -102,7 +101,14 @@ var webComponent = {
 					webComponent._addErrorClassSimple($("#div-" + $(requiredField).attr('id') ), "Campo Requerido");
 				}
 			});
-			$('.required   input[type="text"], textarea ').not(':button,:hidden').each(function(i, requiredField){
+			$('.required   input[type="text"],  input[type="email"] ').not(':button,:hidden').each(function(i, requiredField){
+				if($(requiredField).val() == ''){
+					webComponent.errorFields.push($(requiredField));
+					webComponent._addErrorClassSimple($("#div-" + $(requiredField).attr('id') ), "Campo Requerido");	
+				}
+			});
+
+			$('.required  textarea ').not(':button,:hidden').each(function(i, requiredField){
 				if($(requiredField).val() == ''){
 					webComponent.errorFields.push($(requiredField));
 					webComponent._addErrorClassSimple($("#div-" + $(requiredField).attr('id') ), "Campo Requerido");	
@@ -666,15 +672,15 @@ function createNavBar(holder){
 				payload.respuestas = responses;
 
 				$.ajax({
-					//url: 'http://10.15.9.2:3000/gobmx/resultados',
-					url: 'http://www.gob.mx/vun/resultados',
+					url: 'http://10.20.58.9/vun/resultados',
+					//url: 'http://www.gob.mx/vun/resultados',
 					type: 'POST',
 					dataType: 'json',
 					contentType: 'application/json',
 					data: JSON.stringify(payload),
 					success: function(response){
 						alert("Encuesta Guardada.");
-					},
+					10.20.58.9/vun},
 					error: function(e){
 						alert("Error: " + JSON.stringify(e));
 					},
