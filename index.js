@@ -540,53 +540,65 @@ function validateFieldsClass(item){
 			return input;
 		};
 
-		function getOrCreateRadioGroupInput(div, id, field){
-			$.each( field.options , function( index, opt ) {
-				var divRadio = $("#" + id + index);
-				if(divRadio.length === 0){
-					divRadio = $('<div/>')
-					divRadio.attr("id", id + index)
-					divRadio.addClass("radio row clearfix");
+		function getOrCreateCheckBoxGroupInput(div, id, field){
+          var divCheck = $("<div/>").addClass("checkbox row");
+          $.each( field.options , function(index, opt) {
+            var contain = $('<div/>').addClass('col-md-12 clearfix');
+            var newId = id+"-"+index;
+            var maxToCheck = field.nseleccionados || 100;
+            var hasClickedOrder = false;
 
-					if(field.importancia === "Si") {
-						hasClickedOrder = true;
-					}
+            if(field.importancia === "Si") {
+              hasClickedOrder = true;
+            }
 
-					var lab = $("<label/>").html("<input  type='radio' parentId='"+div.attr("id")+"' label = '"+ webComponent.unescapeHtml(field.label) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
-					if(field.importancia === "Si") {
-						lab.append('<span style="margin-left:8px;"></span>');
-					}
+            var lab = $("<label/>").html(
+              "<input id='"+ newId +"' "+
+              "parentId='"+div.attr("id")+"' "+
+              "type='checkbox' "+
+              "label='"+ webComponent.unescapeHtml(field.label) + "' "+
+              "onclick=\'webComponent.saveChecks(this, \""+ newId  +"\" , "+ maxToCheck +" )' "+
+              "resp='"+ webComponent.unescapeHtml(opt.text) + "' "+
+              "name='"+ field.name +"' "+
+              "clickedOrder="+hasClickedOrder+" "+
+              "value='"+ opt.value +"'>"+
+              opt.text+
+              (opt.text === 'Otro' ? "<input type='text' maxlength='100' class='form-control' id='camOtro-"+ newId +"'>": ""));
 
-					lab.on("change", function(evt) {;
-						if(lab.find(':input').is(':checked')) {
-							var seleccionados = lab.parent().parent().parent().find("input:checked");
-							if(seleccionados.length > 0) {
-								lab.find('span').text(seleccionados.length);
-							}
-						} else {
-							var aux = -1;
-							for(var x = 0; x < field.options.length; x++) {
-								if($(this).parent().text().indexOf(field.options[x].text) != -1) {
-									field.options[x].order = x;
-		                    //lab.find('span').text("");
-		                    aux = parseInt($(this).parent().find("span").text());
-		                    $(this).parent().find("span").html("")
-		                }
-		            }
-		            if (aux > -1) {
-		            	var prueba = $(this).parent().parent()
-		            	prueba.children().each(function(){
-		            		if ( $(this).find("span").text().trim() != "") {
-		            			var index = parseInt($(this).find("span").text())
-		            			if (aux < index){
-		            				index--;
-		            				$(this).find("span").text(index.toString())
-		            			}
-		            		}
-		            	});
-		            }
-		        }
-		    });
+            if(field.importancia === "Si") {
+              lab.append('<span style="margin-left:8px;"></span>');
+            }
+            
+            lab.on("change", function(evt) {;
+              if(lab.find(':input').is(':checked')) {
+                var seleccionados = lab.parent().parent().parent().find("input:checked");
+                if(seleccionados.length > 0) {
+                  lab.find('span').text(seleccionados.length);
+                }
+              } else {
+                var aux = -1;
+                for(var x = 0; x < field.options.length; x++) {
+                  if($(this).parent().text().indexOf(field.options[x].text) != -1) {
+                    field.options[x].order = x;
+                    //lab.find('span').text("");
+                    aux = parseInt($(this).parent().find("span").text());
+                    $(this).parent().find("span").html("")
+                  }
+                }
+                if (aux > -1) {
+                    var prueba = $(this).parent().parent()
+                    prueba.children().each(function(){
+                        if ( $(this).find("span").text().trim() != "") {
+                            var index = parseInt($(this).find("span").text())
+                            if (aux < index){
+                                index--;
+                                $(this).find("span").text(index.toString())
+                            }
+                        }
+                    });
+                }
+              }
+        });
 lab.appendTo($(divRadio))
 divRadio.appendTo(div);
 }
