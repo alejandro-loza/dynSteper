@@ -250,7 +250,7 @@ var webComponent = {
 			getOrCreateHeader(div,field);
 		};
 		function createFooter(field){
-		    var labelObject = $("#footer");
+			var labelObject = $("#footer");
 			if(labelObject.length === 0){
 				labelObject = $("<"+field.subtype+" class='"+ field.class +"' >"+ field.label + "</"+field.subtype+">");
 			}
@@ -378,58 +378,20 @@ function getOrCreateSelect (div , id, field, idx){
 				webComponent._removeErrorClass(id);						
 			}
 		});			
-
-          // Action to take if select is changed. State is made available through evt.data
-/*		          select.on("change", { controller: controller, index: idx }, function(evt){
-	            // Restore the state
-	            var controller = evt.data.controller;
-	            var index = evt.data.index;
-	            var selected = webComponent.selected;
-
-	            // The selected field
-	            var selectedFieldName = $(this).val();
-	            // Update the selected
-	            selected = selected.slice(0, index + 1);
-	            var selectedOptionModel = setModelNameFromFieldName(selectedFieldName, idx);
-	            if(selectedOptionModel){		           
-	            	if (selectedOptionModel.options){
-	            		controller.lastCount = controller.lastCount + 1;
-	            		selected.push({"options":selectedOptionModel.options,"selected":''} );
-	            	}
-	            }
-	            webComponent.selected = selected;
-	            createSelect(field);
-	        });*/
-
-            // Add it to the component container
-            div.append(select);
-        }
-        return select;
-    };
-    function populateSelect(select, field){
-    	var label = webComponent.unescapeHtml(field.label);
-    	var name = webComponent.unescapeHtml(field.name);
-    	var placeholder = field.placeholder || '';
-    	select.html("");
-    	select.append($("<option />").val('').attr("data-name", name).attr("data-label", label).text(placeholder).prop('selected', true).attr("disabled", "disabled"));
-    	var options =  field["options"]; 
-	 	 // Current selected
-	 	 //var currentSelectedIndex = selection["selected"];
-        // Add the options to the select box
-        for (opt  in options){
-        	select.append($("<option />").val(options[opt].value).attr("data-name", name).attr("data-label", label).text(options[opt].text));
-        }
-
-   /*     $.each( options , function( index, opt ) {	 
-
-        	// if(index === currentSelectedIndex){	        		
-        	// 	select.append($("<option />").val(opt.value).attr("data-name", name).attr("data-label", label).text(opt.text).prop('selected', true));
-        	// }
-        	// else{
-        		alert("opt" +  JSON.stringify(opt));
-        		select.append($("<option />").val(opt.value).attr("data-name", name).attr("data-label", label).text(opt.text));
-        	//}
-        });*/
+		div.append(select);
+	}
+	return select;
+};
+function populateSelect(select, field){
+	var label = webComponent.unescapeHtml(field.label);
+	var name = webComponent.unescapeHtml(field.name);
+	var placeholder = field.placeholder || '';
+	select.html("");
+	select.append($("<option />").val('').attr("data-name", name).attr("data-label", label).text(placeholder).prop('selected', true).attr("disabled", "disabled"));
+	var options =  field["options"]; 
+	for (opt  in options){
+		select.append($("<option />").val(options[opt].value).attr("data-name", name).attr("data-label", label).text(options[opt].text));
+	}
 };
 
 function setModelNameFromFieldName(fieldName,selectedIndex){
@@ -451,158 +413,153 @@ function validateFieldsClass(item){
 	if(item.required && item.required === "true"){
 		item.class = item.class.concat(" required");
 	}
-/*			if(item.options){
-				item.options = $.parseJSON(item.options);
-			}*/
-			return item;
-		};
+	return item;
+};
 
-		function getOrCreateTextInput(div, id, field){
-			var input = $("#" + id );
+function getOrCreateTextInput(div, id, field){
+	var input = $("#" + id );
 
-			if(input.length === 0){
-				input = $("<input/>");
-				input.attr("id", id )
-				input.addClass('form-control')
-				input.attr("type", field.subtype || field.type)
-				input.attr("name", field.name)
-				input.attr("label", webComponent.unescapeHtml(field.label))
-				input.attr("placeholder", webComponent.unescapeHtml(field.placeholder))
-				input.attr("maxlength", field.maxlength) 
-				input.focusout(	function(){
-					if(field.required && $(this).val().length === 0 ){
-						webComponent._addErrorClass(id,"required");
-					}
-					else if (field.regex && $(this).val().length > 0 && !webComponent._evaluateValueInRegex($(this).val(), field.regex) ){
-						webComponent._addErrorClass(id,"invalid");
-					}
-					else{
-						webComponent._removeErrorClass(id);						
-					}				        
-				});
-				div.append(input);
+	if(input.length === 0){
+		input = $("<input/>");
+		input.attr("id", id )
+		input.addClass('form-control')
+		input.attr("type", field.subtype || field.type)
+		input.attr("name", field.name)
+		input.attr("label", webComponent.unescapeHtml(field.label))
+		input.attr("placeholder", webComponent.unescapeHtml(field.placeholder))
+		input.attr("maxlength", field.maxlength) 
+		input.focusout(	function(){
+			if(field.required && $(this).val().length === 0 ){
+				webComponent._addErrorClass(id,"required");
 			}
-			return input;
-		};
+			else if (field.regex && $(this).val().length > 0 && !webComponent._evaluateValueInRegex($(this).val(), field.regex) ){
+				webComponent._addErrorClass(id,"invalid");
+			}
+			else{
+				webComponent._removeErrorClass(id);						
+			}				        
+		});
+		div.append(input);
+	}
+	return input;
+};
 
-		function getOrCreateDatePickerInput(div, id, field){
-			var input = $("#" + id );
-			if(input.length === 0){
-				input = $("<input/>");
-				input.attr("id", id )
-				input.addClass('form-control ')
-				input.attr("type", "text")
-				input.attr("name", field.name)
-				input.attr("label", field.label)
-				//input.attr("placeholder", webComponent.unescapeHtml(field.placeholder))
-				input.focusout(	function(){
-					if(field.required && $(this).val().length === 0 ){
-						webComponent._addErrorClass(id,"required");
-					}
-					else{
-						webComponent._removeErrorClass(id);						
-					}				        
-				});
-				if(field.startdate){
-					input.datepicker({changeYear: true,  yearRange: field.startdate.slice(0,4) + ':' + field.finaldate.slice(0,4)});
-				}else{
-					input.datepicker();
+function getOrCreateDatePickerInput(div, id, field){
+	var input = $("#" + id );
+	if(input.length === 0){
+		input = $("<input/>");
+		input.attr("id", id )
+		input.addClass('form-control ')
+		input.attr("type", "text")
+		input.attr("name", field.name)
+		input.attr("label", field.label)
+		input.focusout(	function(){
+			if(field.required && $(this).val().length === 0 ){
+				webComponent._addErrorClass(id,"required");
+			}
+			else{
+				webComponent._removeErrorClass(id);						
+			}				        
+		});
+		if(field.startdate){
+			input.datepicker({changeYear: true,  yearRange: field.startdate.slice(0,4) + ':' + field.finaldate.slice(0,4)});
+		}else{
+			input.datepicker();
+		}
+		div.append(input);
+	}
+	return input;
+};
+
+function getOrCreateTextAreaInput(div, id, field){
+	var input = $("#" + id );
+	if(input.length === 0){
+		input = $("<textarea/>");
+		input.attr("id", id )
+		input.addClass('form-control')
+		input.attr("type", field.type)
+		input.attr("name", field.name)
+		input.attr("label", webComponent.unescapeHtml(field.label))
+		input.attr("placeholder", webComponent.unescapeHtml(field.placeholder))
+		input.attr("maxlength", field.maxlength) 
+		input.focusout(	function(){
+			if(field.required && $(this).val().length === 0 ){
+				webComponent._addErrorClass(id,"required");
+			}
+			else if (field.regex && $(this).val().length > 0 && !webComponent._evaluateValueInRegex($(this).val(), field.regex) ){
+				webComponent._addErrorClass(id,"invalid");
+			}
+			else{
+				webComponent._removeErrorClass(id);						
+			}				        
+		});
+		div.append(input);
+	}
+	return input;
+};
+
+function getOrCreateCheckBoxGroupInput(div, id, field){
+	var divCheck = $("<div/>").addClass("checkbox row");
+	$.each( field.options , function(index, opt) {
+		var contain = $('<div/>').addClass('col-md-12 clearfix');
+		var newId = id+"-"+index;
+		var maxToCheck = field.nseleccionados || 100;
+		var hasClickedOrder = false;
+
+		if(field.importancia === "Si") {
+			hasClickedOrder = true;
+		}
+
+		var lab = $("<label/>").html(
+			"<input id='"+ newId +"' "+
+			"parentId='"+div.attr("id")+"' "+
+			"type='checkbox' "+
+			"label='"+ webComponent.unescapeHtml(field.label) + "' "+
+			"onclick=\'webComponent.saveChecks(this, \""+ newId  +"\" , "+ maxToCheck +" )' "+
+			"resp='"+ webComponent.unescapeHtml(opt.text) + "' "+
+			"name='"+ field.name +"' "+
+			"clickedOrder="+hasClickedOrder+" "+
+			"value='"+ opt.value +"'>"+
+			opt.text+
+			(opt.text === 'Otro' ? "<input type='text' maxlength='100' class='form-control' id='camOtro-"+ newId +"'>": ""));
+
+		if(field.importancia === "Si") {
+			lab.append('<span style="margin-left:8px;"></span>');
+		}
+
+		lab.on("change", function(evt) {;
+			if(lab.find(':input').is(':checked')) {
+				var seleccionados = lab.parent().parent().parent().find("input:checked");
+				if(seleccionados.length > 0) {
+					lab.find('span').text(seleccionados.length);
 				}
-				div.append(input);
 			}
-			return input;
-		};
-
-		function getOrCreateTextAreaInput(div, id, field){
-			var input = $("#" + id );
-			if(input.length === 0){
-				input = $("<textarea/>");
-				input.attr("id", id )
-				input.addClass('form-control')
-				input.attr("type", field.type)
-				input.attr("name", field.name)
-				input.attr("label", webComponent.unescapeHtml(field.label))
-				input.attr("placeholder", webComponent.unescapeHtml(field.placeholder))
-				input.attr("maxlength", field.maxlength) 
-				input.focusout(	function(){
-					if(field.required && $(this).val().length === 0 ){
-						webComponent._addErrorClass(id,"required");
-					}
-					else if (field.regex && $(this).val().length > 0 && !webComponent._evaluateValueInRegex($(this).val(), field.regex) ){
-						webComponent._addErrorClass(id,"invalid");
-					}
-					else{
-						webComponent._removeErrorClass(id);						
-					}				        
-				});
-				div.append(input);
-			}
-			return input;
-		};
-
-		function getOrCreateCheckBoxGroupInput(div, id, field){
-          var divCheck = $("<div/>").addClass("checkbox row");
-          $.each( field.options , function(index, opt) {
-            var contain = $('<div/>').addClass('col-md-12 clearfix');
-            var newId = id+"-"+index;
-            var maxToCheck = field.nseleccionados || 100;
-            var hasClickedOrder = false;
-
-            if(field.importancia === "Si") {
-              hasClickedOrder = true;
-            }
-
-            var lab = $("<label/>").html(
-              "<input id='"+ newId +"' "+
-              "parentId='"+div.attr("id")+"' "+
-              "type='checkbox' "+
-              "label='"+ webComponent.unescapeHtml(field.label) + "' "+
-              "onclick=\'webComponent.saveChecks(this, \""+ newId  +"\" , "+ maxToCheck +" )' "+
-              "resp='"+ webComponent.unescapeHtml(opt.text) + "' "+
-              "name='"+ field.name +"' "+
-              "clickedOrder="+hasClickedOrder+" "+
-              "value='"+ opt.value +"'>"+
-              opt.text+
-              (opt.text === 'Otro' ? "<input type='text' maxlength='100' class='form-control' id='camOtro-"+ newId +"'>": ""));
-
-            if(field.importancia === "Si") {
-              lab.append('<span style="margin-left:8px;"></span>');
-            }
-            
-            lab.on("change", function(evt) {;
-              if(lab.find(':input').is(':checked')) {
-                var seleccionados = lab.parent().parent().parent().find("input:checked");
-                if(seleccionados.length > 0) {
-                  lab.find('span').text(seleccionados.length);
-                }
-              } else {
-                var aux = -1;
-                for(var x = 0; x < field.options.length; x++) {
-                  if($(this).parent().text().indexOf(field.options[x].text) != -1) {
-                    field.options[x].order = x;
-                    //lab.find('span').text("");
-                    aux = parseInt($(this).parent().find("span").text());
-                    $(this).parent().find("span").html("")
-                  }
-                }
-                if (aux > -1) {
-                    var prueba = $(this).parent().parent()
-                    prueba.children().each(function(){
-                        if ( $(this).find("span").text().trim() != "") {
-                            var index = parseInt($(this).find("span").text())
-                            if (aux < index){
-                                index--;
-                                $(this).find("span").text(index.toString())
-                            }
-                        }
-                    });
-                }
-              }
-        });
-lab.appendTo($(divRadio))
-divRadio.appendTo(div);
-}
-});			
+			else {
+				var aux = -1;
+				for(var x = 0; x < field.options.length; x++) {
+					if($(this).parent().text().indexOf(field.options[x].text) != -1) {
+						field.options[x].order = x;                    
+                    	aux = parseInt($(this).parent().find("span").text());
+                    	$(this).parent().find("span").html("")
+                	}
+            	}
+	            if (aux > -1) {
+	            	var prueba = $(this).parent().parent()
+	            	prueba.children().each(function(){
+	            		if ( $(this).find("span").text().trim() != "") {
+	            			var index = parseInt($(this).find("span").text())
+	            			if (aux < index){
+	            				index--;
+	            				$(this).find("span").text(index.toString())
+	            			}
+	            		}
+	            	});
+	            }
+        	}
+    	});
+		lab.appendTo($(divRadio))
+		divRadio.appendTo(div);
+	});			
 };
 
 function getOrCreateCheckBoxGroupInput(div, id, field){
