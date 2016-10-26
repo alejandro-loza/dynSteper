@@ -557,35 +557,12 @@ function getOrCreateCheckBoxGroupInput(div, id, field){
 	            }
         	}
     	});
-		lab.appendTo($(divRadio))
-		divRadio.appendTo(div);
+		lab.appendTo(contain);
+		contain.appendTo(divCheck);
+		divCheck.appendTo(div);
 	});			
 };
 
-function getOrCreateCheckBoxGroupInput(div, id, field){
-	var divCheck = $("<div/>").addClass("checkbox row");
-	$.each( field.options , function( index, opt ) {
-		var contain = $('<div/>').addClass('col-md-12 clearfix');
-		var newId = id + "-" + index ;
-		var maxToCheck = field.nseleccionados || 100;
-		var hasClickedOrder = false;
-		if(field.importancia === "Si"){
-			hasClickedOrder = true;
-		}	
-		var lab = $("<label/>").html("<input id='"+ newId +"' parentId='"+div.attr("id")+"' type='checkbox' label = '"+ webComponent.unescapeHtml(field.label) + "' onclick=\'webComponent.saveChecks(this, \""+ newId  +"\" , "+ maxToCheck +" )' resp = '"+ webComponent.unescapeHtml(opt.text) + "' name='"+ field.name +"' clickedOrder= " + hasClickedOrder + " value='"+ opt.value +"'  >" + opt.text +
-			((opt.text=='Otro')? "<input type='text' maxlength='100' class='form-control' id='camOtro-"+ newId +"'>": ""));
-		lab.on("change", function(evt){
-			var seleccionados = lab.parent().parent().parent().find("input:checked");  
-			if(seleccionados.length > 0){
-				lab.parent().parent().parent().removeClass( 'has-error' );
-				$( '.help-block', lab.parent().parent().parent()  ).slideUp().html( '' );
-			}
-		});
-		lab.appendTo(contain)
-		contain.appendTo(divCheck)
-		divCheck.appendTo(div)
-	});
-};
 
 function addHelperBlock (div) {
 	var helper = $('<span class="help-block"></span>');
