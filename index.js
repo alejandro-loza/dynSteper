@@ -171,15 +171,14 @@ var webComponent = {
 	},
 
 	main: function (url) {
-		
 		var controller = this;			
 		$.support.cors = true;
-        $.ajax({
-            type: 'GET',
-            url: url,
-            cache: true,
-            'async': false,
-            crossDomain: true,  
+		$.ajax({
+			type: 'GET',
+			url: url,
+			cache: true,
+			'async': false,
+			crossDomain: true,  
 			dataType: 'json', 
 			contentType: 'application/json', 
 			success: function (data, status) {
@@ -187,12 +186,12 @@ var webComponent = {
 			},
 			error: function (e) { 
 				alert("Error: Encuesta no encontrada"); 
- 				if(e.status === 404){ 
- 					controller.error = e.status; 
+				if(e.status === 404){ 
+					controller.error = e.status; 
 				}     
 			} 
 		});
-				
+		
 		return controller._formValues;
 	},
 
@@ -540,24 +539,24 @@ function getOrCreateCheckBoxGroupInput(div, id, field){
 				for(var x = 0; x < field.options.length; x++) {
 					if($(this).parent().text().indexOf(field.options[x].text) != -1) {
 						field.options[x].order = x;                    
-                    	aux = parseInt($(this).parent().find("span").text());
-                    	$(this).parent().find("span").html("")
-                	}
-            	}
-	            if (aux > -1) {
-	            	var prueba = $(this).parent().parent()
-	            	prueba.children().each(function(){
-	            		if ( $(this).find("span").text().trim() != "") {
-	            			var index = parseInt($(this).find("span").text())
-	            			if (aux < index){
-	            				index--;
-	            				$(this).find("span").text(index.toString())
-	            			}
-	            		}
-	            	});
-	            }
-        	}
-    	});
+						aux = parseInt($(this).parent().find("span").text());
+						$(this).parent().find("span").html("")
+					}
+				}
+				if (aux > -1) {
+					var prueba = $(this).parent().parent()
+					prueba.children().each(function(){
+						if ( $(this).find("span").text().trim() != "") {
+							var index = parseInt($(this).find("span").text())
+							if (aux < index){
+								index--;
+								$(this).find("span").text(index.toString())
+							}
+						}
+					});
+				}
+			}
+		});
 		lab.appendTo(contain);
 		contain.appendTo(divCheck);
 		divCheck.appendTo(div);
@@ -573,18 +572,17 @@ function getOrCreateRadioGroupInput(div, id, field){
 			divRadio.addClass("radio row clearfix");
 			var lab = $("<label/>").html("<input  type='radio' parentId='"+div.attr("id")+"' label = '"+ webComponent.unescapeHtml(field.label) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
 			lab.on("change", function(evt){
-			var seleccionados = lab.parent().parent().find("input:checked");  
-			if(seleccionados.length > 0){
-				div.removeClass( 'has-error' );
-				$( '.help-block', div.attr("id")  ).slideUp().html( '' );
-			}
-		});
+				var seleccionados = lab.parent().parent().find("input:checked");  
+				if(seleccionados.length > 0){
+					div.removeClass( 'has-error' );
+					$( '.help-block', div.attr("id")  ).slideUp().html( '' );
+				}
+			});
 			lab.appendTo($(divRadio))
 			divRadio.appendTo(div);
 		}
 	});			
 };
-
 
 
 function addHelperBlock (div) {
