@@ -16,14 +16,18 @@ var webComponent = {
 		var notChecked = [];		
 
 		$('#' + webComponent.canvas +' input[type="text"], textarea, input[type="email"]').not(':button,:hidden').each(function() {
-			if($(this).attr("id").substr(0, 7) != "camOtro"){
-				inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val() });
+			if($(this).attr("id").substr(0, 7) != "camOtro"){				
+				inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val(), position : parseFloat($(this).attr("position")) });
 			}
+		});
+
+		$('#' + webComponent.canvas +' input[type="email"]').not(':button,:hidden').each(function() {
+			inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val(), position : parseFloat($(this).attr("position")) });
 		});
 
 		$('#' + webComponent.canvas +' input[type="radio"]:checked ').each(function() {
 			//if($(this).val().length > 0){
-				inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val() });
+				inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val(), position : parseFloat($(this).attr("position")) });
 			//}
 		});
 
@@ -33,7 +37,7 @@ var webComponent = {
 				var seleccionados =  $("#"+div).find(":checked");
 				if(seleccionados.length === 0 && notChecked.indexOf($(this).attr("label")) === -1){
 					notChecked.push($(this).attr("label"));
-					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response:'' });
+					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response:'', position : parseFloat($(this).attr("position")) });
 				}
 			}
 		});
@@ -54,15 +58,15 @@ var webComponent = {
 				}
 
 				if(order != ''){
-					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: response+"-"+order, order:order });
+					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: response+"-"+order, order:order, position: parseFloat($(this).attr("position"))  });
 				}else {	
-					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: response, order:order });
+					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: response, order:order, position: parseFloat($(this).attr("position"))  });
 				}
 			});
 
 		$('#' + webComponent.canvas +'  option:selected').each(function() {
 			//if ($(this).val() != ''){
-				inputValues.push({  idField: $(this).parent().attr("id"), name: $(this).attr("data-name") ,  label: $(this).attr("data-label"), response: $(this).val() });
+				inputValues.push({  idField: $(this).parent().attr("id"), name: $(this).attr("data-name") ,  label: $(this).attr("data-label"), response: $(this).val(), position: parseFloat($(this).attr("position")) });
 			//}
 		});
 
@@ -87,10 +91,16 @@ var webComponent = {
 
 			return webComponent.checked;
 		};
-		return inputValues;
+
+		
+		return inputValues.sort(function(a,b) {
+ 			 return b.position < a.position;
+		});
+		 
 	},
 
 	_isValidForm: function(){
+
 		return isFullRequired() && isFullRegexValid();
 
 		function isFullRequired(){
@@ -183,6 +193,7 @@ var webComponent = {
 			contentType: 'application/json', 
 			success: function (data, status) {
 				controller._formValues = data.fields ;
+				controller._modelValues = data;
 			},
 			error: function (e) { 
 				alert("Error: Encuesta no encontrada"); 
@@ -387,7 +398,7 @@ function populateSelect(select, field){
 	var name = webComponent.unescapeHtml(field.name);
 	var placeholder =  webComponent.unescapeHtml(field.placeholder) || '';
 	select.html("");
-	select.append($("<option />").val('').attr("data-name", name).attr("data-label", label).text(placeholder).prop('selected', true).attr("disabled", "disabled"));
+	select.append($("<option />").val('').attr("position",field.posicion).attr("data-name", name).attr("data-label", label).text(placeholder).prop('selected', true).attr("disabled", "disabled"));
 	var options =  field["options"]; 
 	for (opt  in options){
 		select.append($("<option />").val(options[opt].value).attr("data-name", name).attr("data-label", webComponent.unescapeHtml(label)).text(webComponent.unescapeHtml(options[opt].text)));
@@ -426,6 +437,7 @@ function getOrCreateTextInput(div, id, field){
 		input.attr("type", field.subtype || field.type)
 		input.attr("name", field.name)
 		input.attr("label", webComponent.unescapeHtml(field.label))
+		input.attr("position", field.posicion)
 		input.attr("placeholder", webComponent.unescapeHtml(field.placeholder))
 		input.attr("maxlength", field.maxlength) 
 		input.focusout(	function(){
@@ -480,6 +492,7 @@ function getOrCreateTextAreaInput(div, id, field){
 		input.attr("type", field.type)
 		input.attr("name", field.name)
 		input.attr("label", webComponent.unescapeHtml(field.label))
+		input.attr("position", field.posicion)
 		input.attr("placeholder", webComponent.unescapeHtml(field.placeholder))
 		input.attr("maxlength", field.maxlength) 
 		input.focusout(	function(){
@@ -515,6 +528,7 @@ function getOrCreateCheckBoxGroupInput(div, id, field){
 			"parentId='"+div.attr("id")+"' "+
 			"type='checkbox' "+
 			"label='"+ webComponent.unescapeHtml(field.label) + "' "+
+			"position='" + field.posicion + "." + index + "' "+
 			"onclick=\'webComponent.saveChecks(this, \""+ newId  +"\" , "+ maxToCheck +" )' "+
 			"resp='"+ webComponent.unescapeHtml(opt.text) + "' "+
 			"name='"+ field.name +"' "+
@@ -570,7 +584,7 @@ function getOrCreateRadioGroupInput(div, id, field){
 			divRadio = $('<div/>')
 			divRadio.attr("id", id + index)
 			divRadio.addClass("radio row clearfix");
-			var lab = $("<label/>").html("<input  type='radio' parentId='"+div.attr("id")+"' label = '"+ webComponent.unescapeHtml(field.label) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
+			var lab = $("<label/>").html("<input  type='radio' parentId='"+div.attr("id")+"'  position='"+ field.posicion   +"' label = '"+ webComponent.unescapeHtml(field.label) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
 			lab.on("change", function(evt){
 				var seleccionados = lab.parent().parent().find("input:checked");  
 				if(seleccionados.length > 0){
@@ -622,25 +636,24 @@ function createNavBar(holder){
 
 		if(webComponent._isValidForm() ){
 			var responses = $.map(webComponent._getAllValues(), function(n,i){
-				return JSON.parse('{"' + webComponent.unescapeHtml(n.label.replace(/\./g,' ')) + '" : "' + webComponent.unescapeHtml(n.response) + '"}');			
+				return JSON.parse('{"' + webComponent.unescapeHtml(n.label.replace(/[.,"]/g,' ')) + '" : "' + webComponent.unescapeHtml(n.response.replace(/[",]/g,' ')) + '"}');			
 			});
 
 			var cap =  webComponent._modelValues['captcha'];
 			if (cap ==='f'){
 				captcha = true;
 			}
+			captcha = true;
 			if (captcha){
-
 				var payload = {};
 				payload.id_tramite  = webComponent._modelValues['id_tramite'];
 				payload.id_dependencia = webComponent._modelValues['id_dependencia'];
 				payload.nombre  =  webComponent.unescapeHtml(webComponent._modelValues['nombre'].replace(/\./g,' '));
 				payload.dependencia = webComponent.unescapeHtml(webComponent._modelValues['dependencia'].replace(/\./g,' ') );
 				payload.respuestas = responses;
-
 				$.ajax({
-					//url: 'http://10.15.9.2:3000/gobmx/resultados',
-					url: 'https://gob.mx/resultados',
+					//url: 'https://gob.mx/resultados',
+					url: 'http://10.20.58.9/vun/resultados',
 					type: 'POST',
 					dataType: 'json',
 					contentType: 'application/json',
