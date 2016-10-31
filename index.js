@@ -21,9 +21,9 @@ var webComponent = {
 			}
 		});
 
-		$('#' + webComponent.canvas +' input[type="email"]').not(':button,:hidden').each(function() {
-			inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val(), position : parseFloat($(this).attr("position")) });
-		});
+		// $('#' + webComponent.canvas +' input[type="email"]').not(':button,:hidden').each(function() {
+		// 	inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val(), position : parseFloat($(this).attr("position")) });
+		// });
 
 		$('#' + webComponent.canvas +' input[type="radio"]:checked ').each(function() {
 			//if($(this).val().length > 0){
