@@ -390,7 +390,7 @@ function populateSelect(select, field){
 	select.append($("<option />").val('').attr("data-name", name).attr("data-label", label).text(placeholder).prop('selected', true).attr("disabled", "disabled"));
 	var options =  field["options"]; 
 	for (opt  in options){
-		select.append($("<option />").val(options[opt].value).attr("data-name", name).attr("data-label", label).text(options[opt].text));
+		select.append($("<option />").val(options[opt].value).attr("data-name", name).attr("data-label", webComponent.unescapeHtml(label)).text(webComponent.unescapeHtml(options[opt].text)));
 	}
 };
 
