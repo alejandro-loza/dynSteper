@@ -155,8 +155,9 @@ var webComponent = {
 		function isFullRegexValid(){
 			webComponent.invalidFields = [];
 			var regexFields = $.grep(webComponent._formValues, function(e){ return e.regex });
+			var allValues = webComponent._getAllValues();
 			$.each( regexFields , function( index, field ) {
-				var findField  = $.grep(webComponent._getAllValues(), function(el){ return el.name = field.name });
+				var findField  = $.grep(allValues, function(el){ return el.name === field.name });
 				if(findField[0].response.length > 0 && !webComponent._evaluateValueInRegex(findField[0].response, field.regex)){
 					webComponent.invalidFields.push(findField);
 				}
@@ -243,12 +244,12 @@ var webComponent = {
 			var div = $('#navBarr');
 			createNavBar(div);
 		}
-		$("#PuzzleCaptcha").PuzzleCAPTCHA({
-			rows:3,
-			targetInput:'.validationValue',
-			targetVal:'true',
-			targetButton:'.btnSubmit'
-		});
+		// $("#PuzzleCaptcha").PuzzleCAPTCHA({
+		// 	rows:3,
+		// 	targetInput:'.validationValue',
+		// 	targetVal:'true',
+		// 	targetButton:'.btnSubmit'
+		// });
 		function createHeader(field, index){
 			var div = getOrCreateDiv("id" + index, field.class);			
 			getOrCreateHeader(div,field);
@@ -636,7 +637,7 @@ function createNavBar(holder){
 			if (cap ==='f'){
 				captcha = true;
 			}
-			captcha = true;
+			// captcha = true;
 			if (captcha){
 				var payload = {};
 				payload.id_tramite  = webComponent._modelValues['id_tramite'];
