@@ -101,27 +101,27 @@ var webComponent = {
 
 		function isFullRequired(){
 			webComponent.errorFields = [];
-			$('.required select').each(function(i, requiredField){
+			$('#' + webComponent.canvas ).find('.required select').each(function(i, requiredField){
 				if($(requiredField).val() == ''){
 					webComponent.errorFields.push(requiredField);
 					webComponent._addErrorClassSimple($("#div-" + $(requiredField).attr('id') ), "Campo Requerido");
 				}
 			});
-			$('.required   input[type="text"],  input[type="email"] ').not(':button,:hidden').each(function(i, requiredField){
+			$('#' + webComponent.canvas ).find( '.required   input[type="text"],  input[type="email"] ').not(':button,:hidden').each(function(i, requiredField){
 				if($(requiredField).val() == ''){
 					webComponent.errorFields.push($(requiredField));
 					webComponent._addErrorClassSimple($("#div-" + $(requiredField).attr('id') ), "Campo Requerido");	
 				}
 			});
 
-			$('.required  textarea ').not(':button,:hidden').each(function(i, requiredField){
+			$('#' + webComponent.canvas ).find( '.required  textarea ').not(':button,:hidden').each(function(i, requiredField){
 				if($(requiredField).val() == ''){
 					webComponent.errorFields.push($(requiredField));
 					webComponent._addErrorClassSimple($("#div-" + $(requiredField).attr('id') ), "Campo Requerido");	
 				}
 			});
 
-			$('.required   input[type="checkbox"]').each(function(i, requiredField){
+			$('#' + webComponent.canvas ).find( '.required   input[type="checkbox"]').each(function(i, requiredField){
 				var seleccionados = $(requiredField).parent().parent().parent().parent().find("input:checked");
 				if (seleccionados.length === 0 ) {
 					webComponent.errorFields.push($(requiredField));
@@ -129,15 +129,13 @@ var webComponent = {
 				}
 			});
 
-			$('.required   input[type="radio"]').each(function(i, requiredField){
+			$('#' + webComponent.canvas ).find('.required   input[type="radio"]').each(function(i, requiredField){
 				var seleccionados = $(requiredField).parent().parent().parent().parent().find("input:checked");
 				if (seleccionados.length === 0 ) {
 					webComponent.errorFields.push($(requiredField));
 					webComponent._addErrorClassSimple($("#" + $(requiredField).parent().parent().parent().attr('id') ), "Campo Requerido");
 				}
 			});
-
-
 
 			if(webComponent.errorFields.length !== 0){
 				$.each(webComponent.errorFields, function(index,field){
