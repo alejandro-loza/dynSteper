@@ -21,10 +21,6 @@ var webComponent = {
 			}
 		});
 
-		// $('#' + webComponent.canvas +' input[type="email"]').not(':button,:hidden').each(function() {
-		// 	inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val(), position : parseFloat($(this).attr("position")) });
-		// });
-
 		$('#' + webComponent.canvas +' input[type="radio"]:checked ').each(function() {
 			//if($(this).val().length > 0){
 				inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val(), position : parseFloat($(this).attr("position")) });
@@ -401,7 +397,7 @@ function populateSelect(select, field){
 	select.append($("<option />").val('').attr("position",field.posicion).attr("data-name", name).attr("data-label", label).text(placeholder).prop('selected', true).attr("disabled", "disabled"));
 	var options =  field["options"]; 
 	for (opt  in options){
-		select.append($("<option />").val(options[opt].value).attr("data-name", name).attr("data-label", webComponent.unescapeHtml(label)).text(webComponent.unescapeHtml(options[opt].text)));
+		select.append($("<option />").val(options[opt].value).attr("position",field.posicion).attr("data-name", name).attr("data-label", webComponent.unescapeHtml(label)).text(webComponent.unescapeHtml(options[opt].text)));
 	}
 };
 
