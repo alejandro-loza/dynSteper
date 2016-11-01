@@ -15,19 +15,19 @@ var webComponent = {
 		var inputValues = [];
 		var notChecked = [];		
 
-		$('#' + webComponent.canvas +' input[type="text"], textarea, input[type="email"]').not(':button,:hidden').each(function() {
+		$('#' + webComponent.canvas ).find(' input[type="text"], textarea, input[type="email"]').not(':button,:hidden').each(function() {
 			if($(this).attr("id").substr(0, 7) != "camOtro"){				
 				inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val(), position : parseFloat($(this).attr("position")) });
 			}
 		});
 
-		$('#' + webComponent.canvas +' input[type="radio"]:checked ').each(function() {
+		$('#' + webComponent.canvas ).find(' input[type="radio"]:checked ').each(function() {
 			//if($(this).val().length > 0){
 				inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val(), position : parseFloat($(this).attr("position")) });
 			//}
 		});
 
-		$('#' + webComponent.canvas +' input[type="radio"]').not(':checked').each(function() {
+		$('#' + webComponent.canvas ).find(' input[type="radio"]').not(':checked').each(function() {
 			if($(this).attr("parentId")){
 				var div = $(this).attr("parentId");
 				var seleccionados =  $("#"+div).find(":checked");
@@ -38,7 +38,7 @@ var webComponent = {
 			}
 		});
 
-		$('#' + webComponent.canvas +' input[type="checkbox"]').each(function() {
+		$('#' + webComponent.canvas ).find(' input[type="checkbox"]').each(function() {
 			//if($(this).val().length > 0){
 				var response = ''
 				var order = ''
@@ -60,7 +60,7 @@ var webComponent = {
 				}
 			});
 
-		$('#' + webComponent.canvas +'  option:selected').each(function() {
+		$('#' + webComponent.canvas ).find('  option:selected').each(function() {
 			//if ($(this).val() != ''){
 				inputValues.push({  idField: $(this).parent().attr("id"), name: $(this).attr("data-name") ,  label: $(this).attr("data-label"), response: $(this).val(), position: parseFloat($(this).attr("position")) });
 			//}
@@ -96,7 +96,6 @@ var webComponent = {
 	},
 
 	_isValidForm: function(){
-
 		return isFullRequired() && isFullRegexValid();
 
 		function isFullRequired(){
