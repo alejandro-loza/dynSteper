@@ -577,7 +577,7 @@ function getOrCreateRadioGroupInput(div, id, field){
 		if(divRadio.length === 0){
 			divRadio = $('<div/>')
 			divRadio.attr("id", id + index)
-			divRadio.addClass("radio row clearfix");
+			divRadio.addClass("radio clearfix");
 			var lab = $("<label/>").html("<input  type='radio' parentId='"+div.attr("id")+"'  position='"+ field.posicion   +"' label = '"+ webComponent.unescapeHtml(field.label) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
 			lab.on("change", function(evt){
 				var seleccionados = lab.parent().parent().find("input:checked");  
