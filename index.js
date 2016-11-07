@@ -90,9 +90,9 @@ var webComponent = {
 
 		
 		return inputValues.sort(function(a,b) {
- 			 return b.position < a.position;
+			return b.position < a.position;
 		});
-		 
+
 	},
 
 	_isValidForm: function(){
@@ -174,7 +174,7 @@ var webComponent = {
 		};
 	},
 
-	main: function (url) {
+	main: function (url, container) {
 		var controller = this;			
 		$.support.cors = true;
 		$.ajax({
@@ -190,24 +190,38 @@ var webComponent = {
 				controller._modelValues = data;
 			},
 			error: function (e) { 
-				alert("Error: Encuesta no encontrada"); 
 				if(e.status === 404){ 
+					webComponent.showMessage("Encuesta no encontrada:", "warning", container);
 					controller.error = e.status; 
 				}     
 			} 
 		});
+
+
 		
 		return controller._formValues;
 	},
 
+	showMessage: function(message, kind , container){
+		var type = kind || "danger";		
+	    var div = container || 	"messageContainer";		
+		$("#"+ div).append('<div class="alert alert-'+type+' alert-dismissible">'+
+			'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+ message+
+		'</div>');
+		setTimeout(function() { 
+			$("#"+ div).fadeOut();			
+		}, 3000);
+	},
+
 	_render: function (container){
 		$("#" + container).html("");
+		$("#" + container).append('<div id="messageContainer"></div>');
 		$("#div-id_captcha").empty();
 		$('#navBarr').empty();
 		webComponent.canvas = container;
+
 		var controller = this;
 		$.each( webComponent._formValues, function( index, field ) {
-			
 			validateFieldsClass(field);
 			switch(field.type) {
 				case "text":
@@ -235,7 +249,7 @@ var webComponent = {
 				createFooter(field);
 				break;
 				default: 
-				//alert('Default case');
+				//('Default case');
 			}
 		});
 
@@ -244,12 +258,7 @@ var webComponent = {
 			var div = $('#navBarr');
 			createNavBar(div);
 		}
-		// $("#PuzzleCaptcha").PuzzleCAPTCHA({
-		// 	rows:3,
-		// 	targetInput:'.validationValue',
-		// 	targetVal:'true',
-		// 	targetButton:'.btnSubmit'
-		// });
+		
 		function createHeader(field, index){
 			var div = getOrCreateDiv("id" + index, field.class);			
 			getOrCreateHeader(div,field);
@@ -653,21 +662,22 @@ function createNavBar(holder){
 					contentType: 'application/json',
 					data: JSON.stringify(payload),
 					success: function(response){
-						alert("Encuesta Guardada.");
+						webComponent.showMessage("Encuesta Guardada.", "success" );
+
 					},
 					error: function(e){
-						alert("Error: " + JSON.stringify(e));
+						webComponent.showMessage("Error de comunicación con el servidor.", "danger" );
 					},
 					complete: function(){
 					}
 				});
 
 			}else {
-				alert ("El captcha es obligatorio");
+				webComponent.showMessage("El captcha es obligatorio.", "warning" );
 			}
 
 		}else {
-			alert ("Formulario Invalido");
+			webComponent.showMessage("Formulario Invalido.", "danger" );
 		}
 
 		e.preventDefault();
@@ -690,6 +700,7 @@ function createCaptcha(){
 };
 
 },
+
 
 saveChecks: function(element, indexValidation, max){
 	var seleccionados = $(element).parent().parent().parent().parent().find("input:checked");
