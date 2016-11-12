@@ -13,32 +13,32 @@ var webComponent = {
 
 	_getAllValues:function() {
 		var inputValues = [];
-		var notChecked = [];
+		var notChecked = [];		
 
-		$('#' + webComponent.canvas +' input[type="text"], textarea').each(function() {
-			if($(this).attr("id").substr(0, 7) != "camOtro"){
-				inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val() });
+		$('#' + webComponent.canvas ).find(' input[type="text"], textarea, input[type="email"]').not(':button,:hidden').each(function() {
+			if($(this).attr("id").substr(0, 7) != "camOtro"){				
+				inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val(), position : parseFloat($(this).attr("position")) });
 			}
 		});
 
-		$('#' + webComponent.canvas +' input[type="radio"]:checked ').each(function() {
+		$('#' + webComponent.canvas ).find(' input[type="radio"]:checked ').each(function() {
 			//if($(this).val().length > 0){
-				inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val() });
+				inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val(), position : parseFloat($(this).attr("position")) });
 			//}
 		});
 
-		$('#' + webComponent.canvas +' input[type="radio"]').not(':checked').each(function() {
+		$('#' + webComponent.canvas ).find(' input[type="radio"]').not(':checked').each(function() {
 			if($(this).attr("parentId")){
 				var div = $(this).attr("parentId");
 				var seleccionados =  $("#"+div).find(":checked");
 				if(seleccionados.length === 0 && notChecked.indexOf($(this).attr("label")) === -1){
 					notChecked.push($(this).attr("label"));
-					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response:'' });
+					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response:'', position : parseFloat($(this).attr("position")) });
 				}
 			}
 		});
 
-		$('#' + webComponent.canvas +' input[type="checkbox"]').each(function() {
+		$('#' + webComponent.canvas ).find(' input[type="checkbox"]').each(function() {
 			//if($(this).val().length > 0){
 				var response = ''
 				var order = ''
@@ -54,15 +54,15 @@ var webComponent = {
 				}
 
 				if(order != ''){
-					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: response+"-"+order, order:order });
+					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: response+"-"+order, order:order, position: parseFloat($(this).attr("position"))  });
 				}else {	
-					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: response, order:order });
+					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: response, order:order, position: parseFloat($(this).attr("position"))  });
 				}
 			});
 
-		$('#' + webComponent.canvas +'  option:selected').each(function() {
+		$('#' + webComponent.canvas ).find('  option:selected').each(function() {
 			//if ($(this).val() != ''){
-				inputValues.push({  idField: $(this).parent().attr("id"), name: $(this).attr("data-name") ,  label: $(this).attr("data-label"), response: $(this).val() });
+				inputValues.push({  idField: $(this).parent().attr("id"), name: $(this).attr("data-name") ,  label: $(this).attr("data-label"), response: $(this).val(), position: parseFloat($(this).attr("position")) });
 			//}
 		});
 
@@ -81,7 +81,6 @@ var webComponent = {
 					if(f.clickedOrder === 'true'){
 						f["order"] = i + 1;	
 					}
-					
 				});
 				//inputValues.push.apply(inputValues, result );
 			});
@@ -89,7 +88,11 @@ var webComponent = {
 			return webComponent.checked;
 		};
 
-		return inputValues;
+		
+		return inputValues.sort(function(a,b) {
+			return b.position < a.position;
+		});
+
 	},
 
 	_isValidForm: function(){
@@ -97,20 +100,27 @@ var webComponent = {
 
 		function isFullRequired(){
 			webComponent.errorFields = [];
-			$('.required select').each(function(i, requiredField){
+			$('#' + webComponent.canvas ).find('.required select').each(function(i, requiredField){
 				if($(requiredField).val() == ''){
 					webComponent.errorFields.push(requiredField);
 					webComponent._addErrorClassSimple($("#div-" + $(requiredField).attr('id') ), "Campo Requerido");
 				}
 			});
-			$('.required   input[type="text"], textarea ').each(function(i, requiredField){
+			$('#' + webComponent.canvas ).find( '.required   input[type="text"],  input[type="email"] ').not(':button,:hidden').each(function(i, requiredField){
 				if($(requiredField).val() == ''){
 					webComponent.errorFields.push($(requiredField));
 					webComponent._addErrorClassSimple($("#div-" + $(requiredField).attr('id') ), "Campo Requerido");	
 				}
 			});
 
-			$('.required   input[type="checkbox"]').each(function(i, requiredField){
+			$('#' + webComponent.canvas ).find( '.required  textarea ').not(':button,:hidden').each(function(i, requiredField){
+				if($(requiredField).val() == ''){
+					webComponent.errorFields.push($(requiredField));
+					webComponent._addErrorClassSimple($("#div-" + $(requiredField).attr('id') ), "Campo Requerido");	
+				}
+			});
+
+			$('#' + webComponent.canvas ).find( '.required   input[type="checkbox"]').each(function(i, requiredField){
 				var seleccionados = $(requiredField).parent().parent().parent().parent().find("input:checked");
 				if (seleccionados.length === 0 ) {
 					webComponent.errorFields.push($(requiredField));
@@ -118,7 +128,7 @@ var webComponent = {
 				}
 			});
 
-			$('.required   input[type="radio"]').each(function(i, requiredField){
+			$('#' + webComponent.canvas ).find('.required   input[type="radio"]').each(function(i, requiredField){
 				var seleccionados = $(requiredField).parent().parent().parent().parent().find("input:checked");
 				if (seleccionados.length === 0 ) {
 					webComponent.errorFields.push($(requiredField));
@@ -126,11 +136,8 @@ var webComponent = {
 				}
 			});
 
-
-
 			if(webComponent.errorFields.length !== 0){
 				$.each(webComponent.errorFields, function(index,field){
-					// alert(field.attr("name"));
 					if($(field).attr("parentId")){
 						var divId = $(field).attr("parentId");
 						webComponent._addErrorClassSimple($("#"+divId), "Campo Requerido");
@@ -148,8 +155,9 @@ var webComponent = {
 		function isFullRegexValid(){
 			webComponent.invalidFields = [];
 			var regexFields = $.grep(webComponent._formValues, function(e){ return e.regex });
+			var allValues = webComponent._getAllValues();
 			$.each( regexFields , function( index, field ) {
-				var findField  = $.grep(webComponent._getAllValues(), function(el){ return el.name = field.name });
+				var findField  = $.grep(allValues, function(el){ return el.name === field.name });
 				if(findField[0].response.length > 0 && !webComponent._evaluateValueInRegex(findField[0].response, field.regex)){
 					webComponent.invalidFields.push(findField);
 				}
@@ -166,38 +174,56 @@ var webComponent = {
 		};
 	},
 
-	main: function (url) {
-		var controller = this;
+	main: function (url, container) {
+		var controller = this;			
+		$.support.cors = true;
 		$.ajax({
-			url: url,
-			'async': false,
 			type: 'GET',
-			dataType: 'json',
-			contentType: 'application/json; charset=UTF-8;',
-			success: function(entityFields){
-				controller._modelValues = entityFields; 
-				controller._formValues = entityFields.fields ;
+			url: url,
+			cache: true,
+			'async': false,
+			crossDomain: true,  
+			dataType: 'json', 
+			contentType: 'application/json', 
+			success: function (data, status) {
+				controller._formValues = data.fields ;
+				controller._modelValues = data;
 			},
-			error: function(e){
-				alert("Error: Encuesta no encontrada");
-				if(e.status === 404){
-					controller.error = e.status;
-				}
-			},
-			complete: function(){
-			}
-
+			error: function (e) { 
+				if(e.status === 404){ 
+					webComponent.showMessage("Encuesta no encontrada:", "warning", container);
+					controller.error = e.status; 
+				}     
+			} 
 		});
+
+
+		
 		return controller._formValues;
+	},
+
+	showMessage: function(message, kind , container){
+		var type = kind || "danger";		
+	    var div = container || 	"messageContainer";		
+		$("#"+ div).append('<div class="alert alert-'+type+' alert-dismissible">'+
+			'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+ message+
+		'</div>');
+		setTimeout(function() { 
+			$("#"+ div).fadeOut();			
+		}, 3000);
 	},
 
 	_render: function (container){
 		$("#" + container).html("");
+		$("#" + container).append('<div id="messageContainer"></div>');
+		$("#div-id_captcha").empty();
+		$('#navBarr').empty();
 		webComponent.canvas = container;
+
 		var controller = this;
 		$.each( webComponent._formValues, function( index, field ) {
-			
 			validateFieldsClass(field);
+			alert("field" + JSON.stringify(field));
 			switch(field.type) {
 				case "text":
 				createTextInput(field, index);
@@ -220,24 +246,31 @@ var webComponent = {
 				case "header":
 				createHeader(field,index);
 				break;
+				case "footer":
+				createFooter(field);
+				break;
 				default: 
-				//alert('Default case');
+				//('Default case');
 			}
 		});
 
 		if(webComponent.searchType !== "acta"){
-			createCaptcha($("#" + container));
-			createNavBar($("#" + container));
+			createCaptcha($("#div-id_captcha"));
+			var div = $('#navBarr');
+			createNavBar(div);
 		}
-		$("#PuzzleCaptcha").PuzzleCAPTCHA({
-			rows:3,
-			targetInput:'.validationValue',
-			targetVal:'true',
-			targetButton:'.btnSubmit'
-		});
+		
 		function createHeader(field, index){
-			var div = getOrCreateDiv("id" + index, field.class);
+			var div = getOrCreateDiv("id" + index, field.class);			
 			getOrCreateHeader(div,field);
+		};
+		function createFooter(field){
+			var labelObject = $("#footer");
+			if(labelObject.length === 0){
+				labelObject = $("<"+field.subtype+" class='"+ field.class +"' >"+ field.label + "</"+field.subtype+">");
+			}
+			$("#navBarr").after(labelObject);
+			return labelObject;	
 		};
 
 		function createTextInput(field, index){
@@ -337,85 +370,43 @@ function getOrCreateLabel(div, id, field){
 function getOrCreateHeader(div, field){
 	var labelObject = $("#header");
 	if(labelObject.length === 0){
-		labelObject = $("<"+field.subtype+" class='"+ field.class +"' >"+ field.label + "</"+field.subtype+">");
-		div.append(labelObject);
+		labelObject = $("<"+field.subtype+" >"+ field.label + "</"+field.subtype+">");
 	}
 	if(field.description){
 		addToolTip(labelObject, field.description, "top");
 	}
+	div.append(labelObject);
+
 	return labelObject;
 };
 
 function getOrCreateSelect (div , id, field, idx){
-		        // Determine the id of the select box
-		        id = "select-" + id + "_" + idx;
-		        // Try get the select box if it exists
-		        var select = $("#" + id ); 
-		        if(select.length === 0){
-		          // Create select box
-		          select = $("<select class='form-control' id='" + id + "'></select>");
-
-		          select.focusout(	function(){
-		          	if(field.required && $(this).val() === '' ){
-		          		webComponent._addErrorClass(id,"required");
-		          	}
-		          	else{
-		          		webComponent._removeErrorClass(id);						
-		          	}
-		          });			
-
-		          // Action to take if select is changed. State is made available through evt.data
-/*		          select.on("change", { controller: controller, index: idx }, function(evt){
-			            // Restore the state
-			            var controller = evt.data.controller;
-			            var index = evt.data.index;
-			            var selected = webComponent.selected;
-
-			            // The selected field
-			            var selectedFieldName = $(this).val();
-			            // Update the selected
-			            selected = selected.slice(0, index + 1);
-			            var selectedOptionModel = setModelNameFromFieldName(selectedFieldName, idx);
-			            if(selectedOptionModel){		           
-			            	if (selectedOptionModel.options){
-			            		controller.lastCount = controller.lastCount + 1;
-			            		selected.push({"options":selectedOptionModel.options,"selected":''} );
-			            	}
-			            }
-			            webComponent.selected = selected;
-			            createSelect(field);
-			        });*/
-
-		            // Add it to the component container
-		            div.append(select);
-		        }
-		        return select;
-		    };
-		    // Add the options to the select box
-		    function populateSelect(select, field){
-		    	var label = webComponent.unescapeHtml(field.label);
-		    	var name = webComponent.unescapeHtml(field.name);
-		    	var placeholder = field.placeholder || '';
-		    	select.html("");
-		    	select.append($("<option />").val('').attr("data-name", name).attr("data-label", label).text(placeholder).prop('selected', true).attr("disabled", "disabled"));
-		    	var options =  field["options"]; 
-			 	 // Current selected
-			 	 //var currentSelectedIndex = selection["selected"];
-		        // Add the options to the select box
-		        for (opt  in options){
-		        	select.append($("<option />").val(options[opt].value).attr("data-name", name).attr("data-label", label).text(options[opt].text));
-		        }
-
-		   /*     $.each( options , function( index, opt ) {	 
-
-		        	// if(index === currentSelectedIndex){	        		
-		        	// 	select.append($("<option />").val(opt.value).attr("data-name", name).attr("data-label", label).text(opt.text).prop('selected', true));
-		        	// }
-		        	// else{
-		        		alert("opt" +  JSON.stringify(opt));
-		        		select.append($("<option />").val(opt.value).attr("data-name", name).attr("data-label", label).text(opt.text));
-		        	//}
-		        });*/
+	id = "select-" + id + "_" + idx;
+	var select = $("#" + id ); 
+	if(select.length === 0){
+		select = $("<select class='form-control' id='" + id + "'></select>");
+		select.focusout(	function(){
+			if(field.required && $(this).val() === '' ){
+				webComponent._addErrorClass(id,"required");
+			}
+			else{
+				webComponent._removeErrorClass(id);						
+			}
+		});			
+		div.append(select);
+	}
+	return select;
+};
+function populateSelect(select, field){
+	var label = webComponent.unescapeHtml(field.label);
+	var name = webComponent.unescapeHtml(field.name);
+	var placeholder =  webComponent.unescapeHtml(field.placeholder) || '';
+	select.html("");
+	select.append($("<option />").val('').attr("position",field.posicion).attr("data-name", name).attr("data-label", label).text(placeholder).prop('selected', true).attr("disabled", "disabled"));
+	var options =  field["options"]; 
+	for (opt  in options){
+		select.append($("<option />").val(options[opt].value).attr("position",field.posicion).attr("data-name", name).attr("data-label", webComponent.unescapeHtml(label)).text(webComponent.unescapeHtml(options[opt].text)));
+	}
 };
 
 function setModelNameFromFieldName(fieldName,selectedIndex){
@@ -437,172 +428,180 @@ function validateFieldsClass(item){
 	if(item.required && item.required === "true"){
 		item.class = item.class.concat(" required");
 	}
-/*			if(item.options){
-				item.options = $.parseJSON(item.options);
-			}*/
-			return item;
-		};
-
-		function getOrCreateTextInput(div, id, field){
-			var input = $("#" + id );
-
-			if(input.length === 0){
-				input = $("<input/>");
-				input.attr("id", id )
-				input.addClass('form-control')
-				input.attr("type", field.subtype || field.type)
-				input.attr("name", field.name)
-				input.attr("label", webComponent.unescapeHtml(field.label))
-				input.attr("placeholder", webComponent.unescapeHtml(field.placeholder))
-				input.attr("maxlength", field.maxlength) 
-				input.focusout(	function(){
-					if(field.required && $(this).val().length === 0 ){
-						webComponent._addErrorClass(id,"required");
-					}
-					else if (field.regex && $(this).val().length > 0 && !webComponent._evaluateValueInRegex($(this).val(), field.regex) ){
-						webComponent._addErrorClass(id,"invalid");
-					}
-					else{
-						webComponent._removeErrorClass(id);						
-					}				        
-				});
-				div.append(input);
-			}
-			return input;
-		};
-
-		function getOrCreateDatePickerInput(div, id, field){
-			var input = $("#" + id );
-			if(input.length === 0){
-				input = $("<input/>");
-				input.attr("id", id )
-				input.addClass('form-control ')
-				input.attr("type", "text")
-				input.attr("name", field.name)
-				input.attr("label", field.label)
-				//input.attr("placeholder", webComponent.unescapeHtml(field.placeholder))
-				input.focusout(	function(){
-					if(field.required && $(this).val().length === 0 ){
-						webComponent._addErrorClass(id,"required");
-					}
-					else{
-						webComponent._removeErrorClass(id);						
-					}				        
-				});
-				if(field.startdate){
-					input.datepicker({changeYear: true,  yearRange: field.startdate.slice(0,4) + ':' + field.finaldate.slice(0,4)});
-				}else{
-					input.datepicker();
-				}
-				div.append(input);
-			}
-			return input;
-		};
-
-		function getOrCreateTextAreaInput(div, id, field){
-			var input = $("#" + id );
-			if(input.length === 0){
-				input = $("<textarea/>");
-				input.attr("id", id )
-				input.addClass('form-control')
-				input.attr("type", field.type)
-				input.attr("name", field.name)
-				input.attr("label", webComponent.unescapeHtml(field.label))
-				input.attr("placeholder", webComponent.unescapeHtml(field.placeholder))
-				input.attr("maxlength", field.maxlength) 
-				input.focusout(	function(){
-					if(field.required && $(this).val().length === 0 ){
-						webComponent._addErrorClass(id,"required");
-					}
-					else if (field.regex && $(this).val().length > 0 && !webComponent._evaluateValueInRegex($(this).val(), field.regex) ){
-						webComponent._addErrorClass(id,"invalid");
-					}
-					else{
-						webComponent._removeErrorClass(id);						
-					}				        
-				});
-				div.append(input);
-			}
-			return input;
-		};
-
-		function getOrCreateRadioGroupInput(div, id, field){
-			$.each( field.options , function( index, opt ) {
-				var divRadio = $("#" + id + index);
-				if(divRadio.length === 0){
-					divRadio = $('<div/>')
-					divRadio.attr("id", id + index)
-					divRadio.addClass("radio row clearfix");
-
-					if(field.importancia === "Si") {
-		              hasClickedOrder = true;
-		            }
-
-					var lab = $("<label/>").html("<input  type='radio' parentId='"+div.attr("id")+"' label = '"+ webComponent.unescapeHtml(field.label) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
-					if(field.importancia === "Si") {
-		              lab.append('<span style="margin-left:8px;"></span>');
-		            }
-		            
-		            lab.on("change", function(evt) {;
-		              if(lab.find(':input').is(':checked')) {
-		                var seleccionados = lab.parent().parent().parent().find("input:checked");
-		                if(seleccionados.length > 0) {
-		                  lab.find('span').text(seleccionados.length);
-		                }
-		              } else {
-		                var aux = -1;
-		                for(var x = 0; x < field.options.length; x++) {
-		                  if($(this).parent().text().indexOf(field.options[x].text) != -1) {
-		                    field.options[x].order = x;
-		                    //lab.find('span').text("");
-		                    aux = parseInt($(this).parent().find("span").text());
-		                    $(this).parent().find("span").html("")
-		                  }
-		                }
-		                if (aux > -1) {
-		                    var prueba = $(this).parent().parent()
-		                    prueba.children().each(function(){
-		                        if ( $(this).find("span").text().trim() != "") {
-		                            var index = parseInt($(this).find("span").text())
-		                            if (aux < index){
-		                                index--;
-		                                $(this).find("span").text(index.toString())
-		                            }
-		                        }
-		                    });
-		                }
-		              }
-				});
-					lab.appendTo($(divRadio))
-					divRadio.appendTo(div);
-				}
-			});			
-		};
-
-		function getOrCreateCheckBoxGroupInput(div, id, field){
-			var divCheck = $("<div/>").addClass("checkbox row");
-			$.each( field.options , function( index, opt ) {
-				var contain = $('<div/>').addClass('col-md-12 clearfix');
-				var newId = id + "-" + index ;
-				var maxToCheck = field.nseleccionados || 100;
-				var hasClickedOrder = false;
-				if(field.importancia === "Si"){
-					hasClickedOrder = true;
-				}	
-				var lab = $("<label/>").html("<input id='"+ newId +"' parentId='"+div.attr("id")+"' type='checkbox' label = '"+ webComponent.unescapeHtml(field.label) + "' onclick=\'webComponent.saveChecks(this, \""+ newId  +"\" , "+ maxToCheck +" )' resp = '"+ webComponent.unescapeHtml(opt.text) + "' name='"+ field.name +"' clickedOrder= " + hasClickedOrder + " value='"+ opt.value +"'  >" + opt.text +
-					((opt.text=='Otro')? "<input type='text' maxlength='100' class='form-control' id='camOtro-"+ newId +"'>": ""));
-				lab.on("change", function(evt){
-					var seleccionados = lab.parent().parent().parent().find("input:checked");  
-					if(seleccionados.length > 0){
-						lab.parent().parent().parent().removeClass( 'has-error' );
-						$( '.help-block', lab.parent().parent().parent()  ).slideUp().html( '' );
-					}
-				});
-				lab.appendTo(contain)
-				contain.appendTo(divCheck)
-				divCheck.appendTo(div)
-			});
+	return item;
 };
+
+function getOrCreateTextInput(div, id, field){
+	var input = $("#" + id );
+
+	if(input.length === 0){
+		input = $("<input/>");
+		input.attr("id", id )
+		input.addClass('form-control')
+		input.attr("type", field.subtype || field.type)
+		input.attr("name", field.name)
+		input.attr("label", webComponent.unescapeHtml(field.label))
+		input.attr("position", field.posicion)
+		input.attr("placeholder", webComponent.unescapeHtml(field.placeholder))
+		input.attr("maxlength", field.maxlength) 
+		input.focusout(	function(){
+			if(field.required && $(this).val().length === 0 ){
+				webComponent._addErrorClass(id,"required");
+			}
+			else if (field.regex && $(this).val().length > 0 && !webComponent._evaluateValueInRegex($(this).val(), field.regex) ){
+				webComponent._addErrorClass(id,"invalid");
+			}
+			else{
+				webComponent._removeErrorClass(id);						
+			}				        
+		});
+		div.append(input);
+	}
+	return input;
+};
+
+function getOrCreateDatePickerInput(div, id, field){
+	var input = $("#" + id );
+	if(input.length === 0){
+		input = $("<input/>");
+		input.attr("id", id )
+		input.addClass('form-control ')
+		input.attr("type", "text")
+		input.attr("name", field.name)
+		input.attr("label", field.label)
+		input.focusout(	function(){
+			if(field.required && $(this).val().length === 0 ){
+				webComponent._addErrorClass(id,"required");
+			}
+			else{
+				webComponent._removeErrorClass(id);						
+			}				        
+		});
+		if(field.startdate){
+			input.datepicker({changeYear: true,  yearRange: field.startdate.slice(0,4) + ':' + field.finaldate.slice(0,4)});
+		}else{
+			input.datepicker();
+		}
+		div.append(input);
+	}
+	return input;
+};
+
+function getOrCreateTextAreaInput(div, id, field){
+	var input = $("#" + id );
+	if(input.length === 0){
+		input = $("<textarea/>");
+		input.attr("id", id )
+		input.addClass('form-control')
+		input.attr("type", field.type)
+		input.attr("name", field.name)
+		input.attr("label", webComponent.unescapeHtml(field.label))
+		input.attr("position", field.posicion)
+		input.attr("placeholder", webComponent.unescapeHtml(field.placeholder))
+		input.attr("maxlength", field.maxlength) 
+		input.focusout(	function(){
+			if(field.required && $(this).val().length === 0 ){
+				webComponent._addErrorClass(id,"required");
+			}
+			else if (field.regex && $(this).val().length > 0 && !webComponent._evaluateValueInRegex($(this).val(), field.regex) ){
+				webComponent._addErrorClass(id,"invalid");
+			}
+			else{
+				webComponent._removeErrorClass(id);						
+			}				        
+		});
+		div.append(input);
+	}
+	return input;
+};
+
+function getOrCreateCheckBoxGroupInput(div, id, field){
+	var divCheck = $("<div/>").addClass("checkbox row");
+	$.each( field.options , function(index, opt) {
+		var contain = $('<div/>').addClass('col-md-12 clearfix');
+		var newId = id+"-"+index;
+		var maxToCheck = field.nseleccionados || 100;
+		var hasClickedOrder = false;
+
+		if(field.importancia === "Si") {
+			hasClickedOrder = true;
+		}
+
+		var lab = $("<label/>").html(
+			"<input id='"+ newId +"' "+
+			"parentId='"+div.attr("id")+"' "+
+			"type='checkbox' "+
+			"label='"+ webComponent.unescapeHtml(field.label) + "' "+
+			"position='" + field.posicion + "." + index + "' "+
+			"onclick=\'webComponent.saveChecks(this, \""+ newId  +"\" , "+ maxToCheck +" )' "+
+			"resp='"+ webComponent.unescapeHtml(opt.text) + "' "+
+			"name='"+ field.name +"' "+
+			"clickedOrder="+hasClickedOrder+" "+
+			"value='"+ opt.value +"'>"+
+			opt.text+
+			(opt.text === 'Otro' ? "<input type='text' maxlength='100' class='form-control' id='camOtro-"+ newId +"'>": ""));
+
+		if(field.importancia === "Si") {
+			lab.append('<span style="margin-left:8px;"></span>');
+		}
+
+		lab.on("change", function(evt) {;
+			if(lab.find(':input').is(':checked')) {
+				var seleccionados = lab.parent().parent().parent().find("input:checked");
+				if(seleccionados.length > 0) {
+					lab.find('span').text(seleccionados.length);
+				}
+			}
+			else {
+				var aux = -1;
+				for(var x = 0; x < field.options.length; x++) {
+					if($(this).parent().text().indexOf(field.options[x].text) != -1) {
+						field.options[x].order = x;                    
+						aux = parseInt($(this).parent().find("span").text());
+						$(this).parent().find("span").html("")
+					}
+				}
+				if (aux > -1) {
+					var prueba = $(this).parent().parent()
+					prueba.children().each(function(){
+						if ( $(this).find("span").text().trim() != "") {
+							var index = parseInt($(this).find("span").text())
+							if (aux < index){
+								index--;
+								$(this).find("span").text(index.toString())
+							}
+						}
+					});
+				}
+			}
+		});
+		lab.appendTo(contain);
+		contain.appendTo(divCheck);
+		divCheck.appendTo(div);
+	});			
+};
+
+function getOrCreateRadioGroupInput(div, id, field){
+	$.each( field.options , function( index, opt ) {
+		var divRadio = $("#" + id + index);
+		if(divRadio.length === 0){
+			divRadio = $('<div/>')
+			divRadio.attr("id", id + index)
+			divRadio.addClass("radio clearfix");
+			var lab = $("<label/>").html("<input  type='radio' parentId='"+div.attr("id")+"'  position='"+ field.posicion   +"' label = '"+ webComponent.unescapeHtml(field.label) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
+			lab.on("change", function(evt){
+				var seleccionados = lab.parent().parent().find("input:checked");  
+				if(seleccionados.length > 0){
+					div.removeClass( 'has-error' );
+					$( '.help-block', div.attr("id")  ).slideUp().html( '' );
+				}
+			});
+			lab.appendTo($(divRadio))
+			divRadio.appendTo(div);
+		}
+	});			
+};
+
 
 function addHelperBlock (div) {
 	var helper = $('<span class="help-block"></span>');
@@ -626,64 +625,60 @@ function addToolTip(input, title, side){
 
 function createNavBar(holder){
 
-	var navbar = getOrCreateDiv("id", 'form-group col-md-12')
+	//var navbar = getOrCreateDiv("id", 'form-group col-md-12')
+	var navbar = $("#navBarr")
 	.addClass('form-group col-md-12')
 	.css({'margin-right':'12px'})
-	.appendTo(holder);
+	//.appendTo(holder);
 	var next = $('<button/>')
 	.addClass('btn btn-primary btn-lg')
 	.text('Enviar')
 	.css({'margin-right':'12px'})
 	.appendTo(navbar)
 	.click(function(e) {
-		var captcha = $('.validationValue').val();
+		var captcha = $("#g-recaptcha-response").val();
 
 		if(webComponent._isValidForm() ){
 			var responses = $.map(webComponent._getAllValues(), function(n,i){
-				return JSON.parse('{"' + webComponent.unescapeHtml(n.label.replace(/\./g,' ')) + '" : "' + webComponent.unescapeHtml(n.response.replace(/\./g,' ')) + '"}');				
-				
+				return JSON.parse('{"' + webComponent.unescapeHtml(n.label.replace(/[.,"]/g,' ')) + '" : "' + webComponent.unescapeHtml(n.response.replace(/[",]/g,' ')) + '"}');			
 			});
 
 			var cap =  webComponent._modelValues['captcha'];
 			if (cap ==='f'){
 				captcha = true;
 			}
+			// captcha = true;
 			if (captcha){
-/*
-				var responses = $.map(webComponent._getAllValues(), function(n,i){
-					return JSON.parse('{"' + n.label + '" : "' + n.response + '"}');
-				});*/
-
 				var payload = {};
 				payload.id_tramite  = webComponent._modelValues['id_tramite'];
 				payload.id_dependencia = webComponent._modelValues['id_dependencia'];
 				payload.nombre  =  webComponent.unescapeHtml(webComponent._modelValues['nombre'].replace(/\./g,' '));
 				payload.dependencia = webComponent.unescapeHtml(webComponent._modelValues['dependencia'].replace(/\./g,' ') );
 				payload.respuestas = responses;
-
 				$.ajax({
-					//url: 'http://10.15.9.2:3000/gobmx/resultados',
-					url: 'http://www.gob.mx/vun/resultados',
+					//url: 'https://gob.mx/resultados',
+					url: 'http://10.20.58.9/vun/resultados',
 					type: 'POST',
 					dataType: 'json',
 					contentType: 'application/json',
 					data: JSON.stringify(payload),
 					success: function(response){
-						alert("Encuesta Guardada.");
+						webComponent.showMessage("Encuesta Guardada.", "success" );
+
 					},
 					error: function(e){
-						alert("Error: " + JSON.stringify(e));
+						webComponent.showMessage("Error de comunicación con el servidor.", "danger" );
 					},
 					complete: function(){
 					}
 				});
 
 			}else {
-				alert ("El captcha es obligatorio");
+				webComponent.showMessage("El captcha es obligatorio.", "warning" );
 			}
 
 		}else {
-			alert ("Formulario Invalido");
+			webComponent.showMessage("Formulario Invalido.", "danger" );
 		}
 
 		e.preventDefault();
@@ -691,20 +686,22 @@ function createNavBar(holder){
 	});
 };
 /* Genera el captcha */
-function createCaptcha(holder){
+function createCaptcha(){
 	var captcha= webComponent._modelValues['captcha'];
 
 	if (captcha === 't'){
-		var navbar = getOrCreateDiv("id_captcha", 'form-group col-md-12')
-
-		var html = $('<input type="hidden" name="" class="validationValue"><br><br>	<label>Eres un Humano? &nbsp;</label><label class="respuesta_captcha" > </label>	<div id="PuzzleCaptcha"></div>');
-		html.appendTo(navbar);
-
+		//var navbar = getOrCreateDiv("id_captcha", 'form-group col-md-12')
+		/*var html = $('<div id="captcha" class=" g-recaptcha" data-sitekey="6LfulAwTAAAAALtjRGZxBinREdNMITvETTXByiyh"></div>');
+		html.appendTo(navbar);*/
+		grecaptcha.render('div-id_captcha', {
+			'sitekey' : '6LfulAwTAAAAALtjRGZxBinREdNMITvETTXByiyh'
+		});
 	}
 
 };
 
 },
+
 
 saveChecks: function(element, indexValidation, max){
 	var seleccionados = $(element).parent().parent().parent().parent().find("input:checked");
