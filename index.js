@@ -369,7 +369,7 @@ function getOrCreateLabel(div, id, field){
 function getOrCreateHeader(div, field){
 	var labelObject = $("#header");
 	if(labelObject.length === 0){
-		labelObject = $("<"+field.subtype+" class='"+ field.class +"' >"+ field.label + "</"+field.subtype+">");
+		labelObject = $("<"+field.subtype+" >"+ field.label + "</"+field.subtype+">");
 	}
 	if(field.description){
 		addToolTip(labelObject, field.description, "top");
