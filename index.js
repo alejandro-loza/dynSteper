@@ -223,7 +223,6 @@ var webComponent = {
 		var controller = this;
 		$.each( webComponent._formValues, function( index, field ) {
 			validateFieldsClass(field);
-			alert("field" + JSON.stringify(field));
 			switch(field.type) {
 				case "text":
 				createTextInput(field, index);
