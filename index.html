@@ -206,7 +206,7 @@
 		search: function(){
 			var date = new Date().toISOString().slice(0, 10);
 
-			var form = [];
+			//var form = [];
 
 /*			if(forma.searchType === "acta"){
 				var estado = $("#estados");
@@ -232,23 +232,15 @@
                 	form = webComponent.main('http://10.20.58.9/vun/encuestas/findOne?filter[where][and][0][fecha_inicio][lte]='+date+'&filter[where][and][1][fecha_fin][gte]='+date+'&filter[where][and][2][id_dependencia]='+dependencia.val()+'&filter[where][and][2][id_tramite]='+tramite.val());
                 }	
 
-/*                http://10.20.58.9/vun/encuestas/findOne?filter[where][and][0][fecha_inicio][lte]=2016-10-21&filter[where][and][1][fecha_fin][gte]=2016-10-21&filter[where][and][2][id_dependencia]=%2021&filter[where][and][2][id_tramite]=2	*/		
+                http://10.20.58.9/vun/encuestas/findOne?filter[where][and][0][fecha_inicio][lte]=2016-10-21&filter[where][and][1][fecha_fin][gte]=2016-10-21&filter[where][and][2][id_dependencia]=%2021&filter[where][and][2][id_tramite]=2	
 			}
-
+*/
 			
 			//var form = webComponent.main('https://www.gob.mx/vun/encuestas/findOne?filter={%22where%22:{%22nombre%22:%22Atenci%C3%B3n%20a%20v%C3%ADctimas%22}}');
-			//var form = webComponent.main('http://localhost:1337/options/1');
+			var form = webComponent.main('http://localhost:1337/options/1');
 			if(form){
-
 				console.log(JSON.stringify(form));
 				webComponent._render('container');
-/*
-				$("#PuzzleCaptcha").PuzzleCAPTCHA({
-					rows:3,
-					targetInput:'.validationValue',
-					targetVal:'true',
-					targetButton:'.btnSubmit'
-				});*/
 			}else{
 				alert("error");
 			}				
