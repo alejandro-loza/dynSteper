@@ -260,6 +260,7 @@ var webComponent = {
 		function createHeader(field, index){
 			var div = getOrCreateDiv("id" + index, field.class);			
 			getOrCreateHeader(div,field);
+		    $("#" + webComponent.canvas).append(div);
 		};
 		function createFooter(field){
 			var labelObject = $("#footer");
@@ -278,6 +279,7 @@ var webComponent = {
 			getOrCreateLabel(div,id, field);
 			getOrCreateTextInput(div,id, field);
 			addHelperBlock(div);
+			$("#" + webComponent.canvas).append(div);
 		};
 		function createTextAreaInput(field, index){
 			validateFieldsClass(field);
@@ -287,6 +289,7 @@ var webComponent = {
 			getOrCreateLabel(div,id, field);
 			getOrCreateTextAreaInput(div,id, field);
 			addHelperBlock(div);
+			$("#" + webComponent.canvas).append(div);
 		};
 		function createDatePicker (field, index) {
 			validateFieldsClass(field);
@@ -295,9 +298,9 @@ var webComponent = {
 			var div = getOrCreateDiv(id, field.class + ' datepicker-group');
 			getOrCreateLabel(div,id, field);
 			getOrCreateDatePickerInput(div,id, field);
-
 			addGlyphicon(div);
-			addHelperBlock(div);		
+			addHelperBlock(div);
+			$("#" + webComponent.canvas).append(div);		
 		};
 		function createRadioGroup(field, index){
 			validateFieldsClass(field);
@@ -307,6 +310,7 @@ var webComponent = {
 			getOrCreateLabel(div,id, field);
 			getOrCreateRadioGroupInput(div, id,  field);
 			addHelperBlock(div);
+			$("#" + webComponent.canvas).append(div);
 		};
 		function createCheckBoxGroup(field,index){
 			validateFieldsClass(field);
@@ -316,6 +320,7 @@ var webComponent = {
 			getOrCreateLabel(div,id, field);
 			getOrCreateCheckBoxGroupInput(div, id,  field);
 			addHelperBlock(div);
+			$("#" + webComponent.canvas).append(div);
 		};
 
 		function createSelectWs(field, fieldIndex){
