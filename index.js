@@ -465,7 +465,7 @@ var webComponent = {
 
 
 		function createSimpleSelect(field){
-		//	validateFieldsClass(field);
+			validateFieldsClass(field);
 			var id = field.name //+ "-" + f;
 			field["id"] = id;
 			var div = getOrCreateDiv(id, field.class);
@@ -473,6 +473,7 @@ var webComponent = {
 			var select =getOrCreateSelect(div, id, field);
 			populateSelect(select, field);
 			addHelperBlock(div);
+			$("#" + webComponent.canvas).append(div);
 		};
 
 		function getOrCreateDiv(id, clazz, container){
