@@ -6,6 +6,7 @@ var webComponent = {
 	errorFields: [],
 	invalidFields : [],
 	canvas:'',
+	lastCount: 1,
 	error:'',
 	selected: [],
 	checked:[],
@@ -14,30 +15,30 @@ var webComponent = {
 		var inputValues = [];
 		var notChecked = [];		
 
-		$('#' + webComponent.canvas +' input[type="text"], textarea, input[type="email"]').not(':button,:hidden').each(function() {
+		$('#' + webComponent.canvas ).find(' input[type="text"], textarea, input[type="email"]').not(':button,:hidden').each(function() {
 			if($(this).attr("id").substr(0, 7) != "camOtro"){
-				inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val() });
+				inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val(), position : parseFloat($(this).attr("position")) });
 			}
 		});
 
-		$('#' + webComponent.canvas +' input[type="radio"]:checked ').each(function() {
+		$('#' + webComponent.canvas ).find(' input[type="radio"]:checked ').each(function() {
 			//if($(this).val().length > 0){
-				inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val() });
+				inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val(), position : parseFloat($(this).attr("position")) });
 			//}
 		});
 
-		$('#' + webComponent.canvas +' input[type="radio"]').not(':checked').each(function() {
+		$('#' + webComponent.canvas ).find(' input[type="radio"]').not(':checked').each(function() {
 			if($(this).attr("parentId")){
 				var div = $(this).attr("parentId");
 				var seleccionados =  $("#"+div).find(":checked");
 				if(seleccionados.length === 0 && notChecked.indexOf($(this).attr("label")) === -1){
 					notChecked.push($(this).attr("label"));
-					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response:'' });
+					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response:'', position : parseFloat($(this).attr("position")) });
 				}
 			}
 		});
 
-		$('#' + webComponent.canvas +' input[type="checkbox"]').each(function() {
+		$('#' + webComponent.canvas ).find(' input[type="checkbox"]').each(function() {
 			//if($(this).val().length > 0){
 				var response = ''
 				var order = ''
@@ -53,15 +54,15 @@ var webComponent = {
 				}
 
 				if(order != ''){
-					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: response+"-"+order, order:order });
+					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: response+"-"+order, order:order, position: parseFloat($(this).attr("position"))  });
 				}else {	
-					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: response, order:order });
+					inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: response, order:order, position: parseFloat($(this).attr("position"))  });
 				}
 			});
 
-		$('#' + webComponent.canvas +'  option:selected').each(function() {
+		$('#' + webComponent.canvas ).find('  option:selected').each(function() {
 			//if ($(this).val() != ''){
-				inputValues.push({  idField: $(this).parent().attr("id"), name: $(this).attr("data-name") ,  label: $(this).attr("data-label"), response: $(this).val() });
+				inputValues.push({  idField: $(this).parent().attr("id"), name: $(this).attr("data-name") ,  label: $(this).attr("data-label"), response: $(this).val(), position: parseFloat($(this).attr("position")) });
 			//}
 		});
 
@@ -86,7 +87,12 @@ var webComponent = {
 
 			return webComponent.checked;
 		};
-		return inputValues;
+
+
+		return inputValues.sort(function(a,b) {
+			return b.position < a.position;
+		});
+
 	},
 
 	_isValidForm: function(){
@@ -94,27 +100,27 @@ var webComponent = {
 
 		function isFullRequired(){
 			webComponent.errorFields = [];
-			$('.required select').each(function(i, requiredField){
+			$('#' + webComponent.canvas ).find('.required select').each(function(i, requiredField){
 				if($(requiredField).val() == ''){
 					webComponent.errorFields.push(requiredField);
 					webComponent._addErrorClassSimple($("#div-" + $(requiredField).attr('id') ), "Campo Requerido");
 				}
 			});
-			$('.required   input[type="text"],  input[type="email"] ').not(':button,:hidden').each(function(i, requiredField){
+			$('#' + webComponent.canvas ).find( '.required   input[type="text"],  input[type="email"] ').not(':button,:hidden').each(function(i, requiredField){
 				if($(requiredField).val() == ''){
 					webComponent.errorFields.push($(requiredField));
 					webComponent._addErrorClassSimple($("#div-" + $(requiredField).attr('id') ), "Campo Requerido");	
 				}
 			});
 
-			$('.required  textarea ').not(':button,:hidden').each(function(i, requiredField){
+			$('#' + webComponent.canvas ).find( '.required  textarea ').not(':button,:hidden').each(function(i, requiredField){
 				if($(requiredField).val() == ''){
 					webComponent.errorFields.push($(requiredField));
 					webComponent._addErrorClassSimple($("#div-" + $(requiredField).attr('id') ), "Campo Requerido");	
 				}
 			});
 
-			$('.required   input[type="checkbox"]').each(function(i, requiredField){
+			$('#' + webComponent.canvas ).find( '.required   input[type="checkbox"]').each(function(i, requiredField){
 				var seleccionados = $(requiredField).parent().parent().parent().parent().find("input:checked");
 				if (seleccionados.length === 0 ) {
 					webComponent.errorFields.push($(requiredField));
@@ -122,15 +128,13 @@ var webComponent = {
 				}
 			});
 
-			$('.required   input[type="radio"]').each(function(i, requiredField){
+			$('#' + webComponent.canvas ).find('.required   input[type="radio"]').each(function(i, requiredField){
 				var seleccionados = $(requiredField).parent().parent().parent().parent().find("input:checked");
 				if (seleccionados.length === 0 ) {
 					webComponent.errorFields.push($(requiredField));
 					webComponent._addErrorClassSimple($("#" + $(requiredField).parent().parent().parent().attr('id') ), "Campo Requerido");
 				}
 			});
-
-
 
 			if(webComponent.errorFields.length !== 0){
 				$.each(webComponent.errorFields, function(index,field){
@@ -169,37 +173,50 @@ var webComponent = {
 		};
 	},
 
-	main: function (url) {
+	main: function (url, container) {
 		var controller = this;
+		$.support.cors = true;
 		$.ajax({
-			url: url,
-			'async': false,
 			type: 'GET',
+			url: url,
+			cache: true,
+			'async': false,
+			crossDomain: true,
 			dataType: 'json',
-			contentType: 'application/json; charset=UTF-8;',
-			success: function(entityFields){
-				controller._modelValues = entityFields; 
-				controller._formValues = entityFields.fields ;
+			contentType: 'application/json',
+			success: function (data, status) {
+				controller._formValues = data.fields ;
+				controller._modelValues = data;
 			},
-			error: function(e){
-				alert("Error: Encuesta no encontrada");
+			error: function (e) {
 				if(e.status === 404){
+					webComponent.showMessage("Encuesta no encontrada:", "warning", container);
 					controller.error = e.status;
 				}
-			},
-			complete: function(){
 			}
-
 		});
 		return controller._formValues;
 	},
 
+	showMessage: function(message, kind , container){
+		var type = kind || "danger";
+	    var div = container || 	"messageContainer";
+		$("#"+ div).append('<div class="alert alert-'+type+' alert-dismissible">'+
+			'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+ message+
+		'</div>');
+		setTimeout(function() {
+			$("#"+ div).fadeOut();
+		}, 3000);
+	},
+
 	_render: function (container){
 		$("#" + container).html("");
+		$("#" + container).append('<div id="messageContainer"></div>');
 		$("#div-id_captcha").empty();
 		$('#navBarr').empty();
 		webComponent.canvas = container;
 		var controller = this;
+
 		$.each( webComponent._formValues, function( fieldIndex, field ) {
 			switch(field.type) {
 				case "text":
@@ -215,13 +232,13 @@ var webComponent = {
 				createCheckBoxGroup(field,fieldIndex);
 				break;
 				case "select":
-				createSimpleSelect(field,fieldIndex);		
+				createSimpleSelect(field,fieldIndex);
 				break;
 				case "select-ws":
-				createSelectWs(field,fieldIndex);		
+				createSelectWs(field,fieldIndex);
 				break;
 				case "date":
-				createDatePicker(field,fieldIndex);	
+				createDatePicker(field,fieldIndex);
 				break;			
 				case "header":
 				createHeader(field,fieldIndex);
@@ -239,12 +256,7 @@ var webComponent = {
 			var div = $('#navBarr');
 			createNavBar(div);
 		}
-		$("#PuzzleCaptcha").PuzzleCAPTCHA({
-			rows:3,
-			targetInput:'.validationValue',
-			targetVal:'true',
-			targetButton:'.btnSubmit'
-		});
+
 		function createHeader(field, index){
 			var div = getOrCreateDiv("id" + index, field.class);			
 			getOrCreateHeader(div,field);
@@ -311,9 +323,9 @@ var webComponent = {
 			if(!dropDownData){
 				var options = [];
 				var label = '';
-				var clazz = '';				
+				var clazz = '';
 				if(field.wsList){
-					options = getValuesFromWs(0 ,field);	
+					options = getValuesFromWs(0 ,field);
 					label = field.wsList[0].label;
 					clazz = field.wsList[0].class;
 				}
@@ -321,15 +333,15 @@ var webComponent = {
 					options = field.options;
 					label = field.label;
 					clazz = field.class;
-				}				
+				}
 				// var fieldDropdown = {}
 				webComponent.selected[fieldIndex] = {'dropdowns':[{"options": options, "selected":'', "label":  label, 'class': clazz }], 'lastCount':1, 'fieldIndex':fieldIndex}
 				// webComponent.selected.push(fieldDropdown);
 				dropDownData = webComponent.selected[fieldIndex];
 			}
 			var dropdowns = dropDownData.dropdowns;
-			var lastCount = dropDownData.lastCount;			
-			if(lastCount > dropdowns.length ){	
+			var lastCount = dropDownData.lastCount;
+			if(lastCount > dropdowns.length ){
 				for(var i=dropdowns.length -1; i <= lastCount; i++){
 					$("#div-" + field.posicion + "-" + i).remove();
 				}
@@ -340,7 +352,7 @@ var webComponent = {
 			var divContainer = $("#div-select-container-" + fieldIndex );
 			if(divContainer.length === 0){
 				divContainer = $('<div/>')
-				divContainer.attr("id", "div-select-container-" + fieldIndex)			
+				divContainer.attr("id", "div-select-container-" + fieldIndex)
 			}
 
 			$.each(dropdowns, function(i,selection){
@@ -348,24 +360,24 @@ var webComponent = {
 				field["id"] = id ;
 				var div = getOrCreateDiv(id, field.class || selection.class , "div-select-container-" + fieldIndex);
 				if(field.wsList){
-					getOrCreateLabel(div,id, field, field.wsList[i].label);	
+					getOrCreateLabel(div,id, field, field.wsList[i].label);
 				}
 				else{
 					getOrCreateLabel(div,id, field, selection.label);
-				}				
+				}
 				var select = getOrCreateSelect(div, id, field, i, dropDownData);
 				if(field.wsList){
-					populateWSSelect(select, field, selection, i);	
+					populateWSSelect(select, field, selection, i);
 				}
 				else if (field.options && field.type ==="select-ws") {
-					populateWSSelect(select, field, selection, i);	
-				}				
+					populateWSSelect(select, field, selection, i);
+				}
 				addHelperBlock(div);
 				divContainer.append(div);
 			});
 
 			var preId  = fieldIndex - 1
-			var postId = fieldIndex + 1 
+			var postId = fieldIndex + 1
 
 			if($("#div-select-container-"+ preId).length > 0  ){
 				$("#div-select-container-"+ preId).after(divContainer);
@@ -376,7 +388,7 @@ var webComponent = {
 			else {
 				$("#" + webComponent.canvas).append(divContainer);
 			}
-			
+
 		};
 
 		function getValuesFromWs(idx,field, dropDownData){
@@ -469,7 +481,7 @@ var webComponent = {
 			if(div.length === 0){
 				div = $('<div/>')
 				div.attr("id", "div-" + id)
-				div.addClass(clazz); 				
+				div.addClass(clazz);
 			}
 			return div;
 		};
@@ -507,7 +519,7 @@ var webComponent = {
 
 		function getOrCreateSelect (div , id, field, idx, dropDownData){
 			id = "select-" + id + "_" + idx;
-			var select = $("#" + id ); 
+			var select = $("#" + id );
 			if(select.length === 0){
 				select = $("<select class='form-control' id='" + id + "'></select>");
 				select.focusout(	function(){
@@ -515,9 +527,9 @@ var webComponent = {
 						webComponent._addErrorClass(id,"required");
 					}
 					else{
-						webComponent._removeErrorClass(id);						
+						webComponent._removeErrorClass(id);
 					}
-				});			
+				});
 
 				// Action to take if select is changed. State is made available through evt.data
 				select.on("change", { controller: controller, index: idx, dropDownData:dropDownData}, function(evt){
@@ -530,15 +542,15 @@ var webComponent = {
 				    // Update the selected
 				    dropDownData.dropdowns = dropDownData.dropdowns.slice(0, index + 1);
 				    var selectedOptionModel = setModelNameFromFieldName(selectedFieldName, dropDownData, field, index);
-				    if(selectedOptionModel){		           
+				    if(selectedOptionModel){
 				    	if (selectedOptionModel.options){
 				    		controller.lastCount = controller.lastCount + 1;
 				    		dropDownData.dropdowns.push({"options":selectedOptionModel.options,"selected":'', 'label':selectedOptionModel.label} );
 				    	}
 				    	else if(field.wsList){
-				    		var options = getValuesFromWs(idx + 1 , field, dropDownData); 
+				    		var options = getValuesFromWs(idx + 1 , field, dropDownData);
 				    		var label = field.wsList[idx + 1].label;
-					        var clazz = field.wsList[idx + 1].class;                           
+					        var clazz = field.wsList[idx + 1].class;
 				    		var fieldDropdown = {};
 				    		fieldDropdown = {"options": options, "selected":'', 'label': label, 'class': clazz };
 				    		dropDownData.dropdowns.push(fieldDropdown);
@@ -549,7 +561,7 @@ var webComponent = {
 
 				    	/*
 				    		if(field.wsList){
-					options = getValuesFromWs(0 ,field);	
+					options = getValuesFromWs(0 ,field);
 					label = field.wsList[0].label;
 					clazz = field.wsList[0].class;
 				}
@@ -557,7 +569,7 @@ var webComponent = {
 					options = field.options;
 					label = field.label;
 					clazz = field.class;
-				}				
+				}
 				// var fieldDropdown = {}
 				webComponent.selected[fieldIndex] = {'dropdowns':[{"options": options, "selected":'', "label":  label, 'class': clazz }], 'lastCount':1, 'fieldIndex':fieldIndex}
 
@@ -575,7 +587,7 @@ function populateSelect(select, field){
 	select.html("");
 	select.append($("<option />").val('').attr("data-name", name).attr("data-label", label).text(placeholder).prop('selected', true).attr("disabled", "disabled"));
 	if(field.options){
-		var options =  field.options; 
+		var options =  field.options;
 		for (opt  in options){
 			select.append($("<option />").val(options[opt].value).attr("data-name", name).attr("data-label", webComponent.unescapeHtml(label)).text(webComponent.unescapeHtml(options[opt].text)));
 		}
@@ -600,7 +612,7 @@ function populateWSSelect(select, field, selection, idx){
 	$.each( options , function( i, opt ) {
 		var	text = '';
 		var	value = '';
-		if(field.wsList){ 
+		if(field.wsList){
 			var rd = field.wsList[idx].responseDisplay;
 			text = opt[rd];
 			value = opt[field.wsList[idx].responseValue];
@@ -609,9 +621,9 @@ function populateWSSelect(select, field, selection, idx){
 			text = opt.text;
 			value = opt.value;
 		}
-		if(i === currentSelectedIndex){	        		
+		if(i === currentSelectedIndex){
 			select.append($("<option />").val(value).attr("data-name", name).attr("data-label", label).text(text).prop('selected', true));
-		} 
+		}
 		else{
 			select.append($("<option />").val(value).attr("data-name", name).attr("data-label", label).text(text));
 		}
@@ -620,7 +632,7 @@ function populateWSSelect(select, field, selection, idx){
 
 function setModelNameFromFieldName( fieldName, dropDownData, field, index ){
 	var selectOptions = dropDownData.dropdowns[index].options;
-	if(fieldName){		
+	if(fieldName){
 		var optionModel = [];
 		if(field.wsList){
 			var display = field.wsList[index].responseValue;
@@ -628,10 +640,10 @@ function setModelNameFromFieldName( fieldName, dropDownData, field, index ){
 			dropDownData.dropdowns[index].selected = selectOptions.indexOf(optionModel[0]);
 
 		}else{
-			optionModel =  $.grep(selectOptions, function(e){ 
+			optionModel =  $.grep(selectOptions, function(e){
 				var val = String('' + e.value);
-				return val.toString() === String(fieldName); 
-			}); 
+				return val.toString() === String(fieldName);
+			});
 			dropDownData.dropdowns[index].selected = selectOptions.indexOf(optionModel[0]);
 		}
 		// dropDownData.selected = selectOptions.indexOf(optionModel[0]);
@@ -660,7 +672,7 @@ function getOrCreateTextInput(div, id, field){
 		input.attr("name", field.name)
 		input.attr("label", webComponent.unescapeHtml(field.label))
 		input.attr("placeholder", webComponent.unescapeHtml(field.placeholder))
-		input.attr("maxlength", field.maxlength) 
+		input.attr("maxlength", field.maxlength)
 		input.focusout(	function(){
 			if(field.required && $(this).val().length === 0 ){
 				webComponent._addErrorClass(id,"required");
@@ -669,8 +681,8 @@ function getOrCreateTextInput(div, id, field){
 				webComponent._addErrorClass(id,"invalid");
 			}
 			else{
-				webComponent._removeErrorClass(id);						
-			}				        
+				webComponent._removeErrorClass(id);
+			}
 		});
 		div.append(input);
 	}
@@ -691,8 +703,8 @@ function getOrCreateDatePickerInput(div, id, field){
 				webComponent._addErrorClass(id,"required");
 			}
 			else{
-				webComponent._removeErrorClass(id);						
-			}				        
+				webComponent._removeErrorClass(id);
+			}
 		});
 		if(field.startdate){
 			input.datepicker({changeYear: true,  yearRange: field.startdate.slice(0,4) + ':' + field.finaldate.slice(0,4)});
@@ -714,7 +726,7 @@ function getOrCreateTextAreaInput(div, id, field){
 		input.attr("name", field.name)
 		input.attr("label", webComponent.unescapeHtml(field.label))
 		input.attr("placeholder", webComponent.unescapeHtml(field.placeholder))
-		input.attr("maxlength", field.maxlength) 
+		input.attr("maxlength", field.maxlength)
 		input.focusout(	function(){
 			if(field.required && $(this).val().length === 0 ){
 				webComponent._addErrorClass(id,"required");
@@ -723,8 +735,8 @@ function getOrCreateTextAreaInput(div, id, field){
 				webComponent._addErrorClass(id,"invalid");
 			}
 			else{
-				webComponent._removeErrorClass(id);						
-			}				        
+				webComponent._removeErrorClass(id);
+			}
 		});
 		div.append(input);
 	}
@@ -781,31 +793,27 @@ function getOrCreateRadioGroupInput(div, id, field){
 			lab.appendTo($(divRadio))
 			divRadio.appendTo(div);
 		}
-	});			
+	});
 };
 
-function getOrCreateCheckBoxGroupInput(div, id, field){
-	var divCheck = $("<div/>").addClass("checkbox row");
+function getOrCreateRadioGroupInput(div, id, field){
 	$.each( field.options , function( index, opt ) {
-		var contain = $('<div/>').addClass('col-md-12 clearfix');
-		var newId = id + "-" + index ;
-		var maxToCheck = field.nseleccionados || 100;
-		var hasClickedOrder = false;
-		if(field.importancia === "Si"){
-			hasClickedOrder = true;
-		}	
-		var lab = $("<label/>").html("<input id='"+ newId +"' parentId='"+div.attr("id")+"' type='checkbox' label = '"+ webComponent.unescapeHtml(field.label) + "' onclick=\'webComponent.saveChecks(this, \""+ newId  +"\" , "+ maxToCheck +" )' resp = '"+ webComponent.unescapeHtml(opt.text) + "' name='"+ field.name +"' clickedOrder= " + hasClickedOrder + " value='"+ opt.value +"'  >" + opt.text +
-			((opt.text=='Otro')? "<input type='text' maxlength='100' class='form-control' id='camOtro-"+ newId +"'>": ""));
-		lab.on("change", function(evt){
-			var seleccionados = lab.parent().parent().parent().find("input:checked");  
-			if(seleccionados.length > 0){
-				lab.parent().parent().parent().removeClass( 'has-error' );
-				$( '.help-block', lab.parent().parent().parent()  ).slideUp().html( '' );
-			}
-		});
-		lab.appendTo(contain)
-		contain.appendTo(divCheck)
-		divCheck.appendTo(div)
+		var divRadio = $("#" + id + index);
+		if(divRadio.length === 0){
+			divRadio = $('<div/>')
+			divRadio.attr("id", id + index)
+			divRadio.addClass("radio clearfix");
+			var lab = $("<label/>").html("<input  type='radio' parentId='"+div.attr("id")+"'  position='"+ field.posicion   +"' label = '"+ webComponent.unescapeHtml(field.label) + "' name='"+ field.name +"' value='"+ opt.value +"'  >" + opt.text );
+			lab.on("change", function(evt){
+				var seleccionados = lab.parent().parent().find("input:checked");
+				if(seleccionados.length > 0){
+					div.removeClass( 'has-error' );
+					$( '.help-block', div.attr("id")  ).slideUp().html( '' );
+				}
+			});
+			lab.appendTo($(divRadio))
+			divRadio.appendTo(div);
+		}
 	});
 };
 
@@ -845,23 +853,20 @@ function createNavBar(holder){
 		var captcha = $("#g-recaptcha-response").val();
 
 		if(webComponent._isValidForm() ){
-
 			var responses = $.map(webComponent._getAllValues(), function(n,i){
-				return JSON.parse('{"' + webComponent.unescapeHtml(n.label.replace(/\./g,' ')) + '" : "' + webComponent.unescapeHtml(n.response.replace(/\./g,' ')) + '"}');			
+				return JSON.parse('{"' + webComponent.unescapeHtml(n.label.replace(/[.,"]/g,' ')) + '" : "' + webComponent.unescapeHtml(n.response.replace(/[",]/g,' ')) + '"}');
 			});
 
 			var cap =  webComponent._modelValues['captcha'];
 			if (cap ==='f'){
 				captcha = true;
 			}
-			captcha = true
 			if (captcha){
-
 				var payload = {};
-			/*	payload.id_tramite  = webComponent._modelValues['id_tramite'];
+				payload.id_tramite  = webComponent._modelValues['id_tramite'];
 				payload.id_dependencia = webComponent._modelValues['id_dependencia'];
 				payload.nombre  =  webComponent.unescapeHtml(webComponent._modelValues['nombre'].replace(/\./g,' '));
-				payload.dependencia = webComponent.unescapeHtml(webComponent._modelValues['dependencia'].replace(/\./g,' ') );*/
+				payload.dependencia = webComponent.unescapeHtml(webComponent._modelValues['dependencia'].replace(/\./g,' ') );
 				payload.respuestas = responses;
 
 				$.ajax({
@@ -872,21 +877,22 @@ function createNavBar(holder){
 					contentType: 'application/json',
 					data: JSON.stringify(payload),
 					success: function(response){
-						alert("Encuesta Guardada.");
+						webComponent.showMessage("Encuesta Guardada.", "success" );
+
 					},
 					error: function(e){
-						alert("Error: " + JSON.stringify(e));
+						webComponent.showMessage("Error de comunicación con el servidor.", "danger" );
 					},
 					complete: function(){
 					}
 				});
 
 			}else {
-				alert ("El captcha es obligatorio");
+				webComponent.showMessage("El captcha es obligatorio.", "warning" );
 			}
 
 		}else {
-			alert ("Formulario Invalido");
+			webComponent.showMessage("Formulario Invalido.", "danger" );
 		}
 
 		e.preventDefault();
@@ -921,7 +927,7 @@ saveChecks: function(element, indexValidation, max){
 				return false;
 			}
 		}
-		if (respuesta.trim() == "Otro") {              
+		if (respuesta.trim() == "Otro") {
 			if ($("#camOtro-" + indexValidation).val().trim() == "") {
 				alert("Debe describir la opción, antes de seleccionar")
 				$(element).prop('checked', false);

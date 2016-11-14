@@ -2,42 +2,40 @@
 <html lang="es">
 <head>
 	<meta charset="utf-8">
-
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>gob.mx - DynTest</title>
-	<meta name="description" content>
-	<meta name="viewport" content="width=device-width">
+	<title> Dynforms Viewer</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="http://framework-gb.cdn.gob.mx/assets/favicon.ico" rel="shortcut icon" />
 	<link href="http://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400italic,400,600,700" rel="stylesheet" type="text/css" >
-	<link rel="shortcut icon" href="https://framework-gb.cdn.gob.mx/favicon.ico">
-	<link rel="stylesheet" href="css/style.css">
-	<link href="https://framework-gb.cdn.gob.mx/assets/styles/main.css" rel="stylesheet" type="text/css">
+	<link href="http://framework-gb.cdn.gob.mx/assets/styles/main.css" rel="stylesheet" type="text/css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-	<script src="http://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js"></script>
-	<script src="http://framework-gb.cdn.gob.mx/gobmx.js"></script>
 
 	<style>
-		.form-group.required .control-label:after{
-			content:"*";
-			color:red;
-		}
-		.tooltip-element {
-			background: #000 none repeat scroll 0 0;
-			border-radius: 8px;
-			color: #fff;
-			display: inline-block;
-			font-size: 12px;
-			height: 16px;
-			line-height: 16px;
-			margin: 0 5px;
-			text-align: center;
-			width: 16px;
-		}
-	</style>   
-</head>
-<body >
-	<main class="ficha">
-		<div class="container clearfix container-fluid" >
-
+		.add-on {display: inline-block; height: 38px; min-width: 36px; padding: 6px 5px; font-size: 20px; font-weight: normal; line-height: 20px;text-align: center;
+			text-shadow: 0 1px 0 #ffffff; background-color: #eeeeee; border: 1px solid #ccc; border-right: 0; border-radius: 4px 0 0 4px;  }
+			.form-group.required .control-label:after{
+				content:"*";
+				color:red;
+			}
+			.tooltip-element {
+				background: #000 none repeat scroll 0 0;
+				border-radius: 8px;
+				color: #fff;
+				display: inline-block;
+				font-size: 12px;
+				height: 16px;
+				line-height: 16px;
+				margin: 0 5px;
+				text-align: center;
+				width: 16px;
+			}
+		</style>
+	</head>
+	<body>
+		<main class="main" role="main">
+			<div class="container clearfix container-fluid" >
+<!-- 			<div class="container alert alert-danger">
+				<a href="#" class="close" data-dismiss="alert">asdas</a>
+			</div> -->
 
 			<div class="row tramite-content"  >
 				<div class="form-group col-md-7"> 
@@ -175,15 +173,18 @@
 					</div>
 				</div>
 			</div>
-
+<!-- 			<div class="alert alert-warning alert-dismissible">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<strong>¡Precaución!</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+			</div> -->
 
 			<div class="row tramite-content "  >
 				<div id="container"></div>
 				<div id="div-id_captcha" class="form-group col-md-12"></div>
 				<div id ="navBarr"></div>  
-					<!-- <div id="captcha" class=" g-recaptcha" data-sitekey="6LfulAwTAAAAALtjRGZxBinREdNMITvETTXByiyh"></div> -->
-				</div> 
+				<!-- <div id="captcha" class=" g-recaptcha" data-sitekey="6LfulAwTAAAAALtjRGZxBinREdNMITvETTXByiyh"></div> -->
 			</div>
+		</div>
 
 
 
@@ -192,6 +193,9 @@
 				</div> -->
 			</div>
 		</main>
+		<script src="http://framework-gb.cdn.gob.mx/gobmx.js"></script>
+		<script src="https://www.google.com/recaptcha/api.js?hl=es" async defer></script>
+
 <!-- 
 
 	<button type="button" onclick="alert(JSON.stringify(webComponent._formValues))">model to render</button>
@@ -200,23 +204,24 @@
 	<button type="button" onclick="alert(JSON.stringify(webComponent.errorFields))">errorFilds?</button>
 	<button type="button" onclick="alert(JSON.stringify(webComponent.invalidFields))">InvalidFields?</button>
 -->
+<script src="index.js"></script>
 <script >
 	var forma = {
 		searchType: '',
 		search: function(){
 			var date = new Date().toISOString().slice(0, 10);
 
-			//var form = [];
+			var form = [];
 
-/*			if(forma.searchType === "acta"){
+			if(forma.searchType === "acta"){
 				var estado = $("#estados");
 				var pago = $("#payment");
 				var formName = $("#nameSearch");
-                if(formName.val().length > 0){
-                   form = webComponent.main('http://10.20.58.9/vun/actas_nacimiento/findOne?filter={"where":{"nombre":"'+ formName.val() + '"}}');
-                }else {
-                   form = webComponent.main('http://10.20.58.9/vun/actas_nacimiento/findOne?filter={"where":{"id_estado":'+ estado.val() +',"id_tipo_pago":'+ pago.val() +'}}');		
-                }	
+				if(formName.val().length > 0){
+					form = webComponent.main('http://10.20.58.9/vun/actas_nacimiento/findOne?filter={"where":{"nombre":"'+ formName.val() + '"}}', 'container');
+				}else {
+					form = webComponent.main('http://10.20.58.9/vun/actas_nacimiento/findOne?filter={"where":{"id_estado":'+ estado.val() +',"id_tipo_pago":'+ pago.val() +'}}' , 'container');
+				}
 
 			}
 			else if(forma.searchType === "encuesta"){
@@ -224,23 +229,31 @@
 				var dependencia = $("#dependencia");
 				var formName = $("#nameSearch");
 				var formName = $("#nameSearch");
-                if(formName.val().length > 0){
-                    form = webComponent.main('http://10.20.58.9/vun/encuestas/findOne?filter={"where":{"nombre":"'+ formName.val() + '"}}');   
+				if(formName.val().length > 0){
+					form = webComponent.main('http://10.20.58.9/vun/encuestas/findOne?filter={"where":{"nombre":"'+ formName.val() + '"}}', 'container');
                     //form = webComponent.main('https://www.gob.mx/vun/encuestas/findOne?filter={"where":{"nombre":"'+ formName.val() + '"}}');   
 
                 }else{
-                	form = webComponent.main('http://10.20.58.9/vun/encuestas/findOne?filter[where][and][0][fecha_inicio][lte]='+date+'&filter[where][and][1][fecha_fin][gte]='+date+'&filter[where][and][2][id_dependencia]='+dependencia.val()+'&filter[where][and][2][id_tramite]='+tramite.val());
+                	form = webComponent.main('http://10.20.58.9/vun/encuestas/findOne?filter[where][and][0][fecha_inicio][lte]='+date+'&filter[where][and][1][fecha_fin][gte]='+date+'&filter[where][and][2][id_dependencia]='+dependencia.val()+'&filter[where][and][2][id_tramite]='+tramite.val() , 'container');
                 }	
 
-                http://10.20.58.9/vun/encuestas/findOne?filter[where][and][0][fecha_inicio][lte]=2016-10-21&filter[where][and][1][fecha_fin][gte]=2016-10-21&filter[where][and][2][id_dependencia]=%2021&filter[where][and][2][id_tramite]=2	
+/*                http://10.20.58.9/vun/encuestas/findOne?filter[where][and][0][fecha_inicio][lte]=2016-10-21&filter[where][and][1][fecha_fin][gte]=2016-10-21&filter[where][and][2][id_dependencia]=%2021&filter[where][and][2][id_tramite]=2	*/		
 			}
-*/
+
 			
 			//var form = webComponent.main('https://www.gob.mx/vun/encuestas/findOne?filter={%22where%22:{%22nombre%22:%22Atenci%C3%B3n%20a%20v%C3%ADctimas%22}}');
-			var form = webComponent.main('http://localhost:1337/options/1');
+			//var form = webComponent.main('http://localhost:1337/options/1');
 			if(form){
+
 				console.log(JSON.stringify(form));
 				webComponent._render('container');
+/*
+				$("#PuzzleCaptcha").PuzzleCAPTCHA({
+					rows:3,
+					targetInput:'.validationValue',
+					targetVal:'true',
+					targetButton:'.btnSubmit'
+				});*/
 			}else{
 				alert("error");
 			}				
@@ -263,16 +276,6 @@
 	}
 </script>
 <script src="https://www.google.com/recaptcha/api.js?render=explicit" async defer></script>
-<script src="index.js"></script>
 <script src="https://framework-gb.cdn.gob.mx/assets/scripts/jquery-ui-datepicker.js"></script>
-
-
-<!-- PuzzleCAPTCHA Style -->
-<link rel="stylesheet" href="css/puzzleCAPTCHA.css">
-
-<!-- PuzzleCAPTCHA Plugin -->
-<script src="js/puzzleCAPTCHA.js"></script>
-
-
 </body>
 </html>
