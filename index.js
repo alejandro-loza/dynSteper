@@ -201,7 +201,6 @@ var webComponent = {
 		webComponent.canvas = container;
 		var controller = this;
 		$.each( webComponent._formValues, function( fieldIndex, field ) {
-			alert("field: " + JSON.stringify(field));
 			switch(field.type) {
 				case "text":
 				createTextInput(field, fieldIndex);
@@ -310,9 +309,21 @@ var webComponent = {
 		function createSelectWs(field, fieldIndex){
 			var dropDownData = webComponent.selected[fieldIndex];
 			if(!dropDownData){
-				var options = getValuesFromWs(0 ,field);
+				var options = [];
+				var label = '';
+				var clazz = '';				
+				if(field.wsList){
+					options = getValuesFromWs(0 ,field);	
+					label = field.wsList[0].label;
+					clazz = field.wsList[0].class;
+				}
+				else if (field.options){
+					options = field.options;
+					label = field.label;
+					clazz = field.class;
+				}				
 				// var fieldDropdown = {}
-				webComponent.selected[fieldIndex] = {'dropdowns':[{"options": options, "selected":'' }], 'lastCount':1, 'fieldIndex':fieldIndex}
+				webComponent.selected[fieldIndex] = {'dropdowns':[{"options": options, "selected":'', "label":  label, 'class': clazz }], 'lastCount':1, 'fieldIndex':fieldIndex}
 				// webComponent.selected.push(fieldDropdown);
 				dropDownData = webComponent.selected[fieldIndex];
 			}
@@ -320,40 +331,51 @@ var webComponent = {
 			var lastCount = dropDownData.lastCount;			
 			if(lastCount > dropdowns.length ){	
 				for(var i=dropdowns.length -1; i <= lastCount; i++){
-					$("#div-" + field.name + "-" + i).remove();
+					$("#div-" + field.posicion + "-" + i).remove();
 				}
-				dropDownData.lastCount = dropdowns.length;
 			}
+			dropDownData.lastCount = dropdowns.length;
+
 
 			var divContainer = $("#div-select-container-" + fieldIndex );
 			if(divContainer.length === 0){
 				divContainer = $('<div/>')
-				divContainer.attr("id", "div-select-container-" + fieldIndex)					
+				divContainer.attr("id", "div-select-container-" + fieldIndex)			
 			}
 
 			$.each(dropdowns, function(i,selection){
-				var id = field.posicion + "-" + i;
-				field["id"] = id;
-				var div = getOrCreateDiv(id, field.class, "div-select-container-" + fieldIndex);
-				getOrCreateLabel(div,id, field, field.wsList[i].label);
+				var id = field.posicion + "-" + i ;
+				field["id"] = id ;
+				var div = getOrCreateDiv(id, field.class || selection.class , "div-select-container-" + fieldIndex);
+				if(field.wsList){
+					getOrCreateLabel(div,id, field, field.wsList[i].label);	
+				}
+				else{
+					getOrCreateLabel(div,id, field, selection.label);
+				}				
 				var select = getOrCreateSelect(div, id, field, i, dropDownData);
-				populateWSSelect(select, field, selection, i);
+				if(field.wsList){
+					populateWSSelect(select, field, selection, i);	
+				}
+				else if (field.options && field.type ==="select-ws") {
+					populateWSSelect(select, field, selection, i);	
+				}				
 				addHelperBlock(div);
 				divContainer.append(div);
 			});
 
 			var preId  = fieldIndex - 1
-            var postId = fieldIndex + 1 
+			var postId = fieldIndex + 1 
 
-            if($("#div-select-container-"+ preId).length > 0  ){
-                $("#div-select-container-"+ preId).after(divContainer);
-            }
-            else if($("#div-select-container-"+ postId).length > 0 ) {
-                $("#div-select-container-"+ preId).before(divContainer);
-            }
-            else {
-               $("#" + webComponent.canvas).append(divContainer);
-            }
+			if($("#div-select-container-"+ preId).length > 0  ){
+				$("#div-select-container-"+ preId).after(divContainer);
+			}
+			else if($("#div-select-container-"+ postId).length > 0 ) {
+				$("#div-select-container-"+ preId).before(divContainer);
+			}
+			else {
+				$("#" + webComponent.canvas).append(divContainer);
+			}
 			
 		};
 
@@ -511,19 +533,39 @@ var webComponent = {
 				    if(selectedOptionModel){		           
 				    	if (selectedOptionModel.options){
 				    		controller.lastCount = controller.lastCount + 1;
-				    		selected.push({"options":selectedOptionModel.options,"selected":''} );
+				    		dropDownData.dropdowns.push({"options":selectedOptionModel.options,"selected":'', 'label':selectedOptionModel.label} );
 				    	}
 				    	else if(field.wsList){
-				    		var options = getValuesFromWs(idx + 1 , field, dropDownData);                            
+				    		var options = getValuesFromWs(idx + 1 , field, dropDownData); 
+				    		var label = field.wsList[idx + 1].label;
+					        var clazz = field.wsList[idx + 1].class;                           
 				    		var fieldDropdown = {};
-				    		fieldDropdown = {"options": options, "selected":'' };
+				    		fieldDropdown = {"options": options, "selected":'', 'label': label, 'class': clazz };
 				    		dropDownData.dropdowns.push(fieldDropdown);
 				    	}
 				    	createSelectWs(field, dropDownData.fieldIndex);
-				    }});
-				div.append(select);
+
+
+
+				    	/*
+				    		if(field.wsList){
+					options = getValuesFromWs(0 ,field);	
+					label = field.wsList[0].label;
+					clazz = field.wsList[0].class;
 				}
-			return select;
+				else if (field.options){
+					options = field.options;
+					label = field.label;
+					clazz = field.class;
+				}				
+				// var fieldDropdown = {}
+				webComponent.selected[fieldIndex] = {'dropdowns':[{"options": options, "selected":'', "label":  label, 'class': clazz }], 'lastCount':1, 'fieldIndex':fieldIndex}
+
+				    	*/
+				    }});
+div.append(select);
+}
+return select;
 };
 
 function populateSelect(select, field){
@@ -538,25 +580,38 @@ function populateSelect(select, field){
 			select.append($("<option />").val(options[opt].value).attr("data-name", name).attr("data-label", webComponent.unescapeHtml(label)).text(webComponent.unescapeHtml(options[opt].text)));
 		}
 	}
-
 };
 
 function populateWSSelect(select, field, selection, idx){
-	var label = webComponent.unescapeHtml(field.wsList[idx].label);
-	var name = webComponent.unescapeHtml(field.wsList[idx].name);
+	var label = '';
+	var name = '';
+	if(field.wsList){
+		label = webComponent.unescapeHtml(field.wsList[idx].label);
+		name = webComponent.unescapeHtml(field.wsList[idx].name);
+	}else{
+		label = selection.label;
+		name = selection.name;
+	}
 	var placeholder = field.placeholder || '';
 	select.html("");
 	var options =  selection["options"];
 	var currentSelectedIndex = selection["selected"];
 	select.append($("<option />").val('').attr("data-name", name).attr("data-label", label).text(placeholder).prop('selected', true).attr("disabled", "disabled"));
 	$.each( options , function( i, opt ) {
-		var rd = field.wsList[idx].responseDisplay;
-		var	text = opt[rd];
-		var	value = opt[field.wsList[idx].responseValue];
+		var	text = '';
+		var	value = '';
+		if(field.wsList){ 
+			var rd = field.wsList[idx].responseDisplay;
+			text = opt[rd];
+			value = opt[field.wsList[idx].responseValue];
+		}
+		else{
+			text = opt.text;
+			value = opt.value;
+		}
 		if(i === currentSelectedIndex){	        		
 			select.append($("<option />").val(value).attr("data-name", name).attr("data-label", label).text(text).prop('selected', true));
 		} 
-
 		else{
 			select.append($("<option />").val(value).attr("data-name", name).attr("data-label", label).text(text));
 		}
@@ -573,9 +628,13 @@ function setModelNameFromFieldName( fieldName, dropDownData, field, index ){
 			dropDownData.dropdowns[index].selected = selectOptions.indexOf(optionModel[0]);
 
 		}else{
-			var optionModel =  $.grep(selectOptions, function(e){ return e.value === fieldName; });          
+			optionModel =  $.grep(selectOptions, function(e){ 
+				var val = String('' + e.value);
+				return val.toString() === String(fieldName); 
+			}); 
+			dropDownData.dropdowns[index].selected = selectOptions.indexOf(optionModel[0]);
 		}
-		dropDownData.selected = selectOptions.indexOf(optionModel[0]);
+		// dropDownData.selected = selectOptions.indexOf(optionModel[0]);
 		return optionModel[0];
 	}
 };
@@ -786,6 +845,7 @@ function createNavBar(holder){
 		var captcha = $("#g-recaptcha-response").val();
 
 		if(webComponent._isValidForm() ){
+
 			var responses = $.map(webComponent._getAllValues(), function(n,i){
 				return JSON.parse('{"' + webComponent.unescapeHtml(n.label.replace(/\./g,' ')) + '" : "' + webComponent.unescapeHtml(n.response.replace(/\./g,' ')) + '"}');			
 			});
@@ -794,13 +854,14 @@ function createNavBar(holder){
 			if (cap ==='f'){
 				captcha = true;
 			}
+			captcha = true
 			if (captcha){
 
 				var payload = {};
-				payload.id_tramite  = webComponent._modelValues['id_tramite'];
+			/*	payload.id_tramite  = webComponent._modelValues['id_tramite'];
 				payload.id_dependencia = webComponent._modelValues['id_dependencia'];
 				payload.nombre  =  webComponent.unescapeHtml(webComponent._modelValues['nombre'].replace(/\./g,' '));
-				payload.dependencia = webComponent.unescapeHtml(webComponent._modelValues['dependencia'].replace(/\./g,' ') );
+				payload.dependencia = webComponent.unescapeHtml(webComponent._modelValues['dependencia'].replace(/\./g,' ') );*/
 				payload.respuestas = responses;
 
 				$.ajax({
