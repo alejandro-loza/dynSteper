@@ -22,7 +22,7 @@ var webComponent = {
 		});
 
 		$('#' + webComponent.canvas ).find(' input[type="radio"]:checked ').each(function() {
-			//if($(this).val().length > 0){
+						//if($(this).val().length > 0){
 				inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val(), position : parseFloat($(this).attr("position")) });
 			//}
 		});
@@ -466,6 +466,7 @@ function getOrCreateDatePickerInput(div, id, field){
 		input.attr("id", id )
 		input.addClass('form-control ')
 		input.attr("type", "text")
+		input.attr("position", field.posicion)
 		input.attr("name", field.name)
 		input.attr("label", field.label)
 		input.focusout(	function(){
@@ -521,11 +522,9 @@ function getOrCreateCheckBoxGroupInput(div, id, field){
 		var newId = id+"-"+index;
 		var maxToCheck = field.nseleccionados || 100;
 		var hasClickedOrder = false;
-
 		if(field.importancia === "Si") {
 			hasClickedOrder = true;
 		}
-
 		var lab = $("<label/>").html(
 			"<input id='"+ newId +"' "+
 			"parentId='"+div.attr("id")+"' "+
