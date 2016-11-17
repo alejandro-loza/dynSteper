@@ -707,7 +707,7 @@ saveChecks: function(element, indexValidation, max){
 		var respuesta = $(element).attr("resp")
 		if (max != -1) {
 			if (seleccionados.length > max) {
-				alert("No puedes seleccionar más de " + max + " opciones");
+	            warningMessage("No puedes seleccionar más de " + max + " opciones");
 				$(element).prop('checked', false);
 				return false;
 			}
@@ -715,7 +715,7 @@ saveChecks: function(element, indexValidation, max){
 
 		if (respuesta.trim() == "Otro") {
 			if ($("#camOtro-" + indexValidation).val().trim() == "") {
-				alert("Debe describir la opción, antes de seleccionar")
+				warningMessage("Debe describir la opción, antes de seleccionar");
 				$(element).prop('checked', false);
 				return false;
 			}
@@ -730,6 +730,13 @@ saveChecks: function(element, indexValidation, max){
 			}
 		}
 	}
+
+	function warningMessage(message){
+		webComponent._addErrorClassSimple ($(element).parent().parent().parent().parent(), message)
+		setTimeout(function() { 	
+			webComponent._removeErrorClassSimple($(element).parent().parent().parent().parent());
+		}, 3000);
+	};
 
 },
 
@@ -761,8 +768,11 @@ _addErrorClassSimple : function (div, failMessage){
 
 _removeErrorClass : function (fieldId){	
 	var htmlInputField = $( '#'+fieldId );	
-	htmlInputField.parent().removeClass( 'has-error' );
-	$( '.help-block', htmlInputField.parent()  ).slideUp().html( '' );
+	webComponent._removeErrorClassSimple(htmlInputField.parent());
+},
+_removeErrorClassSimple : function (div){	
+	div.removeClass( 'has-error' );
+	$( '.help-block', div  ).slideUp().html( '' );
 },
 
 unescapeHtml: function(escapedStr) {
