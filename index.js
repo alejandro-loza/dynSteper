@@ -3,7 +3,7 @@ var webComponent = {
 	_modelValues: [],
 	searchType: '' ,
 	setSearchType: function( value ){ this.searchType = value; },
-	errorFields: [],
+	_errorFields: [],
 	invalidFields : [],
 	canvas:'',
 	lastCount: 1,
@@ -99,23 +99,23 @@ var webComponent = {
 		return isFullRequired() && isFullRegexValid();
 
 		function isFullRequired(){
-			webComponent.errorFields = [];
+			webComponent._errorFields = [];
 			$('#' + webComponent.canvas ).find('.required select').each(function(i, requiredField){
-				if($(requiredField).val() == ''){
-					webComponent.errorFields.push(requiredField);
+				if($(requiredField).val() === '' || $(requiredField).val() === null){
+					webComponent._errorFields.push($(requiredField).attr('id'));
 					webComponent._addErrorClassSimple($("#div-" + $(requiredField).attr('id') ), "Campo Requerido");
 				}
 			});
 			$('#' + webComponent.canvas ).find( '.required   input[type="text"],  input[type="email"] ').not(':button,:hidden').each(function(i, requiredField){
 				if($(requiredField).val() == ''){
-					webComponent.errorFields.push($(requiredField));
+					webComponent._errorFields.push($(requiredField));
 					webComponent._addErrorClassSimple($("#div-" + $(requiredField).attr('id') ), "Campo Requerido");	
 				}
 			});
 
 			$('#' + webComponent.canvas ).find( '.required  textarea ').not(':button,:hidden').each(function(i, requiredField){
 				if($(requiredField).val() == ''){
-					webComponent.errorFields.push($(requiredField));
+					webComponent._errorFields.push($(requiredField));
 					webComponent._addErrorClassSimple($("#div-" + $(requiredField).attr('id') ), "Campo Requerido");	
 				}
 			});
@@ -123,7 +123,7 @@ var webComponent = {
 			$('#' + webComponent.canvas ).find( '.required   input[type="checkbox"]').each(function(i, requiredField){
 				var seleccionados = $(requiredField).parent().parent().parent().parent().find("input:checked");
 				if (seleccionados.length === 0 ) {
-					webComponent.errorFields.push($(requiredField));
+					webComponent._errorFields.push($(requiredField));
 					webComponent._addErrorClassSimple($("#" + $(requiredField).parent().parent().parent().parent().attr('id') ), "Campo Requerido");
 				}
 			});
@@ -131,13 +131,13 @@ var webComponent = {
 			$('#' + webComponent.canvas ).find('.required   input[type="radio"]').each(function(i, requiredField){
 				var seleccionados = $(requiredField).parent().parent().parent().parent().find("input:checked");
 				if (seleccionados.length === 0 ) {
-					webComponent.errorFields.push($(requiredField));
+					webComponent._errorFields.push($(requiredField));
 					webComponent._addErrorClassSimple($("#" + $(requiredField).parent().parent().parent().attr('id') ), "Campo Requerido");
 				}
 			});
 
-			if(webComponent.errorFields.length !== 0){
-				$.each(webComponent.errorFields, function(index,field){
+			if(webComponent._errorFields.length !== 0){
+				$.each(webComponent._errorFields, function(index,field){
 					if($(field).attr("parentId")){
 						var divId = $(field).attr("parentId");
 						webComponent._addErrorClassSimple($("#"+divId), "Campo Requerido");
@@ -163,7 +163,7 @@ var webComponent = {
 				}
 			});
 			if(webComponent.invalidFields.length !== 0){
-				$.each(webComponent.errorFields, function(index,field){
+				$.each(webComponent._errorFields, function(index,field){
 					webComponent._addErrorClass(field.id);
 				})
 				return false;
@@ -380,7 +380,6 @@ function getOrCreateHeader(div, field){
 };
 
 function getOrCreateSelect (div , id, field, idx){
-	id = "select-" + id + "_" + idx;
 	var select = $("#" + id ); 
 	if(select.length === 0){
 		select = $("<select class='form-control' id='" + id + "'></select>");
