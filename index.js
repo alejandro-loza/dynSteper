@@ -15,7 +15,7 @@ var webComponent = {
 		var inputValues = [];
 		var notChecked = [];		
 
-		$('#' + webComponent.canvas ).find(' input[type="text"], textarea, input[type="email"]').not(':button,:hidden').each(function() {
+		$('#' + webComponent.canvas ).find(' input[type="text"], textarea, input[type="email"], input[type="password"] ').not(':button,:hidden').each(function() {
 			if($(this).attr("id").substr(0, 7) != "camOtro"){				
 				inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val(), position : parseFloat($(this).attr("position")) });
 			}
@@ -106,7 +106,7 @@ var webComponent = {
 					webComponent._addErrorClassSimple($("#div-" + $(requiredField).attr('id') ), "Campo Requerido");
 				}
 			});
-			$('#' + webComponent.canvas ).find( '.required   input[type="text"],  input[type="email"] ').not(':button,:hidden').each(function(i, requiredField){
+			$('#' + webComponent.canvas ).find( '.required   input[type="text"],  input[type="email"],  input[type="password"] ').not(':button,:hidden').each(function(i, requiredField){
 				if($(requiredField).val() == ''){
 					webComponent._errorFields.push($(requiredField));
 					webComponent._addErrorClassSimple($("#div-" + $(requiredField).attr('id') ), "Campo Requerido");	
