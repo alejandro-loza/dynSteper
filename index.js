@@ -22,7 +22,7 @@ var webComponent = {
 		});
 
 		$('#' + webComponent.canvas ).find(' input[type="radio"]:checked ').each(function() {
-						//if($(this).val().length > 0){
+			//if($(this).val().length > 0){
 				inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val(), position : parseFloat($(this).attr("position")) });
 			//}
 		});
@@ -196,18 +196,16 @@ var webComponent = {
 				}     
 			} 
 		});
-
-
 		
 		return controller._formValues;
 	},
 
 	showMessage: function(message, kind , container){
 		var type = kind || "danger";		
-	    var div = container || 	"messageContainer";		
+		var div = container || 	"messageContainer";		
 		$("#"+ div).append('<div class="alert alert-'+type+' alert-dismissible">'+
 			'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+ message+
-		'</div>');
+			'</div>');
 		setTimeout(function() { 
 			$("#"+ div).fadeOut();			
 		}, 3000);
@@ -248,13 +246,15 @@ var webComponent = {
 				case "footer":
 				createFooter(field);
 				break;
-				default: 
+				default:  
 				//('Default case');
 			}
 		});
 
-		if(webComponent.searchType !== "acta"){
+		if(webComponent._modelValues.captcha){
 			createCaptcha($("#div-id_captcha"));
+		}
+		if(webComponent._modelValues.submitButton){
 			var div = $('#navBarr');
 			createNavBar(div);
 		}
@@ -622,14 +622,14 @@ function addToolTip(input, title, side){
 
 function createNavBar(holder){
 
-	//var navbar = getOrCreateDiv("id", 'form-group col-md-12')
+	var submitButtonData =  webComponent._modelValues.submitButton;
 	var navbar = $("#navBarr")
 	.addClass('form-group col-md-12')
 	.css({'margin-right':'12px'})
 	//.appendTo(holder);
 	var next = $('<button/>')
-	.addClass('btn btn-primary btn-lg')
-	.text('Enviar')
+	.addClass(submitButtonData.class)
+	.text(webComponent.unescapeHtml(submitButtonData.label))
 	.css({'margin-right':'12px'})
 	.appendTo(navbar)
 	.click(function(e) {
@@ -639,7 +639,6 @@ function createNavBar(holder){
 			var responses = $.map(webComponent._getAllValues(), function(n,i){
 				return JSON.parse('{"' + webComponent.unescapeHtml(n.label.replace(/[.,"]/g,' ')) + '" : "' + webComponent.unescapeHtml(n.response.replace(/[",]/g,' ')) + '"}');			
 			});
-
 			var cap =  webComponent._modelValues['captcha'];
 			if (cap ==='f'){
 				captcha = true;
@@ -652,9 +651,9 @@ function createNavBar(holder){
 				payload.nombre  =  webComponent.unescapeHtml(webComponent._modelValues['nombre'].replace(/\./g,' '));
 				payload.dependencia = webComponent.unescapeHtml(webComponent._modelValues['dependencia'].replace(/\./g,' ') );
 				payload.respuestas = responses;
+				alert(submitButtonData.urlbutton);
 				$.ajax({
-					//url: 'https://gob.mx/resultados',
-					url: 'http://10.20.58.9/vun/resultados',
+					url: submitButtonData.urlbutton,
 					type: 'POST',
 					dataType: 'json',
 					contentType: 'application/json',
@@ -706,7 +705,7 @@ saveChecks: function(element, indexValidation, max){
 		var respuesta = $(element).attr("resp")
 		if (max != -1) {
 			if (seleccionados.length > max) {
-	            warningMessage("No puedes seleccionar más de " + max + " opciones");
+				warningMessage("No puedes seleccionar más de " + max + " opciones");
 				$(element).prop('checked', false);
 				return false;
 			}
