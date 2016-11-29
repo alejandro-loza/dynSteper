@@ -246,6 +246,9 @@ var webComponent = {
 				case "footer":
 				createFooter(field);
 				break;
+				case "hr":
+				createHr(field.class);
+				break;
 				default:  
 				//('Default case');
 			}
@@ -263,6 +266,15 @@ var webComponent = {
 			var div = getOrCreateDiv("id" + index, field.class);			
 			getOrCreateHeader(div,field);
 		};
+
+		function createHr(clazz){
+            var hr = $("<hr>")
+            if(clazz){
+               hr.attr("class", clazz);               
+            }
+            $("#" + webComponent.canvas).append(hr);
+            return hr
+  		};
 		function createFooter(field){
 			var labelObject = $("#footer");
 			if(labelObject.length === 0){
@@ -651,7 +663,6 @@ function createNavBar(holder){
 				payload.nombre  =  webComponent.unescapeHtml(webComponent._modelValues['nombre'].replace(/\./g,' '));
 				payload.dependencia = webComponent.unescapeHtml(webComponent._modelValues['dependencia'].replace(/\./g,' ') );
 				payload.respuestas = responses;
-				alert(submitButtonData.urlbutton);
 				$.ajax({
 					url: submitButtonData.urlbutton,
 					type: 'POST',
