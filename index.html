@@ -223,9 +223,7 @@
 				// var dependencia = $("#dependencia");
 				// var formName = $("#nameSearch");
 				var formName = $("#idSearch");
-				alert( formName.val());
 				if(formName.val().length > 0){
-					alert('http://10.20.58.23:3001/vun/encuestas/getById?id='+ formName.val());
 					form = webComponent.main('http://10.20.58.23:3001/vun/encuestas/getById?id='+ formName.val() , 'container');   
                 }
             }
