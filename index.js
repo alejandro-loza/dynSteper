@@ -816,7 +816,7 @@ function addHelperBlock (div) {
 };
 
 function addGlyphicon (input) {
-	var helper = $('<span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>');
+	var helper = $('<span class="glyphicon glyphicon-calendar" aria-hidden="true" style="left: 630px;"></span>');
 	input.append(helper);
 };
 
