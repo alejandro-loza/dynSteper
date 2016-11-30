@@ -196,7 +196,7 @@ var webComponent = {
 				}
 			}
 		});
-		return controller._formValues;
+		return controller._modelValues;
 	},
 
 	showMessage: function(message, kind , container){

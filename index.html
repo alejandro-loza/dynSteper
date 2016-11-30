@@ -111,7 +111,7 @@
 
 			<div id="encuesta" class="row tramite-content" style=" display: none;">
 				<div class="form-group col-md-12"> 
-					<!-- <div class="col-md-3 form-group">
+					<div class="col-md-3 form-group">
 						<label for="tramite">Seleccionar Tramite</label>
 						<select  class="form-control" id="tramite" name="tramite">
 							<option value=""> </option>
@@ -146,11 +146,12 @@
 							<option value=" 21">Instituto Nacional de las Mujeres</option>
 							<option value=" 22">Instituto de Seguridad y Servicios Sociales de los Trabajadores del Estado</option>
 						</select>    
-					</div> -->
+					</div>
+
 					<div class="form-group col-md-3"> 
 						<div class="form-group">
-							<label for="idSearch">Busqueda Por Id</label>
-							<input id="idSearch" class="form-control" type="text" name="idSearch"  placeholder="busqueda">
+							<label for="nameTramiteSearch">Busqueda Por Nombre</label>
+							<input id="nameTramiteSearch" class="form-control" type="text" name="nameTramiteSearch"  placeholder="busqueda">	
 						</div>			
 					</div>
 
@@ -212,19 +213,31 @@
 				var pago = $("#payment");
 				var formName = $("#nameSearch");
 				if(formName.val().length > 0){
-					form = webComponent.main('http://10.20.58.9/vun/actas_nacimiento/findOne?filter={"where":{"nombre":"'+ formName.val() + '"}}', 'container');
+					form = webComponent.main('http://10.20.58.9/vun/actas_nacimiento/findOne?filter={"where":{"nombre":"'+ formName.val() + '"}}', 'container');				webComponent._render('container');
+
 				}else {
 					form = webComponent.main('http://10.20.58.9/vun/actas_nacimiento/findOne?filter={"where":{"id_estado":'+ estado.val() +',"id_tipo_pago":'+ pago.val() +'}}' , 'container');
+									webComponent._render('container');
+
 				}
 
 			}
 			else if(forma.searchType === "encuesta"){
-				// var tramite = $("#tramite");
-				// var dependencia = $("#dependencia");
-				// var formName = $("#nameSearch");
-				var formName = $("#idSearch");
-				if(formName.val().length > 0){
-					form = webComponent.main('http://10.20.58.23:3001/vun/encuestas/getById?id='+ formName.val() , 'container');
+				var tramite = $("#tramite");
+				var dependencia = $("#dependencia");
+				var formName = $("#nameTramiteSearch");
+                if(formName.val().length > 0){
+                    var enc = webComponent.main('http://10.20.58.23:3001/vun/encuestas/findOne?filter={"where":{"nombre":"'+ formName.val() + '"}}');   
+                    form = webComponent.main('http://10.20.58.23:3001/vun/encuestas/getById?id=' + enc.id);
+                    				webComponent._render('container');
+
+
+                    //form = webComponent.main('https://www.gob.mx/vun/encuestas/findOne?filter={"where":{"nombre":"'+ formName.val() + '"}}');   
+                }else{
+                	var enc =form = webComponent.main('http://10.20.58.23:3001/vun/encuestas/findOne?filter[where][and][0][fecha_inicio][lte]='+date+'&filter[where][and][1][fecha_fin][gte]='+date+'&filter[where][and][2][id_dependencia]='+dependencia.val()+'&filter[where][and][2][id_tramite]='+tramite.val());
+                	form = webComponent.main('http://10.20.58.23:3001/vun/encuestas/getById?id=' + enc.id);
+                					webComponent._render('container');
+
                 }
             }
 
@@ -232,11 +245,13 @@
 			//var form = webComponent.main('https://www.gob.mx/vun/encuestas/findOne?filter={%22where%22:{%22nombre%22:%22Atenci%C3%B3n%20a%20v%C3%ADctimas%22}}');
 			//var form = webComponent.main('http://localhost:1337/options/1');
 			//var form = webComponent.main('http://10.20.58.23:3001/vun/encuestas/getById?id=583cff50ecf11f39b600002a');
+			//sleep(100000);
+/*			alert();
 			if(form.length > 0){
 				webComponent._render('container');
 			}else{
-				alert("error");
-			}				
+				alert("este error");
+			}	*/			
 		},
 		setSearch: function(){
 			var searchType = $("#searchType");
