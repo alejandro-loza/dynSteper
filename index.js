@@ -88,7 +88,7 @@ var webComponent = {
 			return webComponent.checked;
 		};
 
-		
+
 		return inputValues.sort(function(a,b) {
 			return b.position < a.position;
 		});
@@ -425,8 +425,8 @@ var webComponent = {
 				divContainer.append(div);
 			});
 
-			var preId  = fieldIndex - 1
-			var postId = fieldIndex + 1
+			var preId  = fieldIndex - 1;
+			var postId = fieldIndex + 1;
 
 			if($("#div-select-container-"+ preId).length > 0  ){
 				$("#div-select-container-"+ preId).after(divContainer);
@@ -554,21 +554,67 @@ var webComponent = {
 			return labelObject;
 		};
 
-function getOrCreateSelect (div , id, field, idx){
-	var select = $("#" + id ); 
-	if(select.length === 0){
-		select = $("<select class='form-control' id='" + id + "'></select>");
-		select.focusout(	function(){
-			if(field.required && $(this).val() === '' ){
-				webComponent._addErrorClass(id,"required");
-			}
-			else{
-				webComponent._removeErrorClass(id);						
-			}
-		});			
-		div.append(select);
-	}
-	return select;
+		function getOrCreateSelect (div , id, field, idx, dropDownData){
+			id = "select-" + id + "_" + idx;
+			var select = $("#" + id );
+			if(select.length === 0){
+				select = $("<select class='form-control' id='" + id + "'></select>");
+				select.focusout(	function(){
+					if(field.required && $(this).val() === '' ){
+						webComponent._addErrorClass(id,"required");
+					}
+					else{
+						webComponent._removeErrorClass(id);
+					}
+				});
+
+				// Action to take if select is changed. State is made available through evt.data
+				select.on("change", { controller: controller, index: idx, dropDownData:dropDownData}, function(evt){
+				    // Restore the state
+				    var controller = evt.data.controller;
+				    var index = evt.data.index;
+				    var selected = dropDownData.dropdowns;
+				    // The selected field
+				    var selectedFieldName = $(this).val();
+				    // Update the selected
+				    dropDownData.dropdowns = dropDownData.dropdowns.slice(0, index + 1);
+				    var selectedOptionModel = setModelNameFromFieldName(selectedFieldName, dropDownData, field, index);
+				    if(selectedOptionModel){
+				    	if (selectedOptionModel.options){
+				    		controller.lastCount = controller.lastCount + 1;
+				    		dropDownData.dropdowns.push({"options":selectedOptionModel.options,"selected":'', 'label':selectedOptionModel.label} );
+				    	}
+				    	else if(field.wsList){
+				    		var options = getValuesFromWs(idx + 1 , field, dropDownData);
+				    		var label = field.wsList[idx + 1].label;
+					        var clazz = field.wsList[idx + 1].class;
+				    		var fieldDropdown = {};
+				    		fieldDropdown = {"options": options, "selected":'', 'label': label, 'class': clazz };
+				    		dropDownData.dropdowns.push(fieldDropdown);
+				    	}
+				    	createSelectWs(field, dropDownData.fieldIndex);
+
+
+
+				    	/*
+				    		if(field.wsList){
+					options = getValuesFromWs(0 ,field);
+					label = field.wsList[0].label;
+					clazz = field.wsList[0].class;
+				}
+				else if (field.options){
+					options = field.options;
+					label = field.label;
+					clazz = field.class;
+				}
+				// var fieldDropdown = {}
+				webComponent.selected[fieldIndex] = {'dropdowns':[{"options": options, "selected":'', "label":  label, 'class': clazz }], 'lastCount':1, 'fieldIndex':fieldIndex}
+
+				    	*/
+				    }});
+div.append(select);
+}
+return select;
 };
 function populateSelect(select, field){
 	var label = webComponent.unescapeHtml(field.label);
@@ -618,11 +664,25 @@ function populateWSSelect(select, field, selection, idx){
 			select.append($("<option />").val(value).attr("data-name", name).attr("data-label", label).text(text));
 		}
 	});
+};
 
-	var selectOptions = webComponent.selected[selectedIndex]["options"];
+function setModelNameFromFieldName( fieldName, dropDownData, field, index ){
+	var selectOptions = dropDownData.dropdowns[index].options;
 	if(fieldName){
-		var optionModel =  $.grep(selectOptions, function(e){ return e.value === fieldName; });          
-		webComponent.selected[selectedIndex]["selected"] = selectOptions.indexOf(optionModel[0]);
+		var optionModel = [];
+		if(field.wsList){
+			var display = field.wsList[index].responseValue;
+			optionModel =  $.grep(selectOptions, function(e){ return String(e[display]) === String(fieldName); });
+			dropDownData.dropdowns[index].selected = selectOptions.indexOf(optionModel[0]);
+
+		}else{
+			optionModel =  $.grep(selectOptions, function(e){
+				var val = String('' + e.value);
+				return val.toString() === String(fieldName);
+			});
+			dropDownData.dropdowns[index].selected = selectOptions.indexOf(optionModel[0]);
+		}
+		// dropDownData.selected = selectOptions.indexOf(optionModel[0]);
 		return optionModel[0];
 	}else{
 		webComponent.selected[selectedIndex]["selected"] = -1;
