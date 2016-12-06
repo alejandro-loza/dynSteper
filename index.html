@@ -205,7 +205,7 @@
 		searchType: '',
 		search: function(){
 			var date = new Date().toISOString().slice(0, 10);
-/*
+
 			var form = [];
 
 			if(forma.searchType === "acta"){
@@ -239,25 +239,18 @@
                 					webComponent._render('container');
 
                 }
-            }*/
+            }
 
 
 			//var form = webComponent.main('https://www.gob.mx/vun/encuestas/findOne?filter={%22where%22:{%22nombre%22:%22Atenci%C3%B3n%20a%20v%C3%ADctimas%22}}');
 			//var form = webComponent.main('http://localhost:1337/options/1');
 			//var form = webComponent.main('http://10.20.58.23:3001/vun/encuestas/getById?id=583cff50ecf11f39b600002a');
-			//sleep(100000);
-/*			alert();
-			if(form.length > 0){
-				webComponent._render('container');
-			}else{
-				alert("este error");
-			}	*/			
-		    var form = webComponent.main("http://10.20.58.23:3001/vun/encuestas/getById?id=5846dc03ecf11f209c000015");
-			if(form){
-				webComponent._render('container');
-			}else{
-				alert("este error neta");
-			}
+
+			// if(form){
+			// 	webComponent._render('container');
+			// }else{
+			// 	alert("");
+			// }
 		},
 		setSearch: function(){
 			var searchType = $("#searchType");
