@@ -293,7 +293,7 @@ var webComponent = {
 			validateFieldsClass(field);
 			var id = field.name + index;
 			field["id"] = id;
-			var div = getOrCreateDiv(id, field.class);
+			var div = getOrCreateDiv("div-field-container-" + index , field.class);
 			getOrCreateLabel(div,id, field);
 			var divInputContainer = getOrCreateDiv("input-container-" + id , "inputContainer");
 			getOrCreateTextInput(divInputContainer,id, field);
@@ -306,7 +306,7 @@ var webComponent = {
 			validateFieldsClass(field);
 			var id = field.name + index;
 			field["id"] = id;
-			var div = getOrCreateDiv(id, field.class);
+			var div = getOrCreateDiv("div-field-container-" + index , field.class);
 			getOrCreateLabel(div,id, field);
 			var divInputContainer = getOrCreateDiv("input-container-" + id , "inputContainer");
 			getOrCreateTextAreaInput(divInputContainer,id, field);
@@ -319,7 +319,7 @@ var webComponent = {
 			validateFieldsClass(field);
 			var id = field.name + index;
 			field["id"] = id;
-			var div = getOrCreateDiv(id, field.class + ' datepicker-group');
+			var div = getOrCreateDiv("div-field-container-" + index , field.class);
 			getOrCreateLabel(div,id, field);
 			getOrCreateDatePickerInput(div,id, field);
 			addGlyphicon(div);
@@ -331,7 +331,7 @@ var webComponent = {
 			validateFieldsClass(field);
 			var id = field.name + index;
 			field["id"] = id;
-			var div = getOrCreateDiv(id, field.class);
+			var div = getOrCreateDiv("div-field-container-" + index , field.class);
 			var divInputContainer = getOrCreateDiv("input-container-" + id , "inputContainer");
 			getOrCreateLabel(div,id, field);
 			getOrCreateRadioGroupInput(divInputContainer, id,  field);
@@ -344,7 +344,7 @@ var webComponent = {
 			validateFieldsClass(field);
 			var id = field.name + index;
 			field["id"] = id;
-			var div = getOrCreateDiv(id, field.class);
+			var div = getOrCreateDiv("div-field-container-" + index , field.class);
 			var divInputContainer = getOrCreateDiv("input-container-" + id , "inputContainer");
 			getOrCreateLabel(div,id, field);
 			getOrCreateCheckBoxGroupInput(divInputContainer, id,  field);
@@ -357,7 +357,7 @@ var webComponent = {
 			validateFieldsClass(field);
 			var id = field.name //+ "-" + f;
 			field["id"] = id;
-			var div = getOrCreateDiv(id, field.class);
+			var div = getOrCreateDiv("div-field-container-" + index , field.class);
 			getOrCreateLabel(div,id, field);
 			var divInputContainer = getOrCreateDiv("input-container-" + id , "inputContainer");
 			var select =getOrCreateSelect(divInputContainer, id, field);
@@ -398,16 +398,16 @@ var webComponent = {
 			dropDownData.lastCount = dropdowns.length;
 
 
-			var divContainer = $("#div-select-container-" + fieldIndex );
+			var divContainer = $("#div-field-container-" + fieldIndex );
 			if(divContainer.length === 0){
 				divContainer = $('<div/>')
-				divContainer.attr("id", "div-select-container-" + fieldIndex)
+				divContainer.attr("id", "div-field-container-" + fieldIndex)
 			}
 
 			$.each(dropdowns, function(i,selection){
 				var id = field.posicion + "-" + i ;
 				field["id"] = id ;
-				var div = getOrCreateDiv(id, field.class || selection.class , "div-select-container-" + fieldIndex);
+				var div = getOrCreateDiv(id, field.class || selection.class , "div-field-container-" + fieldIndex);
 				if(field.wsList){
 					getOrCreateLabel(div,id, field, field.wsList[i].label);
 				}
@@ -428,11 +428,11 @@ var webComponent = {
 			var preId  = fieldIndex - 1;
 			var postId = fieldIndex + 1;
 
-			if($("#div-select-container-"+ preId).length > 0  ){
-				$("#div-select-container-"+ preId).after(divContainer);
+			if($("#div-field-container-"+ preId).length > 0  ){
+				$("#div-field-container-"+ preId).after(divContainer);
 			}
-			else if($("#div-select-container-"+ postId).length > 0 ) {
-				$("#div-select-container-"+ preId).before(divContainer);
+			else if($("#div-field-container-"+ postId).length > 0 ) {
+				$("#div-field-container-"+ preId).before(divContainer);
 			}
 			else {
 				$("#" + webComponent.canvas).append(divContainer);
@@ -514,10 +514,10 @@ var webComponent = {
 
 		function getOrCreateDiv(id, clazz, container){
 			var divContainer = container || webComponent.canvas;
-			var div = $("#div-" + id );
+			var div = $("#" + id );
 			if(div.length === 0){
 				div = $('<div/>')
-				div.attr("id", "div-" + id)
+				div.attr("id", id)
 				div.addClass(clazz);
 			}
 			return div;
