@@ -238,6 +238,9 @@ var webComponent = {
 				case "select":
 				createSimpleSelect(field,fieldIndex);
 				break;
+				case "selectnested":
+				createSelectWs(field,fieldIndex);
+				break;
 				case "select-ws":
 				createSelectWs(field,fieldIndex);
 				break;
@@ -353,7 +356,7 @@ var webComponent = {
 			$("#" + webComponent.canvas).append(div);
 		};
 
-		function createSimpleSelect(field){
+		function createSimpleSelect(field, index){
 			validateFieldsClass(field);
 			var id = field.name //+ "-" + f;
 			field["id"] = id;
@@ -418,7 +421,7 @@ var webComponent = {
 				if(field.wsList){
 					populateWSSelect(select, field, selection, i);
 				}
-				else if (field.options && field.type ==="select-ws") {
+				else if (field.options && field.type ==="selectnested") {
 					populateWSSelect(select, field, selection, i);
 				}
 				addHelperBlock(div);
