@@ -972,40 +972,40 @@ function createCaptcha(){
 },
 
     saveChecks: function(element, indexValidation, max){
-    var seleccionados = $(element).parent().parent().parent().parent().find("input:checked");
-    if ($(element).is(":checked")) {
-        var respuesta = $(element).attr("resp")
-        if (max != -1) {
-            if (seleccionados.length > max) {
-                warningMessage("No puedes seleccionar más de " + max + " opciones");
-                $(element).prop('checked', false);
-                return false;
+        var seleccionados = $(element).parent().parent().parent().parent().find("input:checked");
+        if ($(element).is(":checked")) {
+            var respuesta = $(element).attr("resp")
+            if (max != -1) {
+                if (seleccionados.length > max) {
+                    warningMessage("No puedes seleccionar más de " + max + " opciones");
+                    $(element).prop('checked', false);
+                    return false;
+                }
+            }
+            if (respuesta.trim() == "Otro") {
+                if ($("#camOtro-" + indexValidation).val().trim() == "") {
+                    warningMessage("Debe describir la opción, antes de seleccionar");
+                    $(element).prop('checked', false);
+                    return false;
+                }
+                respuesta = $("#camOtro-" + indexValidation).val().trim()
+            }
+            webComponent.checked.push({id: $(element).attr("id"),  idField: $(element).parent().parent().parent().parent().attr("id"), name: $(element).attr("name")  ,  label: $(element).attr("label"), response: respuesta,  clickedOrder: $(element).attr("clickedOrder") });
+        }
+        else {
+            for (i in webComponent.checked){
+                if (webComponent.checked[i].idField === $(element).attr("id") ){
+                    webComponent.checked.splice(i, 1);
+                }
             }
         }
-        if (respuesta.trim() == "Otro") {
-            if ($("#camOtro-" + indexValidation).val().trim() == "") {
-                warningMessage("Debe describir la opción, antes de seleccionar");
-                $(element).prop('checked', false);
-                return false;
-            }
-            respuesta = $("#camOtro-" + indexValidation).val().trim()
-        }
-        webComponent.checked.push({id: $(element).attr("id"),  idField: $(element).parent().parent().parent().parent().attr("id"), name: $(element).attr("name")  ,  label: $(element).attr("label"), response: respuesta,  clickedOrder: $(element).attr("clickedOrder") });
-    }
-    else {
-        for (i in webComponent.checked){
-            if (webComponent.checked[i].idField === $(element).attr("id") ){
-                webComponent.checked.splice(i, 1);
-            }
-        }
-    }
 
-    function warningMessage(message){
-        webComponent._addErrorClassSimple ($(element).parent().parent().parent().parent(), message)
-        setTimeout(function() {
-            webComponent._removeErrorClassSimple($(element).parent().parent().parent().parent());
-        }, 3000);
-    };
+        function warningMessage(message){
+            webComponent._addErrorClassSimple ($(element).parent().parent().parent().parent(), message)
+            setTimeout(function() {
+                webComponent._removeErrorClassSimple($(element).parent().parent().parent().parent());
+            }, 3000);
+        };
 
     },
 
@@ -1039,6 +1039,7 @@ function createCaptcha(){
     var htmlInputField = $( '#'+fieldId );
     webComponent._removeErrorClassSimple(htmlInputField.parent());
     },
+
     _removeErrorClassSimple : function (div){
     div.removeClass( 'has-error' );
     $( '.help-block', div  ).slideUp().html( '' );
