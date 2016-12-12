@@ -191,7 +191,6 @@ var webComponent = {
 			},
 			error: function (e) {
 				if(e.status === 404){
-					alert(container);
 					webComponent.showMessage("Encuesta no encontrada:", "warning", container);
 					controller.error = e.status;
 				}
