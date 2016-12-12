@@ -205,7 +205,9 @@
 		searchType: '',
 		search: function(){
 			var date = new Date().toISOString().slice(0, 10);
-            var urlBasePath = "http://10.20.58.9/vun"; //http://10.20.58.23:3001/vun
+			var urlBasePath =  "http://10.20.58.23:3001/vun";
+            //var urlBasePath = "http://10.20.58.9/vun"; 
+            //var urlBasePath = "http://0.0.0.0:3000/vun";
 			var form = [];
 			if(forma.searchType === "acta"){
 				var estado = $("#estados");
@@ -228,14 +230,13 @@
                 if(formName.val().length > 0){
                     var enc = webComponent.main(urlBasePath + '/encuestas/findOne?filter={"where":{"nombre":"'+ formName.val() + '"}}', 'container');
                     if(enc.id){
-                    	form = webComponent.main(urlBasePath + '/encuestas/getById?id=' + enc.id, 'container');
+                    	form = webComponent.main(urlBasePath + '/encuestas/getById/' + enc.id_formulario, 'container');
                     	webComponent._render('container'); 	
                     }                
-                    //form = webComponent.main('https://www.gob.mx/vun/encuestas/findOne?filter={"where":{"nombre":"'+ formName.val() + '"}}');   
                 }else{
                 	var enc =form = webComponent.main(urlBasePath + '/encuestas/findOne?filter[where][and][0][id_dependencia]='+dependencia.val()+'&filter[where][and][1][id_tramite]='+tramite.val(), 'container');
                 	if(enc.id){
-                    	form = webComponent.main(urlBasePath + '/encuestas/getById?id=' + enc.id, 'container');
+                    	form = webComponent.main(urlBasePath + '/encuestas/getById/' + enc.id_formulario, 'container');
                     	webComponent._render('container'); 	
                     } 
                 }
