@@ -226,17 +226,18 @@
 				var dependencia = $("#dependencia");
 				var formName = $("#nameTramiteSearch");
                 if(formName.val().length > 0){
-                    var enc = webComponent.main(urlBasePath + '/encuestas/findOne?filter={"where":{"nombre":"'+ formName.val() + '"}}');   
-                    form = webComponent.main(urlBasePath + '/encuestas/getById?id=' + enc.id);
-                    				webComponent._render('container');
-
-
+                    var enc = webComponent.main(urlBasePath + '/encuestas/findOne?filter={"where":{"nombre":"'+ formName.val() + '"}}', 'container');
+                    if(enc.id){
+                    	form = webComponent.main(urlBasePath + '/encuestas/getById?id=' + enc.id, 'container');
+                    	webComponent._render('container'); 	
+                    }                
                     //form = webComponent.main('https://www.gob.mx/vun/encuestas/findOne?filter={"where":{"nombre":"'+ formName.val() + '"}}');   
                 }else{
-                	var enc =form = webComponent.main(urlBasePath + '/encuestas/findOne?filter[where][and][0][id_dependencia]='+dependencia.val()+'&filter[where][and][1][id_tramite]='+tramite.val());
-                	form = webComponent.main(urlBasePath + '/encuestas/getById?id=' + enc.id);
-                					webComponent._render('container');
-
+                	var enc =form = webComponent.main(urlBasePath + '/encuestas/findOne?filter[where][and][0][id_dependencia]='+dependencia.val()+'&filter[where][and][1][id_tramite]='+tramite.val(), 'container');
+                	if(enc.id){
+                    	form = webComponent.main(urlBasePath + '/encuestas/getById?id=' + enc.id, 'container');
+                    	webComponent._render('container'); 	
+                    } 
                 }
             }
 
