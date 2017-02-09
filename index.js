@@ -1,5 +1,5 @@
 var webComponent = {
-	_formValues : [],
+	_steps : [],
 	_modelValues: [],
 	searchType: '' ,
 	setSearchType: function( value ){ this.searchType = value; },
@@ -17,14 +17,24 @@ var webComponent = {
 
 		$('#' + webComponent.canvas ).find(' input[type="text"], textarea, input[type="email"], input[type="password"] ').not(':button,:hidden').each(function() {
 			if($(this).attr("id").substr(0, 7) != "camOtro"){				
-				inputValues.push({ idField: $(this).attr("id"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val(), position : parseFloat($(this).attr("position")) });
+                inputValues.push({
+                    idField: $(this).attr("id"),
+                    name: $(this).attr("name")  ,
+                    label: $(this).attr("label"),
+                    response: $(this).val(),
+                    position : parseFloat($(this).attr("position"))
+                });
 			}
 		});
 
 		$('#' + webComponent.canvas ).find(' input[type="radio"]:checked ').each(function() {
-			//if($(this).val().length > 0){
-				inputValues.push({ idField: $(this).attr("parentId"), name: $(this).attr("name")  ,  label: $(this).attr("label"), response: $(this).val(), position : parseFloat($(this).attr("position")) });
-			//}
+            inputValues.push({
+                idField: $(this).attr("parentId"),
+                name: $(this).attr("name")  ,
+                label: $(this).attr("label"),
+                response: $(this).val(),
+                position : parseFloat($(this).attr("position")) 
+            });
 		});
 
 		$('#' + webComponent.canvas ).find(' input[type="radio"]').not(':checked').each(function() {
@@ -39,7 +49,6 @@ var webComponent = {
 		});
 
 		$('#' + webComponent.canvas ).find(' input[type="checkbox"]').each(function() {
-			//if($(this).val().length > 0){
 				var response = ''
 				var order = ''
 				if ($(this).is(':checked')) {
@@ -186,7 +195,7 @@ var webComponent = {
 			dataType: 'json',
 			contentType: 'application/json',
 			success: function (data, status) {
-				controller._formValues = data.fields ;
+				controller._steps = data.steps ;
 				controller._modelValues = data;
 			},
 			error: function (e) {
@@ -219,47 +228,59 @@ var webComponent = {
 		$("#div-id_captcha").empty();
 		$('#navBarr').empty();
 		webComponent.canvas = container;
-		var controller = this;
+        var controller = this;
+        $.each(webComponent._steps, function(stepIndex, step){
+            var clazz = '';
+            if(stepIndex != 0 ){
+                clazz = 'hidden';
+            }
+            var section = getOrCreateSection(step.name, clazz );
 
-		$.each( webComponent._formValues, function( fieldIndex, field ) {
-			switch(field.type) {
-				case "text":
-				createTextInput(field, fieldIndex);
-				break;
-				case "textarea":
-				createTextAreaInput(field, fieldIndex);
-				break;
-				case "radio-group":
-				createRadioGroup(field,fieldIndex);
-				break;
-				case "checkbox-group":
-				createCheckBoxGroup(field,fieldIndex);
-				break;
-				case "select":
-				createSimpleSelect(field,fieldIndex);
-				break;
-				case "selectnested":
-				createSelectWs(field,fieldIndex);
-				break;
-				case "select-ws":
-				createSelectWs(field,fieldIndex);
-				break;
-				case "date":
-				createDatePicker(field,fieldIndex);
-				break;			
-				case "header":
-				createHeader(field,fieldIndex);
-				break;
-				case "footer":
-				createFooter(field);
-				break;
-				case "hr":
-				createHr(field.class);
-				break;
-				default:  
-				//('Default case');
-			}
-		});
+            createFields(step);
+        });
+
+
+        function createFields(fieldSet){
+            $.each( fieldSet, function( fieldIndex, field ) {
+                switch(field.type) {
+                    case "text":
+                    createTextInput(field, fieldIndex);
+                    break;
+                    case "textarea":
+                    createTextAreaInput(field, fieldIndex);
+                    break;
+                    case "radio-group":
+                    createRadioGroup(field,fieldIndex);
+                    break;
+                    case "checkbox-group":
+                    createCheckBoxGroup(field,fieldIndex);
+                    break;
+                    case "select":
+                    createSimpleSelect(field,fieldIndex);
+                    break;
+                    case "selectnested":
+                    createSelectWs(field,fieldIndex);
+                    break;
+                    case "select-ws":
+                    createSelectWs(field,fieldIndex);
+                    break;
+                    case "date":
+                    createDatePicker(field,fieldIndex);
+                    break;			
+                    case "header":
+                    createHeader(field,fieldIndex);
+                    break;
+                    case "footer":
+                    createFooter(field);
+                    break;
+                    case "hr":
+                    createHr(field.class);
+                    break;
+                    default:  
+                    //('Default case');
+                }
+            });
+        };
 
 		if(webComponent._modelValues.captcha){
 			createCaptcha($("#div-id_captcha"));
@@ -386,9 +407,7 @@ var webComponent = {
 					label = field.label;
 					clazz = field.class;
 				}
-				// var fieldDropdown = {}
 				webComponent.selected[fieldIndex] = {'dropdowns':[{"options": options, "selected":'', "label":  label, 'class': clazz }], 'lastCount':1, 'fieldIndex':fieldIndex}
-				// webComponent.selected.push(fieldDropdown);
 				dropDownData = webComponent.selected[fieldIndex];
 			}
 			var dropdowns = dropDownData.dropdowns;
@@ -524,6 +543,18 @@ var webComponent = {
 				div.addClass(clazz);
 			}
 			return div;
+        };
+
+		function getOrCreateSection(id, clazz, container){
+			var divContainer = container || webComponent.canvas;
+			var section = $("#" + id );
+			if(section.length === 0){
+				section = $('<section/>')
+				section.attr("id", id)
+				section.addClass(clazz);
+            }
+            $("#"+divContainer).append(section);
+			return section;
 		};
 
 		function getOrCreateLabel(div, id, field, label){

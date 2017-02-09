@@ -204,10 +204,10 @@
 		searchType: '',
 		search: function(){
 			var date = new Date().toISOString().slice(0, 10);
-			var urlBasePath =  "http://10.20.58.23:3001/vun";
+			//var urlBasePath =  "http://10.20.58.23:3001/vun";
             //var urlBasePath = "http://10.20.58.9/vun"; 
-            //var urlBasePath = "http://0.0.0.0:3000/vun";
-			var form = [];
+      var urlBasePath = "http://0.0.0.0:3000/vun";
+		/*	var form = [];
 			if(forma.searchType === "acta"){
 				var estado = $("#estados");
 				var pago = $("#payment");
@@ -240,17 +240,17 @@
                     } 
                 }
             }
-
+*/
 
 			//var form = webComponent.main('https://www.gob.mx/vun/encuestas/findOne?filter={%22where%22:{%22nombre%22:%22Atenci%C3%B3n%20a%20v%C3%ADctimas%22}}');
-			//var form = webComponent.main('http://localhost:1337/options/1');
+			var form = webComponent.main('http://localhost:1337/options/1');
 			//var form = webComponent.main('http://0.0.0.0:3000/vun/encuestas/getById?id=5849fa3aecf11f209c000028');
 
-			// if(form){
-			// 	webComponent._render('container');
-			// }else{
-			// 	alert("");
-			// }
+			 if(form){
+			 	webComponent._render('container');
+			 }else{
+			 	alert("");
+			 }
 		},
 		setSearch: function(){
 			var searchType = $("#searchType");
